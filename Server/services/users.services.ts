@@ -11,6 +11,10 @@ class UsersService {
     )
     return results
   }
+  async checkEmail(email: string) {
+    const user = await databaseService.users.findOne({ email })
+    return Boolean(user)
+  }
 }
 
 const usersService = new UsersService()

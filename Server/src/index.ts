@@ -6,6 +6,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/users', userRouters)
 databaseService.connect()
-app.listen(3000, () => {
+app.listen(8081, () => {
   console.log('Server is running on http://localhost:3000')
 })
