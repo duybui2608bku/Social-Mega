@@ -6,7 +6,6 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
   return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     await validation.run(req)
     const errors = validationResult(req)
-    console.log(errors)
     if (errors.isEmpty()) {
       return next()
     }
