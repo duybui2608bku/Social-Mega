@@ -1,7 +1,58 @@
 import { checkSchema } from 'express-validator'
+import { has } from 'lodash'
+import databaseService from 'services/database.services'
 import usersService from 'services/users.services'
 import { userMessages } from '~/constants/messages'
+import { hashPassword } from '~/utils/crypro'
 import { validate } from '~/utils/validation'
+
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      isEmail: {
+        errorMessage: userMessages.EMAIL_INVALID
+      },
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: value, password: hashPassword(req.body.password) })
+          if (user === null) {
+            throw new Error(userMessages.USER_NOT_FOUND)
+          }
+          req.user = user
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: userMessages.PASSWORD_REQUIRED
+      },
+      isString: {
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRING
+      },
+      trim: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      },
+      isStrongPassword: {
+        options: {
+          minLowercase: 1,
+          minNumbers: 1,
+          minLength: 1,
+          minUppercase: 1,
+          minSymbols: 1
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      }
+    }
+  })
+)
+
 export const registerValidator = validate(
   checkSchema({
     name: {

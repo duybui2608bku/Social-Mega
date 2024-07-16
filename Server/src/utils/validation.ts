@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { validationResult, ValidationChain } from 'express-validator'
 import { RunnableValidationChains } from 'express-validator/lib/middlewares/schema'
-import { ReturnDocument } from 'mongodb'
 import { HttpStatusCode } from '~/constants/enum'
 import { EntityError, ErrorWithStatusCode } from '~/models/Errors'
-
+import { config } from 'dotenv'
+config()
 export const validate = (validation: RunnableValidationChains<ValidationChain>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     await validation.run(req)

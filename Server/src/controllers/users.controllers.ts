@@ -4,8 +4,17 @@ import usersService from '../../services/users.services'
 import { RegisterRequestBody } from '~/models/requestes/User.requests'
 import { HttpStatusCode } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
-export const loginController = (req: Request, res: Response) => {
-  res.json({ message: req.body })
+import { ObjectId } from 'mongodb'
+
+export const loginController = async (req: Request, res: Response) => {
+  const { user } = req
+  const _id = user as unknown as ObjectId
+  const result = await usersService.login(_id.toString())
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.LOGIN_SUCCESS,
+    result
+  })
 }
 
 export const registerController = async (
