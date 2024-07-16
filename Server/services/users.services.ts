@@ -4,6 +4,7 @@ import User from '../src/models/schemas/User.schema'
 import { hashPassword } from '~/utils/crypro'
 import signToken from '~/utils/jwt'
 import { TokenType } from '~/constants/enum'
+
 class UsersService {
   private signAccessToken(user_id: string) {
     return signToken({

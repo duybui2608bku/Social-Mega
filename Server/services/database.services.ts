@@ -12,6 +12,7 @@ class DatabaseService {
     this.db = this.client.db(process.env.DB_NAME)
   }
   async connect() {
+    // eslint-disable-next-line no-useless-catch
     try {
       await this.db.command({ ping: 1 })
       console.log('Pinged your deployment. You successfully connected to MongoDB!')
