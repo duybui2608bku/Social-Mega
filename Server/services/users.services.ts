@@ -2,7 +2,7 @@ import { RegisterRequestBody } from '~/models/requestes/User.requests'
 import databaseService from '../services/database.services'
 import User from '../src/models/schemas/User.schema'
 import { hashPassword } from '~/utils/crypro'
-import signToken from '~/utils/jwt'
+import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToekn.chema'
 import { ObjectId } from 'mongodb'
@@ -45,11 +45,13 @@ class UsersService {
 
   async login(user_id: string) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
+    console.log(user_id)
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
     )
     return { access_token, refresh_token }
   }
+
   async checkEmail(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)

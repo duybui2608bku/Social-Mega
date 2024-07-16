@@ -8,8 +8,8 @@ import { ObjectId } from 'mongodb'
 
 export const loginController = async (req: Request, res: Response) => {
   const { user } = req
-  const _id = user as unknown as ObjectId
-  const result = await usersService.login(_id.toString())
+  const user_id = user?._id as unknown as ObjectId
+  const result = await usersService.login(user_id.toString())
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: userMessages.LOGIN_SUCCESS,

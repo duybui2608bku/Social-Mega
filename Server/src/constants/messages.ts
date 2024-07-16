@@ -18,5 +18,6 @@ export const userMessages = {
   EMAIL_REQUIRED: 'Email is required',
   EMAIL_INVALID: 'Email is invalid',
   DATE_OF_BIRTH_INVALID: 'Date of birth is ISO 8601 date format',
-  USER_NOT_FOUND: 'Email or password is incorrect'
+  USER_NOT_FOUND: 'Email or password is incorrect',
+  ACCESS_TOKEN_REQUIRED: 'Access token is required'
 } as const
