@@ -19,5 +19,9 @@ export const userMessages = {
   EMAIL_INVALID: 'Email is invalid',
   DATE_OF_BIRTH_INVALID: 'Date of birth is ISO 8601 date format',
   USER_NOT_FOUND: 'Email or password is incorrect',
-  ACCESS_TOKEN_REQUIRED: 'Access token is required'
+  ACCESS_TOKEN_REQUIRED: 'Access token is required',
+  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_INVALID: 'Refresh token is invalid',
+  USED_REFRESH_TOKEN_OR_NOT_EXISTS: 'Used refresh token or not exists',
+  LOGOUT_SUCCESS: 'User logged out successfully'
 } as const

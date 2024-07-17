@@ -1,5 +1,6 @@
 import { checkSchema } from 'express-validator'
-import { has } from 'lodash'
+import { JsonWebTokenError } from 'jsonwebtoken'
+import { capitalize } from 'lodash'
 import databaseService from 'services/database.services'
 import usersService from 'services/users.services'
 import { HttpStatusCode } from '~/constants/enum'
@@ -174,7 +175,7 @@ export const registerValidator = validate(
   )
 )
 
-export const logoutValidator = validate(
+export const accessTokenValidator = validate(
   checkSchema(
     {
       Authorization: {
@@ -193,13 +194,57 @@ export const logoutValidator = validate(
                 statusCode: HttpStatusCode.Unauthorized
               })
             }
-            const decodeAuthorization = await verifyToken({ token: access_token })
-            req.decodeAuthorization = decodeAuthorization
+            try {
+              const decode_authorization = await verifyToken({ token: access_token })
+              req.decode_authorization = decode_authorization
+            } catch (error) {
+              throw new ErrorWithStatusCode({
+                message: capitalize((error as JsonWebTokenError).message),
+                statusCode: HttpStatusCode.Unauthorized
+              })
+            }
             return true
           }
         }
       }
     },
     ['headers']
+  )
+)
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      refresh_token: {
+        notEmpty: { errorMessage: userMessages.REFRESH_TOKEN_REQUIRED },
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const [decoded_refresh_token, refresh_token] = await Promise.all([
+                verifyToken({ token: value }),
+                databaseService.refreshTokens.findOne({ token: value })
+              ])
+              if (refresh_token === null) {
+                throw new ErrorWithStatusCode({
+                  message: userMessages.USED_REFRESH_TOKEN_OR_NOT_EXISTS,
+                  statusCode: HttpStatusCode.Unauthorized
+                })
+              }
+              req.decoded_refresh_token = decoded_refresh_token
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatusCode({
+                  message: userMessages.REFRESH_TOKEN_INVALID,
+                  statusCode: HttpStatusCode.Unauthorized
+                })
+              }
+              throw error
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
   )
 )

@@ -7,6 +7,7 @@ import { TokenType } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToekn.chema'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
+import { userMessages } from '~/constants/messages'
 config()
 
 class UsersService {
@@ -50,6 +51,14 @@ class UsersService {
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
     )
     return { access_token, refresh_token }
+  }
+
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return {
+      success: true,
+      message: userMessages.LOGOUT_SUCCESS
+    }
   }
 
   async checkEmail(email: string) {
