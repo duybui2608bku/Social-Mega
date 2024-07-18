@@ -3,7 +3,7 @@ import databaseService from '../services/database.services'
 import User from '../src/models/schemas/User.schema'
 import { hashPassword } from '~/utils/crypro'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enum'
+import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import RefreshToken from '~/models/schemas/RefreshToekn.chema'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
@@ -14,6 +14,7 @@ class UsersService {
   private signAccessToken(user_id: string) {
     return signToken({
       payload: { user_id, token_type: TokenType.AccessToken },
+      priveKey: process.env.JWT_SECRET_ACCESSTOKEN as string,
       options: { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN, algorithm: 'HS256' }
     })
   }
@@ -21,7 +22,16 @@ class UsersService {
   private signRefreshToken(user_id: string) {
     return signToken({
       payload: { user_id, token_type: TokenType.AccessToken },
+      priveKey: process.env.JWT_SECRET_REFRESHTOKEN as string,
       options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN, algorithm: 'HS256' }
+    })
+  }
+
+  private signEmailVerifyToken(user_id: string) {
+    return signToken({
+      payload: { user_id, token_type: TokenType.EmailVerifyToken },
+      priveKey: process.env.JWT_SECRET_EMAIL_VERIFYTOKEN as string,
+      options: { expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN, algorithm: 'HS256' }
     })
   }
 
@@ -30,18 +40,22 @@ class UsersService {
   }
 
   async register(payload: RegisterRequestBody) {
-    const result = await databaseService.users.insertOne(
+    const user_id = new ObjectId()
+    const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
+    await databaseService.users.insertOne(
       new User({
         ...payload,
+        _id: user_id,
         date_of_birth: new Date(payload.date_of_birth),
+        email_verify_token,
         password: hashPassword(payload.password)
       })
     )
 
-    const user_id = result.insertedId.toHexString()
-    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id.toString())
     databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token }))
-    return { access_token, refresh_token }
+
+    return { access_token, refresh_token, email_verify_token }
   }
 
   async login(user_id: string) {
@@ -56,7 +70,6 @@ class UsersService {
   async logout(refresh_token: string) {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     return {
-      success: true,
       message: userMessages.LOGOUT_SUCCESS
     }
   }
@@ -64,6 +77,41 @@ class UsersService {
   async checkEmail(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
+  }
+
+  async verifyEmail(user_id: string) {
+    const [token, _] = await Promise.all([
+      this.signAccessAndRefreshToken(user_id),
+      databaseService.users.updateOne(
+        {
+          _id: new ObjectId(user_id)
+        },
+        {
+          $set: { email_verify_token: '', verify: UserVerifyStatus.Verified },
+          $currentDate: { updated_at: true }
+        }
+      )
+    ])
+    const [access_token, refresh_token] = token
+    return {
+      message: userMessages.EMAIL_VERIFIED
+    }
+  }
+
+  async resendEmailVerify(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: { email_verify_token },
+        $currentDate: { updated_at: true }
+      }
+    )
+    return {
+      message: userMessages.EMAIL_VERIFY_RESEND_SUCCESS
+    }
   }
 }
 
