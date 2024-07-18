@@ -26,3 +26,11 @@ export interface LoginRequestBody {
 export interface EmailVerifyRequestBody {
   email_verify_token: string
 }
+
+export interface ForgotPasswordRequestBody {
+  email: string
+}
+
+export interface VerifyForgotPasswordRequestBody {
+  forgot_password_token: string
+}

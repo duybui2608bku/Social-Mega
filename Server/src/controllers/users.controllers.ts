@@ -3,15 +3,19 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import usersService from '../../services/users.services'
 import {
   EmailVerifyRequestBody,
+  ForgotPasswordRequestBody,
   LoginRequestBody,
   LogoutRequestBody,
   RegisterRequestBody,
-  TokenPayload
+  TokenPayload,
+  VerifyForgotPasswordRequestBody
 } from '~/models/requestes/User.requests'
 import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
+import User from '~/models/schemas/User.schema'
+import { Verify } from 'crypto'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const { user } = req
@@ -96,5 +100,27 @@ export const resendEmailVerifyController = async (req: Request, res: Response) =
   return res.json({
     success: true,
     message: result.message
+  })
+}
+
+export const forgotPasswordController = async (
+  req: Request<ParamsDictionary, any, ForgotPasswordRequestBody>,
+  res: Response
+) => {
+  const { _id } = req.user as User
+  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const verifyForgotPasswordController = async (
+  req: Request<ParamsDictionary, any, VerifyForgotPasswordRequestBody>,
+  res: Response
+) => {
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.VERIFY_FORGOT_PASSWORD_SUCCESS
   })
 }
