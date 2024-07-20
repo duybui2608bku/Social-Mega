@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   emailVerifyController,
+  flowController,
   forgotPasswordController,
   getMeController,
   loginController,
@@ -21,7 +22,8 @@ import {
   verifyForgotPasswordValidator,
   resetPasswordValidator,
   verifiedUserValidator,
-  updateMevValidator
+  updateMevValidator,
+  fllowerUserValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -114,13 +116,28 @@ path: /me
 method: GET
 Header:{Authorization: Bearer <access_token>}
 */
-
 userRouters.patch(
   '/me',
   accessTokenValidator,
   verifiedUserValidator,
   updateMevValidator,
   wrapRequestHandler(updateMeController)
+)
+
+/*
+Description: Flow some one
+path: /flow
+method: POST
+Header:{Authorization: Bearer <access_token>}
+Body:{flow_user_id: string}
+*/
+
+userRouters.post(
+  '/flow',
+  accessTokenValidator,
+  verifiedUserValidator,
+  fllowerUserValidator,
+  wrapRequestHandler(flowController)
 )
 
 export default userRouters

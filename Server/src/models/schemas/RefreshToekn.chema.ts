@@ -7,7 +7,7 @@ interface RefreshTokenType {
   user_id: ObjectId
 }
 
-export default class RefreshToken {
+export class RefreshToken {
   _id?: ObjectId
   token: string
   created_at: Date

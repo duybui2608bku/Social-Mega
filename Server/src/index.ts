@@ -2,6 +2,7 @@ import express from 'express'
 import userRouters from '~/routes/users.routes'
 import databaseService from '../services/database.services'
 import { defaultErrorHandler } from './middlewares/errorsMiddlewares'
+import { omit } from 'lodash'
 
 databaseService.connect()
 const app = express()

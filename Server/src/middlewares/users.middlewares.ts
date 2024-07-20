@@ -614,3 +614,30 @@ export const updateMevValidator = validate(
     ['body']
   )
 )
+
+export const fllowerUserValidator = validate(
+  checkSchema({
+    fllow_user_id: {
+      custom: {
+        options: async (value: string, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new ErrorWithStatusCode({
+              message: userMessages.ID_FLLOW_USER_INVALID,
+              statusCode: HttpStatusCode.NotFound
+            })
+          }
+          const fllowerUser = await databaseService.users.findOne({
+            _id: new ObjectId(value)
+          })
+          if (fllowerUser === null) {
+            throw new ErrorWithStatusCode({
+              message: userMessages.USER_NOT_FOUND,
+              statusCode: HttpStatusCode.NotFound
+            })
+          }
+          return true
+        }
+      }
+    }
+  })
+)

@@ -59,3 +59,7 @@ export interface updateMeRequestBody {
   avatar?: string
   coverphoto?: string
 }
+
+export interface FlowRequestBody {
+  fllow_user_id: string
+}

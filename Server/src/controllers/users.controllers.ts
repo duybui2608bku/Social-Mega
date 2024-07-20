@@ -3,6 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import usersService from '../../services/users.services'
 import {
   EmailVerifyRequestBody,
+  FlowRequestBody,
   ForgotPasswordRequestBody,
   getProfileRequestBody,
   LoginRequestBody,
@@ -19,6 +20,7 @@ import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
 import User from '~/models/schemas/User.schema'
 import { Verify } from 'crypto'
+import { omit } from 'lodash'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const { user } = req
@@ -156,11 +158,21 @@ export const getMeController = async (req: Request<ParamsDictionary, any, getPro
 
 export const updateMeController = async (req: Request<ParamsDictionary, any, updateMeRequestBody>, res: Response) => {
   const { user_id } = req.decode_authorization as TokenPayload
-  const { body } = req
+  const body = omit(req.body, ['forgot_password_token', 'email_verify_token'])
   const user = await usersService.updateProfile(user_id, body)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: userMessages.UPDATE_PROFILE_SUCCESS,
     user
+  })
+}
+
+export const flowController = async (req: Request<ParamsDictionary, any, FlowRequestBody>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { fllow_user_id } = req.body
+  const result = await usersService.follow(user_id, fllow_user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
   })
 }

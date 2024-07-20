@@ -49,5 +49,10 @@ export const userMessages = {
   AVATAR_LENGTH: 'Avatar must be between 1 and 400 characters',
   COVER_MUST_BE_STRING: 'Cover must be a string',
   COVER_INVALID: 'Cover is invalid',
-  COVER_LENGTH: 'Cover must be between 1 and 400 characters'
+  COVER_LENGTH: 'Cover must be between 1 and 400 characters',
+  FLLOW_USER_SUCCESS: 'Follow user successfully',
+  ID_FLLOW_USER_INVALID: 'Id follow user is invalid',
+  ID_FLLOW_USER_REQUIRED: 'Id follow user is required',
+  USER_FLLOWER_NOT_FOUND: 'User follower not found',
+  USER_FLLOWERED: 'User followed'
 } as const
