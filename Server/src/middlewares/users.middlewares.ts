@@ -1,13 +1,15 @@
-import e from 'express'
+import { LOADIPHLPAPI } from 'dns'
+import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { capitalize } from 'lodash'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
 import usersService from 'services/users.services'
-import { HttpStatusCode } from '~/constants/enum'
+import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
 import { ErrorWithStatusCode } from '~/models/Errors'
+import { TokenPayload } from '~/models/requestes/User.requests'
 import { hashPassword } from '~/utils/crypro'
 import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
@@ -472,4 +474,143 @@ export const resetPasswordValidator = validate(
       }
     }
   })
+)
+
+export const verifiedUserValidator = async (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decode_authorization as TokenPayload
+  if (verify !== UserVerifyStatus.Verified) {
+    return next(
+      new ErrorWithStatusCode({
+        message: userMessages.USER_NOT_VERIFIED,
+        statusCode: HttpStatusCode.Forbidden
+      })
+    )
+  }
+  next()
+}
+
+export const updateMevValidator = validate(
+  checkSchema(
+    {
+      name: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.NAME_MUST_BE_STRING
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 255
+          },
+          errorMessage: userMessages.NAME_LENGTH
+        },
+        trim: true
+      },
+      username: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.USER_NAME_MUST_BE_STRING
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 255
+          },
+          errorMessage: userMessages.USER_NAME_LENGTH
+        },
+        trim: true
+      },
+
+      date_of_birth: {
+        optional: true,
+        isISO8601: {
+          options: {
+            strict: true,
+            strictSeparator: true
+          },
+          errorMessage: userMessages.DATE_OF_BIRTH_INVALID
+        }
+      },
+      bio: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.BIO_MUST_BE_STRING
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 160
+          },
+          errorMessage: userMessages.BIO_LENGTH
+        },
+        trim: true
+      },
+      website: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.WEBSITE_MUST_BE_STRING
+        },
+        isURL: {
+          errorMessage: userMessages.WEBSITE_INVALID
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 255
+          },
+          errorMessage: userMessages.WEBSITE_LENGTH_ERROR
+        },
+        trim: true
+      },
+      location: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.LOCATION_MUST_BE_STRING
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 255
+          },
+          errorMessage: userMessages.LOCATION_LENGTH
+        },
+        trim: true
+      },
+      avatar: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.AVATAR_MUST_BE_STRING
+        },
+        isURL: {
+          errorMessage: userMessages.AVATAR_INVALID
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 400
+          },
+          errorMessage: userMessages.AVATAR_LENGTH
+        },
+        trim: true
+      },
+      coverphoto: {
+        optional: true,
+        isString: {
+          errorMessage: userMessages.COVER_MUST_BE_STRING
+        },
+        isURL: {
+          errorMessage: userMessages.COVER_INVALID
+        },
+        isLength: {
+          options: {
+            min: 1,
+            max: 400
+          },
+          errorMessage: userMessages.COVER_LENGTH
+        },
+        trim: true
+      }
+    },
+    ['body']
+  )
 )

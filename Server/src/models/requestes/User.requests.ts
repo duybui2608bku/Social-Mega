@@ -40,3 +40,22 @@ export interface resetPasswordRequestBody {
   confirm_password: string
   forgot_password_token: string
 }
+
+export interface getProfileRequestBody {
+  user_id: string
+}
+
+export interface verifiedUserValidator {
+  decoded_authorization: TokenPayload
+}
+
+export interface updateMeRequestBody {
+  name?: string
+  date_of_birth?: string
+  bio?: string
+  website?: string
+  location?: string
+  username?: string
+  avatar?: string
+  coverphoto?: string
+}

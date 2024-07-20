@@ -4,11 +4,13 @@ import usersService from '../../services/users.services'
 import {
   EmailVerifyRequestBody,
   ForgotPasswordRequestBody,
+  getProfileRequestBody,
   LoginRequestBody,
   LogoutRequestBody,
   RegisterRequestBody,
   resetPasswordRequestBody,
   TokenPayload,
+  updateMeRequestBody,
   VerifyForgotPasswordRequestBody
 } from '~/models/requestes/User.requests'
 import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
@@ -21,7 +23,7 @@ import { Verify } from 'crypto'
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const { user } = req
   const user_id = user?._id as unknown as ObjectId
-  const result = await usersService.login(user_id.toString())
+  const result = await usersService.login({ user_id: user_id.toString(), verify: user?.verify as UserVerifyStatus })
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: userMessages.LOGIN_SUCCESS,
@@ -108,8 +110,11 @@ export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordRequestBody>,
   res: Response
 ) => {
-  const { _id } = req.user as User
-  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  const { _id, verify } = req.user as User
+  const result = await usersService.forgotPassword({
+    user_id: (_id as ObjectId).toString(),
+    verify
+  })
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: result.message
@@ -136,5 +141,26 @@ export const resetPasswordController = async (
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: result.message
+  })
+}
+
+export const getMeController = async (req: Request<ParamsDictionary, any, getProfileRequestBody>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const result = await usersService.getProfile(user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message,
+    user: result.user
+  })
+}
+
+export const updateMeController = async (req: Request<ParamsDictionary, any, updateMeRequestBody>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { body } = req
+  const user = await usersService.updateProfile(user_id, body)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.UPDATE_PROFILE_SUCCESS,
+    user
   })
 }
