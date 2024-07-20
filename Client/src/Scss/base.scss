@@ -1,0 +1,54 @@
+@use './breakPoint.scss' as *;
+@use './variable.scss' as *;
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet');
+
+html {
+  font-size: 100%;
+  line-height: 1.5;
+  @include mobile {
+    font-size: 60%;
+  }
+  @include tablet {
+    font-size: 80%;
+  }
+}
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+body {
+  max-width: 1800px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: clamp(18px, 3vw, 24px);
+  color: $color-text;
+}
+a {
+  text-decoration: none;
+  color: unset;
+  color: $color-text;
+}
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input,
+button {
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
+iframe {
+  border: 0;
+}

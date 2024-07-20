@@ -1,0 +1,74 @@
+@use '../../Scss/breakPoint.scss' as *;
+.nav-menu {
+  &__nav {
+    position: fixed;
+    width: fit-content;
+    display: flex;
+    gap: 50px;
+    flex-direction: column;
+    padding: 20px 70px 0 20px;
+    height: 100vh;
+    border-right: 2px solid #ddd;
+    color: black;
+    display: flex;
+    gap: 50px;
+    a {
+      position: relative;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        transition: width 0.5s ease;
+        height: 2px;
+        background-color: black;
+      }
+      &.active::after,
+      &:hover::after {
+        width: 100%;
+      }
+    }
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .active {
+      font-weight: 900;
+    }
+    &__title {
+      font-weight: 900;
+    }
+  }
+  &__nav-mobile {
+    display: none;
+  }
+}
+
+@include mobile {
+  .nav-menu {
+    &__nav {
+      align-items: center;
+      flex-direction: row;
+      width: 100vw;
+      justify-content: space-between;
+      position: fixed;
+      padding: 10px;
+      border-right: none;
+      height: fit-content;
+      bottom: 0px;
+      gap: 10px;
+      &__item {
+        p {
+          display: none;
+        }
+        font-size: 30px;
+      }
+      &__title {
+        display: none;
+      }
+    }
+  }
+}
