@@ -3,11 +3,16 @@ import MainLayout from './Layouts/MainLayout/MainLayout'
 import Login from 'src/Pages/Login/Login'
 import Register from 'src/Pages/Register/Register'
 import ForgotPassword from 'src/Pages/Forgot_Password/forgotPassword'
+import Home from 'src/Pages/Home/Home'
 const useRouterElements = () => {
   const routeElemnts = useRoutes([
     {
       path: '/',
-      element: <MainLayout></MainLayout>
+      element: (
+        <MainLayout>
+          <Home />
+        </MainLayout>
+      )
     },
     {
       path: '/login',

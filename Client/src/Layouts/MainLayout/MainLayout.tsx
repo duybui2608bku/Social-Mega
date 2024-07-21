@@ -8,11 +8,9 @@ interface Props {
 const MainLayout = ({ children }: Props) => {
   return (
     <>
-      <div>
-        <Header />
-        {children}
-        {/* <Footer /> */}
-      </div>
+      <Header />
+      {children}
+      {/* <Footer /> */}
     </>
   )
 }

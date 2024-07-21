@@ -1,7 +1,7 @@
 @use '../../Scss/breakPoint.scss' as *;
 .nav-menu {
   &__nav {
-    position: fixed;
+    position: fixed !important;
     width: fit-content;
     display: flex;
     gap: 50px;
@@ -50,6 +50,8 @@
 @include mobile {
   .nav-menu {
     &__nav {
+      z-index: 99;
+      background-color: white;
       align-items: center;
       flex-direction: row;
       width: 100vw;
@@ -68,6 +70,26 @@
       }
       &__title {
         display: none;
+      }
+      a:nth-of-type(3) {
+        display: none;
+      }
+      a:nth-of-type(5) {
+        display: none;
+      }
+    }
+    &__nav-mobile {
+      display: block;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 20px;
+      font-size: 30px;
+      padding: 0 10px;
+      &__item {
+        p {
+          display: none;
+        }
       }
     }
   }

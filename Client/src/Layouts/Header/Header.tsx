@@ -19,6 +19,11 @@ const Header = () => {
     { display: 'Tài Khoản', path: '/profile', icon: <RiImageCircleFill /> }
   ]
 
+  const navBarMobile = [
+    { display: 'Thông Báo', path: '/notification', icon: <CiHeart /> },
+    { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> }
+  ]
+
   return (
     <>
       <div className='nav-menu'>
@@ -37,7 +42,21 @@ const Header = () => {
             )
           })}
         </div>
-        <div className='nav-menu__feed'></div>
+        <div className='nav-menu__nav-mobile'>
+          {/* <div className='nav-menu__nav-mobile__title'>SOCIAL MEGA</div> */}
+          {navBarMobile.map((item, index) => {
+            return (
+              <Link
+                key={index}
+                to={item.path}
+                className={`nav-menu__nav-mobile__item ${location.pathname === item.path ? 'active' : ''}`}
+              >
+                {item.icon}
+                <p>{item.display}</p>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </>
   )
