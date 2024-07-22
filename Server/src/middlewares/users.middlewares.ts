@@ -8,6 +8,7 @@ import databaseService from 'services/database.services'
 import usersService from 'services/users.services'
 import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
+import { REGEX_USER_NAME } from '~/constants/regex'
 import { ErrorWithStatusCode } from '~/models/Errors'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { hashPassword } from '~/utils/crypro'
@@ -476,6 +477,117 @@ export const resetPasswordValidator = validate(
   })
 )
 
+export const changePasswordValidator = validate(
+  checkSchema({
+    old_password: {
+      notEmpty: {
+        errorMessage: userMessages.PASSWORD_REQUIRED
+      },
+      isString: {
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRING
+      },
+      trim: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      },
+      isStrongPassword: {
+        options: {
+          minLowercase: 1,
+          minNumbers: 1,
+          minLength: 1,
+          minUppercase: 1,
+          minSymbols: 1
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const { user_id } = req.decode_authorization as TokenPayload
+          const user = await databaseService.users.findOne({
+            _id: new ObjectId(user_id)
+          })
+          if (user === null) {
+            throw new Error(userMessages.USER_NOT_FOUND)
+          }
+          const { password } = user
+          if (password !== hashPassword(value)) {
+            throw new ErrorWithStatusCode({
+              message: userMessages.OLD_PASSWORD_NOT_MATCH,
+              statusCode: HttpStatusCode.Unauthorized
+            })
+          }
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: userMessages.PASSWORD_REQUIRED
+      },
+      isString: {
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRING
+      },
+      trim: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      },
+      isStrongPassword: {
+        options: {
+          minLowercase: 1,
+          minNumbers: 1,
+          minLength: 1,
+          minUppercase: 1,
+          minSymbols: 1
+        },
+        errorMessage: userMessages.PASSWORD_MUST_BE_STRONG
+      }
+    },
+    confirm_password: {
+      notEmpty: {
+        errorMessage: userMessages.CONFIRM_PASSWORD_REQUIRED
+      },
+      isString: {
+        errorMessage: userMessages.CONFIRM_PASSWORD_MUST_BE_STRING
+      },
+      trim: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: userMessages.CONFIRM_PASSWORD_MUST_BE_STRONG
+      },
+      isStrongPassword: {
+        options: {
+          minLowercase: 1,
+          minNumbers: 1,
+          minLength: 1,
+          minUppercase: 1,
+          minSymbols: 1
+        },
+        errorMessage: userMessages.CONFIRM_PASSWORD_MUST_BE_STRONG
+      },
+      custom: {
+        options: (value, { req }) => {
+          if (value !== req.body.password) {
+            throw new Error(userMessages.PASSWORDS_NOT_MATCH)
+          } else {
+            return value
+          }
+        }
+      }
+    }
+  })
+)
+
 export const verifiedUserValidator = async (req: Request, res: Response, next: NextFunction) => {
   const { verify } = req.decode_authorization as TokenPayload
   if (verify !== UserVerifyStatus.Verified) {
@@ -511,12 +623,18 @@ export const updateMevValidator = validate(
         isString: {
           errorMessage: userMessages.USER_NAME_MUST_BE_STRING
         },
-        isLength: {
-          options: {
-            min: 1,
-            max: 255
-          },
-          errorMessage: userMessages.USER_NAME_LENGTH
+        custom: {
+          options: async (value: string) => {
+            if (!REGEX_USER_NAME.test(value)) {
+              throw new Error(userMessages.USER_NAME_INVALID)
+            }
+            const user = await databaseService.users.findOne({
+              username: value
+            })
+            if (user && user.username !== value) {
+              throw new Error(userMessages.USER_NAME_EXISTS)
+            }
+          }
         },
         trim: true
       },
@@ -615,29 +733,62 @@ export const updateMevValidator = validate(
   )
 )
 
-export const fllowerUserValidator = validate(
-  checkSchema({
-    fllow_user_id: {
-      custom: {
-        options: async (value: string, { req }) => {
-          if (!ObjectId.isValid(value)) {
-            throw new ErrorWithStatusCode({
-              message: userMessages.ID_FLLOW_USER_INVALID,
-              statusCode: HttpStatusCode.NotFound
+export const followerUserValidator = validate(
+  checkSchema(
+    {
+      follow_user_id: {
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.ID_FLLOW_USER_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            const followerUser = await databaseService.users.findOne({
+              _id: new ObjectId(value)
             })
+            if (followerUser === null) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.USER_NOT_FOUND,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
           }
-          const fllowerUser = await databaseService.users.findOne({
-            _id: new ObjectId(value)
-          })
-          if (fllowerUser === null) {
-            throw new ErrorWithStatusCode({
-              message: userMessages.USER_NOT_FOUND,
-              statusCode: HttpStatusCode.NotFound
-            })
-          }
-          return true
         }
       }
-    }
-  })
+    },
+    ['body']
+  )
+)
+
+export const unfollowerUserValidator = validate(
+  checkSchema(
+    {
+      unfollow_user_id: {
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.ID_FLLOW_USER_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            const followerUser = await databaseService.users.findOne({
+              _id: new ObjectId(value)
+            })
+            if (followerUser === null) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.USER_NOT_FOUND,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
 )

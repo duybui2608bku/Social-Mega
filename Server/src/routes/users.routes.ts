@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import {
+  changePasswordController,
   emailVerifyController,
-  flowController,
+  followController,
   forgotPasswordController,
   getMeController,
   loginController,
@@ -9,6 +10,7 @@ import {
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
+  unfollowController,
   updateMeController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers'
@@ -23,7 +25,9 @@ import {
   resetPasswordValidator,
   verifiedUserValidator,
   updateMevValidator,
-  fllowerUserValidator
+  followerUserValidator,
+  unfollowerUserValidator,
+  changePasswordValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -102,6 +106,19 @@ Body:{forgot_password_token: string, password: string, confirm_password: string}
 userRouters.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
 
 /*
+Description: Change password
+path: /change-password
+method: POST
+Body:{old_password:string,password: string, confirm_password: string}
+*/
+userRouters.post(
+  '/change-password',
+  accessTokenValidator,
+  changePasswordValidator,
+  wrapRequestHandler(changePasswordController)
+)
+
+/*
 Description: Update user profile
 path: /me
 method: Patch
@@ -125,19 +142,35 @@ userRouters.patch(
 )
 
 /*
-Description: Flow some one
-path: /flow
+Description: Fllow some one
+path: /follow
 method: POST
 Header:{Authorization: Bearer <access_token>}
 Body:{flow_user_id: string}
 */
 
 userRouters.post(
-  '/flow',
+  '/follow',
   accessTokenValidator,
   verifiedUserValidator,
-  fllowerUserValidator,
-  wrapRequestHandler(flowController)
+  followerUserValidator,
+  wrapRequestHandler(followController)
+)
+
+/*
+Description: UnFllow some one
+path: /follow/unfllow_user_id
+method: DELETE
+Header:{Authorization: Bearer <access_token>}
+
+*/
+
+userRouters.delete(
+  '/follow/:unfollow_user_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  unfollowerUserValidator,
+  wrapRequestHandler(unfollowController)
 )
 
 export default userRouters

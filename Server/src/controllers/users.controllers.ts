@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersService from '../../services/users.services'
 import {
+  changePasswordRequestBody,
   EmailVerifyRequestBody,
-  FlowRequestBody,
+  FollowRequestBody,
   ForgotPasswordRequestBody,
   getProfileRequestBody,
   LoginRequestBody,
@@ -11,6 +12,7 @@ import {
   RegisterRequestBody,
   resetPasswordRequestBody,
   TokenPayload,
+  UnfollowerRequestBody,
   updateMeRequestBody,
   VerifyForgotPasswordRequestBody
 } from '~/models/requestes/User.requests'
@@ -19,7 +21,6 @@ import { userMessages } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
 import User from '~/models/schemas/User.schema'
-import { Verify } from 'crypto'
 import { omit } from 'lodash'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
@@ -146,6 +147,25 @@ export const resetPasswordController = async (
   })
 }
 
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, changePasswordRequestBody>,
+  res: Response
+) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { password, old_password } = req.body
+  const result = await usersService.changePassword(user_id, old_password)
+  if (password === old_password) {
+    return res.status(HttpStatusCode.BadRequest).json({
+      success: false,
+      message: userMessages.NEW_PASSWORD_MUST_BE_DIFFERENT
+    })
+  }
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
 export const getMeController = async (req: Request<ParamsDictionary, any, getProfileRequestBody>, res: Response) => {
   const { user_id } = req.decode_authorization as TokenPayload
   const result = await usersService.getProfile(user_id)
@@ -167,10 +187,20 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, upd
   })
 }
 
-export const flowController = async (req: Request<ParamsDictionary, any, FlowRequestBody>, res: Response) => {
+export const followController = async (req: Request<ParamsDictionary, any, FollowRequestBody>, res: Response) => {
   const { user_id } = req.decode_authorization as TokenPayload
-  const { fllow_user_id } = req.body
-  const result = await usersService.follow(user_id, fllow_user_id)
+  const { follow_user_id } = req.body
+  const result = await usersService.follow(user_id, follow_user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const unfollowController = async (req: Request<ParamsDictionary, any, UnfollowerRequestBody>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { unfollow_user_id } = req.params
+  const result = await usersService.unfollow(user_id, unfollow_user_id)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: result.message
