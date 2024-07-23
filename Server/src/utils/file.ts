@@ -1,15 +1,14 @@
 import formidable from 'formidable'
-import path from 'path'
 import fs from 'fs'
 import { Request } from 'express'
 import { File } from 'formidable'
 import { UPLOAD_TERM_DIR } from '~/constants/dir'
-export const handleUploadSingleImage = async (req: Request) => {
+export const handleUploadImage = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_TERM_DIR,
-    maxFiles: 1,
+    maxFiles: 10,
     keepExtensions: true,
-    maxFileSize: 3000 * 1024,
+    maxFileSize: 3000 * 1024 * 4,
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
       if (!valid) {
@@ -19,7 +18,7 @@ export const handleUploadSingleImage = async (req: Request) => {
     }
   })
 
-  return new Promise<File>((resolve, reject) => {
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
@@ -27,7 +26,7 @@ export const handleUploadSingleImage = async (req: Request) => {
       if (!files.image) {
         reject(new Error('Image is required'))
       }
-      resolve((files.image as File[])[0])
+      resolve(files.image as File[])
     })
   })
 }
