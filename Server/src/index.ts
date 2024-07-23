@@ -4,16 +4,22 @@ import databaseService from '../services/database.services'
 import { defaultErrorHandler } from './middlewares/errorsMiddlewares'
 import mediaRouters from './routes/medias.routes'
 import { initFolder } from './utils/file'
+import { config } from 'dotenv'
+// import { UPLOAD_DIR, UPLOAD_TERM_DIR } from './constants/dir'
+import staticRouter from './routes/static.routes'
+config()
 
 databaseService.connect()
 const app = express()
+const port = process.env.PORT || 8081
 initFolder()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/users', userRouters)
 app.use('/upload', mediaRouters)
 app.use(defaultErrorHandler)
-
-app.listen(8081, () => {
-  console.log(`Server is running on http://localhost:8081`)
+// app.use('/static', express.static(UPLOAD_DIR))
+app.use('/static', staticRouter)
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`)
 })

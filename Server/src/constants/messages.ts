@@ -61,5 +61,7 @@ export const userMessages = {
   USER_NAME_EXISTS: 'Username already exists',
   OLD_PASSWORD_NOT_MATCH: 'Old password does not match',
   CHANGE_PASSWORD_SUCCESS: 'Change password successfully',
-  NEW_PASSWORD_MUST_BE_DIFFERENT: 'New password must be different from old password'
+  NEW_PASSWORD_MUST_BE_DIFFERENT: 'New password must be different from old password',
+  UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
+  GET_IMAGE_SUCCESS: 'Get image successfully'
 } as const
