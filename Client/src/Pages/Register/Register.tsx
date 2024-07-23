@@ -6,7 +6,10 @@ import scren_4 from '../../assets/screenshot2.png'
 import { FcGoogle } from 'react-icons/fc'
 import './Register.scss'
 import { useState, useEffect } from 'react'
-
+import { formRegisterSchema } from 'src/Utils/FormSchema'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 const Register = () => {
   const images = [scren_1, scren_2, scren_3, scren_4]
   const [randomImage, setRandomImage] = useState(0)
@@ -21,6 +24,24 @@ const Register = () => {
     }
   }, [images.length])
 
+  type formRegisterValues = z.infer<typeof formRegisterSchema>
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors }
+  } = useForm<formRegisterValues>({
+    resolver: zodResolver(formRegisterSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      date_of_birth: '',
+      username: ''
+    }
+  })
+
   return (
     <div className='register'>
       <div className='register__left'>
@@ -30,9 +51,14 @@ const Register = () => {
       <div className='register__right'>
         <h3>SOCIAL MEGA</h3>
         <form className='register__right__form'>
-          <input type='text' placeholder='Email' />
-          <input type='password' placeholder='Mật Khẩu' />
-          <input type='password' placeholder='Xác Nhận Mật Khẩu' />
+          <input {...(register('email'), { required: true })} type='text' placeholder='Email' />
+          <input {...(register('password'), { required: true })} type='password' placeholder='Mật Khẩu' />
+          <input
+            {...(register('confirmPassword'), { required: true })}
+            type='password'
+            placeholder='Xác Nhận Mật Khẩu'
+          />
+          <input {...(register('username'), { required: true })} type='text' placeholder='Tên người dùng' />
           <button className='register__right__form__btn'>Đăng Kí</button>
         </form>
         <div style={{ textAlign: 'center', margin: '15px 0', fontSize: '17px' }}>HOẶC</div>
