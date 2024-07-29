@@ -49,8 +49,8 @@ class MediasService {
     // )
     return {
       url: !isProduction
-        ? `${process.env.HOST}/static/video/${newFilename}.mp4`
-        : `http://localhost:${process.env.PORT}/static/video/${newFilename}.mp4`,
+        ? `${process.env.HOST}/static/video/${newFilename}`
+        : `http://localhost:${process.env.PORT}/static/video/${newFilename}`,
       type: MediaType.Video
     }
   }

@@ -2,10 +2,49 @@ import { NextFunction, Request, Response } from 'express'
 import mediasService from '../../services/medias.services'
 import { HttpStatusCode } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
-import { config } from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TERM_DIR } from '~/constants/dir'
-config()
+
+let mime: any
+
+async function initializeMime() {
+  if (!mime) {
+    const mimeModule = await import('mime')
+    mime = mimeModule.default
+  }
+}
+
+export const serverVideoStreamController = async (req: Request, res: Response, next: NextFunction) => {
+  await initializeMime()
+
+  const range = req.headers.range
+
+  if (!range) {
+    return res.status(HttpStatusCode.BadRequest).json({
+      success: false,
+      message: 'Range header is required'
+    })
+  }
+  const { name } = req.params
+  const filePath = path.resolve(UPLOAD_VIDEO_DIR, name)
+  const videoSize = fs.statSync(filePath).size
+  const chunkSize = 10 ** 6 // 1MB
+  const start = Number(range.replace(/\D/g, ''))
+  const end = Math.min(start + chunkSize, videoSize - 1)
+  const contentLength = end - start + 1
+  const contentType = mime.getType(filePath) || 'video/mp4'
+  const headers = {
+    'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+    'Accept-Ranges': 'bytes',
+    'Content-Length': contentLength,
+    'Content-Type': contentType
+  }
+  res.writeHead(HttpStatusCode.PartialContent, headers)
+  const videoStream = fs.createReadStream(filePath, { start, end })
+  videoStream.pipe(res)
+}
+
 export const uploadleImageController = async (req: Request, res: Response, next: NextFunction) => {
   const result = await mediasService.UploadImage(req)
   return res.status(HttpStatusCode.Ok).json({
@@ -26,24 +65,26 @@ export const uploadleVideoController = async (req: Request, res: Response, next:
 
 export const serverImageController = async (req: Request, res: Response) => {
   const { name } = req.params
-  return res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
-    if (err) {
-      return res.status(HttpStatusCode.NotFound).json({
-        success: false,
-        message: err.message
-      })
-    }
-  })
-}
+  const filePath = path.resolve(UPLOAD_IMAGE_DIR, name)
 
-export const serverVideoController = async (req: Request, res: Response) => {
-  const { name } = req.params
-  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, name), (err) => {
-    if (err) {
+  fs.access(filePath, fs.constants.F_OK, (accessErr) => {
+    if (accessErr) {
       return res.status(HttpStatusCode.NotFound).json({
         success: false,
-        message: err.message
+        message: 'File not found'
       })
     }
+
+    res.sendFile(filePath, (sendErr) => {
+      if (sendErr) {
+        console.error(sendErr)
+        if (!res.headersSent) {
+          return res.status(HttpStatusCode.BadRequest).json({
+            success: false,
+            message: 'Error sending file'
+          })
+        }
+      }
+    })
   })
 }
