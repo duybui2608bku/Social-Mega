@@ -5,7 +5,17 @@ import scren_3 from '../../assets/screenshot4.png'
 import scren_4 from '../../assets/screenshot2.png'
 import { FcGoogle } from 'react-icons/fc'
 import './Login.scss'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import { formLoginSchema } from 'src/Utils/FormSchema'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+import { UserApi } from 'src/Service/User.api'
+import { toast } from 'react-toastify'
+import { isAxiousUnprocessableEntity } from 'src/Utils/Utils'
+import { AppContext } from 'src/Context/App.context'
+import { useNavigate } from 'react-router'
 
 const Login = () => {
   const images = [scren_1, scren_2, scren_3, scren_4]
@@ -21,6 +31,50 @@ const Login = () => {
     }
   }, [images.length])
 
+  const { setIsAuthenticated } = useContext(AppContext)
+  const nagivate = useNavigate()
+
+  type formLoginValues = z.infer<typeof formLoginSchema>
+
+  interface loginType {
+    email: string
+    password: string
+  }
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<formLoginValues>({
+    resolver: zodResolver(formLoginSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  })
+
+  const loginMutaion = useMutation({
+    mutationFn: (body: loginType) => {
+      return UserApi.Login(body)
+    }
+  })
+
+  const handleLogin = handleSubmit((data) => {
+    loginMutaion.mutate(data, {
+      onSuccess: (data) => {
+        setIsAuthenticated(true)
+        toast.success(data.data.message)
+        toast.success('Đăng nhập thành công')
+        nagivate('/')
+      },
+      onError: (errors: any) => {
+        if (isAxiousUnprocessableEntity(errors)) {
+          toast.error(errors.response?.data.errors.email.msg)
+        }
+      }
+    })
+  })
+
   return (
     <div className='login'>
       <div className='login__left'>
@@ -29,9 +83,11 @@ const Login = () => {
       </div>
       <div className='login__right'>
         <h3>SOCIAL MEGA</h3>
-        <form className='login__right__form'>
-          <input type='text' placeholder='Email' />
-          <input type='password' placeholder='Mật Khẩu' />
+        <form onSubmit={handleLogin} className='login__right__form'>
+          <input {...register('email', { required: true })} type='text' placeholder='Email' />
+          {errors.email ? <p>{errors.email.message}</p> : <p></p>}
+          <input {...register('password', { required: true })} type='password' placeholder='Mật Khẩu' />
+          {errors.password ? <p>{errors.password.message}</p> : <p></p>}
           <button className='login__right__form__btn'>Đăng Nhập</button>
         </form>
         <div style={{ textAlign: 'center', margin: '15px 0', fontSize: '17px' }}>HOẶC</div>

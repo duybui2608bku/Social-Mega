@@ -1,0 +1,19 @@
+@use '../../Scss//breakPoint.scss' as *;
+.selected {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  &__item {
+    height: 35px;
+    width: calc((100% / 3) - 20px);
+    border: 2px solid #ddd;
+  }
+}
+
+@include mobile {
+  .selected {
+    &__item {
+      width: calc((100% / 3) - 10px);
+    }
+  }
+}

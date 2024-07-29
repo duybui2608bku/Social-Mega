@@ -1,6 +1,6 @@
 import { range } from 'lodash'
 import { useState } from 'react'
-
+import './DateSelected.scss'
 interface Props {
   onChange?: (value: Date) => void
   value?: Date
@@ -27,19 +27,19 @@ const DateSelected = ({ value, onChange }: Props) => {
   return (
     <>
       <div className='selected'>
-        <select name='date' onChange={handleChange} value={value?.getDate() || date.date} className='selected-item'>
+        <select name='date' onChange={handleChange} value={value?.getDate() || date.date} className='selected__item'>
           <option>Ngày</option>
           {range(1, 32).map((item, index) => {
             return (
               <>
                 <option value={item} key={index}>
-                  {item}
+                  Ngày {item}
                 </option>
               </>
             )
           })}
         </select>
-        <select onChange={handleChange} name='month' value={value?.getMonth() || date.month} className='selected-item'>
+        <select onChange={handleChange} name='month' value={value?.getMonth() || date.month} className='selected__item'>
           <option>Tháng</option>
           {range(1, 13).map((item, index) => {
             return (
@@ -51,13 +51,18 @@ const DateSelected = ({ value, onChange }: Props) => {
             )
           })}
         </select>
-        <select onChange={handleChange} name='year' value={value?.getFullYear() || date.year} className='selected-item'>
+        <select
+          onChange={handleChange}
+          name='year'
+          value={value?.getFullYear() || date.year}
+          className='selected__item'
+        >
           <option>Năm</option>
           {range(1990, 2025).map((item, index) => {
             return (
               <>
                 <option value={item} key={index}>
-                  {item}
+                  Năm {item}
                 </option>
               </>
             )

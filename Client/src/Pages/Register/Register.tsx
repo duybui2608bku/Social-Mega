@@ -8,12 +8,18 @@ import './Register.scss'
 import { useState, useEffect } from 'react'
 import { formRegisterSchema } from 'src/Utils/FormSchema'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import DateSelected from 'src/Components/DateSelected/DateSelected'
+import { useMutation } from '@tanstack/react-query'
+import { UserApi } from 'src/Service/User.api'
+import { omit } from 'lodash'
+import { toast } from 'react-toastify'
+import { AxiosError } from 'axios'
+
 const Register = () => {
   const images = [scren_1, scren_2, scren_3, scren_4]
   const [randomImage, setRandomImage] = useState(0)
-
   useEffect(() => {
     const interval = setInterval(() => {
       setRandomImage((prevRandomImage) => (prevRandomImage + 1) % images.length)
@@ -26,21 +32,48 @@ const Register = () => {
 
   type formRegisterValues = z.infer<typeof formRegisterSchema>
 
+  interface registerType {
+    email: string
+    password: string
+    confirm_password: string
+    name: string
+    date_of_birth: Date
+  }
+
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
     formState: { errors }
   } = useForm<formRegisterValues>({
     resolver: zodResolver(formRegisterSchema),
     defaultValues: {
       email: '',
       password: '',
-      confirmPassword: '',
-      date_of_birth: '',
-      username: ''
+      confirm_password: '',
+      date_of_birth: new Date(1990, 1, 1),
+      name: ''
     }
   })
+
+  const registerMutaion = useMutation({
+    mutationFn: (body: registerType) => {
+      return UserApi.Register(body)
+    }
+  })
+
+  const handleRegister = handleSubmit((data) => {
+    registerMutaion.mutate(data, {
+      onSuccess: (_) => {
+        toast.success('Đăng kí thành công')
+      },
+      onError: (error: any) => {
+        const errorMess: AxiosError = error
+        toast.error((errorMess.response?.data as AxiosError)?.message)
+      }
+    })
+  })
+  console.log(errors)
 
   return (
     <div className='register'>
@@ -50,15 +83,36 @@ const Register = () => {
       </div>
       <div className='register__right'>
         <h3>SOCIAL MEGA</h3>
-        <form className='register__right__form'>
-          <input {...(register('email'), { required: true })} type='text' placeholder='Email' />
-          <input {...(register('password'), { required: true })} type='password' placeholder='Mật Khẩu' />
-          <input
-            {...(register('confirmPassword'), { required: true })}
-            type='password'
-            placeholder='Xác Nhận Mật Khẩu'
+        <form onSubmit={handleRegister} className='register__right__form'>
+          <div className='register__right__form__input'>
+            <div>
+              <input {...register('email', { required: true })} type='text' placeholder='Email' />
+              {errors.email ? <p>{errors.email.message}</p> : <p></p>}
+            </div>
+            <div>
+              <input {...register('name', { required: true })} type='text' placeholder='Tên người dùng' />
+              {errors.name ? <p>{errors.name.message}</p> : <p></p>}
+            </div>
+          </div>
+          <div className='register__right__form__input'>
+            <div>
+              <input {...register('password', { required: true })} type='password' placeholder='Mật Khẩu' />
+              {errors.password ? <p>{errors.password.message}</p> : <p></p>}
+            </div>
+            <div>
+              <input
+                {...register('confirm_password', { required: true })}
+                type='password'
+                placeholder='Xác Nhận Mật Khẩu'
+              />
+              {errors.confirm_password ? <p>{errors.confirm_password.message}</p> : <p></p>}
+            </div>
+          </div>
+          <Controller
+            name='date_of_birth'
+            control={control}
+            render={({ field }) => <DateSelected onChange={field.onChange} value={field.value} />}
           />
-          <input {...(register('username'), { required: true })} type='text' placeholder='Tên người dùng' />
           <button className='register__right__form__btn'>Đăng Kí</button>
         </form>
         <div style={{ textAlign: 'center', margin: '15px 0', fontSize: '17px' }}>HOẶC</div>
