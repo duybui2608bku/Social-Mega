@@ -1,4 +1,4 @@
-import { AuthResponse } from 'src/Types/Auth.type'
+import { AuthLogout, AuthResponse } from 'src/Types/Auth.type'
 import axiosInstance from 'src/Utils/Axios'
 
 export const UserApi = {
@@ -7,5 +7,8 @@ export const UserApi = {
   },
   Login(body: { email: string; password: string }) {
     return axiosInstance.post<AuthResponse>('users/login', body)
+  },
+  Logout(body: { refresh_token: string }) {
+    return axiosInstance.post<AuthLogout>('users/logout', body)
   }
 }

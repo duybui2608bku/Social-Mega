@@ -6,3 +6,7 @@ export type AuthResponse = {
     refresh_token: string
   }
 }
+export type AuthLogout = {
+  success: boolean
+  message: string
+}

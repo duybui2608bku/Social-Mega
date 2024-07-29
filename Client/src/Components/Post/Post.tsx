@@ -4,6 +4,7 @@ import { PiPaperPlaneTiltBold } from 'react-icons/pi'
 import { FaRegBookmark } from 'react-icons/fa6'
 import './Post.scss'
 import { useState } from 'react'
+
 const Post = () => {
   const [more, setMore] = useState<Boolean>(false)
   const handleSeeMore = () => {

@@ -22,7 +22,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     if (access_token && config.headers) {
-      config.headers.Authorization = access_token
+      config.headers.Authorization = `Bearer ${access_token}`
       return config
     }
     return config
@@ -41,11 +41,12 @@ axiosInstance.interceptors.response.use(
       refresh_token = (response.data as AuthResponse).result.refresh_token
       saveAccessTokenToLS(access_token)
       saveRefreshTokenToLS(refresh_token)
-    } else if (url === 'users/logout') {
-      access_token = ''
-      saveAccessTokenToLS('')
-      clearLS()
     }
+    // } else if (url === 'users/logout') {
+    //   access_token = ''
+    //   saveAccessTokenToLS('')
+    //   clearLS()
+    // }
     return response
   },
   function (error: AxiosError) {
@@ -55,7 +56,8 @@ axiosInstance.interceptors.response.use(
       toast.error(message)
     }
     if (error.response?.status === HttpStatusCode.Unauthorized) {
-      clearLS()
+      console.log(error)
+      // clearLS()
       window.location.reload
     }
     return Promise.reject(error)
