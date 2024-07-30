@@ -1,4 +1,4 @@
-import { AuthLogout, AuthResponse } from 'src/Types/Auth.type'
+import { AuthChangePassword, AuthForgotPassword, AuthLogout, AuthResponse } from 'src/Types/Auth.type'
 import axiosInstance from 'src/Utils/Axios'
 
 export const UserApi = {
@@ -10,5 +10,11 @@ export const UserApi = {
   },
   Logout(body: { refresh_token: string }) {
     return axiosInstance.post<AuthLogout>('users/logout', body)
+  },
+  ForgotPassword(body: { email: string }) {
+    return axiosInstance.post<AuthForgotPassword>('users/forgot-password', body)
+  },
+  ChangePassword(body: { password: string; old_password: string }) {
+    return axiosInstance.post<AuthChangePassword>('users/change-password', body)
   }
 }

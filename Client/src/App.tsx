@@ -3,6 +3,7 @@ import './Scss/base.scss'
 import useRouterElements from './useRouterElements'
 import { useContext, useEffect } from 'react'
 import { AppContext } from 'src/Context/App.context'
+import '@radix-ui/themes/styles.css'
 const App = () => {
   const routeElemnts = useRouterElements()
   const { reset } = useContext(AppContext)

@@ -5,6 +5,13 @@ import scren_3 from '../../assets/screenshot4.png'
 import scren_4 from '../../assets/screenshot2.png'
 import './forgotPassword.scss'
 import { useState, useEffect } from 'react'
+import { UserApi } from 'src/Service/User.api'
+import { useMutation } from '@tanstack/react-query'
+import { formForgotPasswordSchema } from 'src/Utils/FormSchema'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 
 const ForgotPassword = () => {
   const images = [scren_1, scren_2, scren_3, scren_4]
@@ -20,6 +27,41 @@ const ForgotPassword = () => {
     }
   }, [images.length])
 
+  type formForgotPasswordValues = z.infer<typeof formForgotPasswordSchema>
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<formForgotPasswordValues>({
+    resolver: zodResolver(formForgotPasswordSchema),
+    defaultValues: {
+      email: ''
+    }
+  })
+
+  interface forgotPasswordType {
+    email: string
+  }
+
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (body: forgotPasswordType) => {
+      return UserApi.ForgotPassword(body)
+    }
+  })
+
+  const handleForgotPassword = handleSubmit((data) => {
+    forgotPasswordMutation.mutate(data, {
+      onSuccess: (_) => {
+        // toast.success(data.data.message)
+        toast.success('Kiểm tra email của bạn để lấy lại mật khẩu !')
+      },
+      onError: (errors: any) => {
+        toast.error(errors.response.data.message)
+      }
+    })
+  })
+
   return (
     <div className='forgotPassword'>
       <div className='forgotPassword__left'>
@@ -33,8 +75,9 @@ const ForgotPassword = () => {
           Nhập email của bạn để nhận đường dẫn lấy lại mật khẩu của bạn
         </div>
         <div></div>
-        <form className='forgotPassword__right__form'>
-          <input type='text' placeholder='Email' />
+        <form onSubmit={handleForgotPassword} className='forgotPassword__right__form'>
+          <input {...register('email', { required: true })} type='text' placeholder='Email' />
+          {errors.email ? <p>{errors.email.message}</p> : <p></p>}
           <button className='forgotPassword__right__form__btn'>Gửi link đăng nhập</button>
         </form>
         <div style={{ textAlign: 'center', margin: '15px 0', fontSize: '17px' }}>HOẶC</div>

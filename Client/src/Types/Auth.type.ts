@@ -10,3 +10,13 @@ export type AuthLogout = {
   success: boolean
   message: string
 }
+
+export type AuthForgotPassword = {
+  success: boolean
+  message: string
+}
+
+export type AuthChangePassword = {
+  success: boolean
+  message: string
+}

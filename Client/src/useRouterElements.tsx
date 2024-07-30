@@ -4,6 +4,7 @@ import Login from 'src/Pages/Login/Login'
 import Register from 'src/Pages/Register/Register'
 import ForgotPassword from 'src/Pages/Forgot_Password/forgotPassword'
 import Home from 'src/Pages/Home/Home'
+import Profile from 'src/Pages/Profile/Profile'
 const useRouterElements = () => {
   const routeElemnts = useRoutes([
     {
@@ -25,6 +26,10 @@ const useRouterElements = () => {
     {
       path: '/forgot-password',
       element: <ForgotPassword />
+    },
+    {
+      path: '/profile',
+      element: <Profile />
     }
   ])
   return routeElemnts
