@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import { getNameFromFullName, handleUploadImage, handleUploadVideo } from '../src/utils/file'
+import { getNameFromFullName, handleUploadImage, handleUploadVideo, handleUploadVideoHLS } from '../src/utils/file'
 import sharp from 'sharp'
 import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import path from 'path'
@@ -8,6 +8,7 @@ import { isProduction } from '~/constants/config'
 import { config } from 'dotenv'
 import { MediaType } from '~/constants/enum'
 import { Media } from '~/models/other'
+import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 config()
 class MediasService {
   async UploadImage(req: Request) {
@@ -31,7 +32,6 @@ class MediasService {
 
   async UploadVideo(req: Request) {
     const file = await handleUploadVideo(req)
-    console.log(file)
     const { newFilename } = file[0]
     // const results: Media[] = await Promise.all(
     //   file.map(async (file) => {
@@ -53,6 +53,24 @@ class MediasService {
         : `http://localhost:${process.env.PORT}/static/video/${newFilename}`,
       type: MediaType.Video
     }
+  }
+
+  async UploadVideoHLS(req: Request) {
+    const file = await handleUploadVideoHLS(req)
+    const results: Media[] = await Promise.all(
+      file.map(async (file) => {
+        await encodeHLSWithMultipleVideoStreams(file.filepath)
+        return {
+          url: !isProduction
+            ? `${process.env.HOST}/static/video-hls/${file.newFilename}`
+            : `http://localhost:${process.env.PORT}/static/video-hls/${file.newFilename}`,
+
+          type: MediaType.Video
+        }
+      })
+    )
+    console.log(results)
+    return results
   }
 }
 const mediasService = new MediasService()

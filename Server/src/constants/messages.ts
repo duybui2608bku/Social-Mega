@@ -65,5 +65,6 @@ export const userMessages = {
   UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
   GET_IMAGE_SUCCESS: 'Get image successfully',
   UPLOAD_VIDEO_SUCCESS: 'Upload video successfully',
-  REFRESH_TOKEN_SUCCESS: 'Refresh token successfully'
+  REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
+  UPLOAD_VIDEO_HLS_SUCCESS: 'Upload video hls successfully'
 } as const

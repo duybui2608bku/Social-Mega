@@ -59,6 +59,34 @@ export const handleUploadVideo = async (req: Request) => {
   })
 }
 
+export const handleUploadVideoHLS = async (req: Request) => {
+  const form = formidable({
+    uploadDir: UPLOAD_VIDEO_DIR,
+    maxFiles: 1,
+    keepExtensions: true,
+    maxFileSize: 50 * 1024 * 1024,
+    filter: function ({ name, originalFilename, mimetype }) {
+      const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
+      if (!valid) {
+        form.emit('error' as any, new Error('Invalid file type') as any)
+      }
+      return valid
+    }
+  })
+
+  return new Promise<File[]>((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        return reject(err)
+      }
+      if (!files.video) {
+        reject(new Error('Video is required'))
+      }
+      resolve(files.video as File[])
+    })
+  })
+}
+
 export const initFolder = () => {
   ;[UPLOAD_IMAGE_TERM_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {

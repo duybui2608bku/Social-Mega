@@ -63,6 +63,15 @@ export const uploadleVideoController = async (req: Request, res: Response, next:
   })
 }
 
+export const uploadleVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
+  const result = await mediasService.UploadVideoHLS(req)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.UPLOAD_VIDEO_HLS_SUCCESS,
+    result
+  })
+}
+
 export const serverImageController = async (req: Request, res: Response) => {
   const { name } = req.params
   const filePath = path.resolve(UPLOAD_IMAGE_DIR, name)
