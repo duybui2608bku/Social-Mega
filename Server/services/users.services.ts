@@ -12,6 +12,7 @@ import Followers from '~/models/schemas/Fllowers.chema'
 config()
 
 class UsersService {
+  databaseService: any
   private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: { user_id, token_type: TokenType.AccessToken, verify },
@@ -89,6 +90,27 @@ class UsersService {
     return {
       message: userMessages.LOGOUT_SUCCESS
     }
+  }
+  async refreshToken({
+    user_id,
+    verify,
+    refresh_token
+  }: {
+    user_id: string
+    verify: UserVerifyStatus
+    refresh_token: string
+  }) {
+    const [new_access_token, new_refresh_token] = await Promise.all([
+      this.signAccessToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify }),
+      databaseService.refreshTokens.deleteOne({
+        token: refresh_token
+      })
+    ])
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
+    )
+    return { new_access_token, new_refresh_token }
   }
 
   async checkEmail(email: string) {

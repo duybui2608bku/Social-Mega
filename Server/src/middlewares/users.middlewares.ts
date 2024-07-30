@@ -232,6 +232,7 @@ export const refreshTokenValidator = validate(
                 verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESHTOKEN as string }),
                 databaseService.refreshTokens.findOne({ token: value })
               ])
+
               if (refresh_token === null) {
                 throw new ErrorWithStatusCode({
                   message: userMessages.USED_REFRESH_TOKEN_OR_NOT_EXISTS,

@@ -7,6 +7,7 @@ import {
   getMeController,
   loginController,
   logUotController,
+  refreshTokenController,
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
@@ -50,7 +51,7 @@ Body:{email: string, password: string}
 userRouters.post('/login', loginValidator, wrapRequestHandler(loginController))
 
 /*
-Description: User loout
+Description: User logout
 path: /logout
 method: POST
 Header:{Authorization: Bearer <access_token>}
@@ -58,6 +59,15 @@ Body:{refresh_token: string}
 */
 
 userRouters.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(logUotController))
+
+/*
+Description: Refresh token
+path: /refresh-token
+method: POST
+Body:{refre: string}
+*/
+
+userRouters.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
 
 /*
 Description: Verify Email User

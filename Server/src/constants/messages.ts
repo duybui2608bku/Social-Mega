@@ -64,5 +64,6 @@ export const userMessages = {
   NEW_PASSWORD_MUST_BE_DIFFERENT: 'New password must be different from old password',
   UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
   GET_IMAGE_SUCCESS: 'Get image successfully',
-  UPLOAD_VIDEO_SUCCESS: 'Upload video successfully'
+  UPLOAD_VIDEO_SUCCESS: 'Upload video successfully',
+  REFRESH_TOKEN_SUCCESS: 'Refresh token successfully'
 } as const
