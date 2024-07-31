@@ -42,6 +42,18 @@
       font-weight: 900;
     }
   }
+
+  &__toggle {
+    padding: 20px;
+    .nav-menu__nav__title {
+      display: none;
+    }
+    a {
+      p {
+        display: none;
+      }
+    }
+  }
   &__nav-mobile {
     display: none;
   }
@@ -50,7 +62,7 @@
 @include mobile {
   .nav-menu {
     &__nav {
-      z-index: 99;
+      z-index: 9999;
       background-color: white;
       align-items: center;
       flex-direction: row;

@@ -11,12 +11,15 @@ import { UserApi } from 'src/Service/User.api'
 import { getRefreshTokenFormLS } from 'src/Utils/Auth'
 import { toast } from 'react-toastify'
 import './Header.scss'
+import { useEffect, useRef, useState } from 'react'
+import SearchUI from 'src/Components/SearchUI/SearchUI'
+import Notification from 'src/Components/Notifications/Notification'
 const Header = () => {
   const location = useLocation()
   const navBar = [
     { display: 'Trang Chủ', path: '/', icon: <GrHomeRounded /> },
-    { display: 'Tìm Kiếm', path: '/search', icon: <CiSearch /> },
-    { display: 'Thông Báo', path: '/notification', icon: <CiHeart /> },
+    { display: 'Tìm Kiếm', path: '/#', icon: <CiSearch /> },
+    { display: 'Thông Báo', path: '/#', icon: <CiHeart /> },
     { display: 'Đăng', path: '/post', icon: <CiSquarePlus /> },
     { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> },
     { display: 'Phê duyệt', path: '/appro', icon: <MdApproval /> },
@@ -24,10 +27,12 @@ const Header = () => {
   ]
 
   const navBarMobile = [
-    { display: 'Thông Báo', path: '/notification', icon: <CiHeart /> },
+    { display: 'Thông Báo', path: '/#', icon: <CiHeart /> },
     { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> }
   ]
 
+  const [toggleNav, SettoggleNav] = useState(false)
+  const navMenuRef = useRef<HTMLDivElement>(null)
   interface logoutType {
     refresh_token: string
   }
@@ -56,15 +61,37 @@ const Header = () => {
     )
   }
 
+  const handleClick = (item: string) => {
+    if (item === 'Tài Khoản') {
+      handleLogOut()
+    } else if (item === 'Tìm Kiếm') {
+      SettoggleNav(!toggleNav)
+    } else if (item === 'Thông Báo') {
+      SettoggleNav(!toggleNav)
+    }
+  }
+
+  useEffect(() => {
+    const handleBodyClick = (event: MouseEvent) => {
+      if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
+        SettoggleNav(false)
+      }
+    }
+    document.addEventListener('click', handleBodyClick)
+    return () => {
+      document.removeEventListener('click', handleBodyClick)
+    }
+  }, [toggleNav])
+
   return (
     <>
-      <div className='nav-menu'>
-        <div className='nav-menu__nav'>
+      <div className='nav-menu' ref={navMenuRef}>
+        <div className={toggleNav ? 'nav-menu__nav nav-menu__toggle' : 'nav-menu__nav'}>
           <div className='nav-menu__nav__title'>SOCIAL MEGA</div>
           {navBar.map((item, index) => {
             return (
               <Link
-                onClick={item.display === 'Tài Khoản' ? handleLogOut : () => {}}
+                onClick={() => handleClick(item.display)}
                 key={index}
                 to={item.path}
                 className={`nav-menu__nav__item ${location.pathname === item.path ? 'active' : ''}`}
@@ -79,6 +106,7 @@ const Header = () => {
           {navBarMobile.map((item, index) => {
             return (
               <Link
+                onClick={() => handleClick(item.display)}
                 key={index}
                 to={item.path}
                 className={`nav-menu__nav-mobile__item ${location.pathname === item.path ? 'active' : ''}`}
@@ -89,10 +117,11 @@ const Header = () => {
             )
           })}
         </div>
+        <SearchUI toggle={toggleNav} />
+        <Notification toggle={toggleNav} />
       </div>
     </>
   )
 }
 
 export default Header
-// Remove the conflicting useNavigate function

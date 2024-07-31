@@ -14,9 +14,9 @@ const Post = () => {
   const postItem = [
     {
       avatar:
-        'https://scontent.cdninstagram.com/v/t39.30808-6/450850576_804424648560075_7407560018711829511_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMTA1eDExMTQuc2RyLmYzMDgwOCJ9&_nc_ht=scontent.cdninstagram.com&_nc_cat=103&_nc_ohc=k1XDU2ZHd9QQ7kNvgG7bzpH&edm=APs17CUAAAAA&ccb=7-5&ig_cache_key=MzQxMjQ2MjQ2MTk2MDY3ODg5Ng%3D%3D.2-ccb7-5&oh=00_AYA1avPNexOLTHGTh022BwsD3PrMa3xPmYN2XVdm16au3A&oe=66A26211&_nc_sid=10d13b',
+        'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
       username: 'Duy Muối',
-      img: 'https://scontent.cdninstagram.com/v/t39.30808-6/450850576_804424648560075_7407560018711829511_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMTA1eDExMTQuc2RyLmYzMDgwOCJ9&_nc_ht=scontent.cdninstagram.com&_nc_cat=103&_nc_ohc=k1XDU2ZHd9QQ7kNvgG7bzpH&edm=APs17CUAAAAA&ccb=7-5&ig_cache_key=MzQxMjQ2MjQ2MTk2MDY3ODg5Ng%3D%3D.2-ccb7-5&oh=00_AYA1avPNexOLTHGTh022BwsD3PrMa3xPmYN2XVdm16au3A&oe=66A26211&_nc_sid=10d13b',
+      img: 'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
       like: 246,
       comment: 20,
       content:
@@ -24,9 +24,9 @@ const Post = () => {
     },
     {
       avatar:
-        'https://scontent.cdninstagram.com/v/t39.30808-6/450850576_804424648560075_7407560018711829511_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMTA1eDExMTQuc2RyLmYzMDgwOCJ9&_nc_ht=scontent.cdninstagram.com&_nc_cat=103&_nc_ohc=k1XDU2ZHd9QQ7kNvgG7bzpH&edm=APs17CUAAAAA&ccb=7-5&ig_cache_key=MzQxMjQ2MjQ2MTk2MDY3ODg5Ng%3D%3D.2-ccb7-5&oh=00_AYA1avPNexOLTHGTh022BwsD3PrMa3xPmYN2XVdm16au3A&oe=66A26211&_nc_sid=10d13b',
+        'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
       username: 'Duy Muối',
-      img: 'https://scontent.cdninstagram.com/v/t39.30808-6/450850576_804424648560075_7407560018711829511_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xMTA1eDExMTQuc2RyLmYzMDgwOCJ9&_nc_ht=scontent.cdninstagram.com&_nc_cat=103&_nc_ohc=k1XDU2ZHd9QQ7kNvgG7bzpH&edm=APs17CUAAAAA&ccb=7-5&ig_cache_key=MzQxMjQ2MjQ2MTk2MDY3ODg5Ng%3D%3D.2-ccb7-5&oh=00_AYA1avPNexOLTHGTh022BwsD3PrMa3xPmYN2XVdm16au3A&oe=66A26211&_nc_sid=10d13b',
+      img: 'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
       like: 246,
       comment: 20,
       content:

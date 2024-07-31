@@ -1,0 +1,55 @@
+@use '../../Scss/breakPoint.scss' as *;
+.notification {
+  position: fixed;
+  top: 0;
+  left: 65px;
+  height: 100vh;
+  width: 400px;
+  transition: background-color 0.5s ease;
+  transform: translateX(-500px);
+  padding: 20px;
+  border-left: 2px solid black;
+  background-color: rgb(255, 255, 255);
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+  overflow-y: auto;
+  @include mobile {
+    transform: translateX(-500px);
+    border-left: none;
+  }
+  &__title {
+    font-size: 30px;
+    font-weight: bold;
+  }
+  &__details {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    &__item {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      &__avatar {
+        aspect-ratio: 1/1;
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 50%;
+      }
+      &__content {
+        font-size: 15px;
+      }
+    }
+  }
+}
+
+.toggle {
+  transform: translateX(0px);
+  transition: transform 0.8s ease;
+  z-index: 99;
+  @include mobile {
+    transform: translateX(-65px);
+  }
+}
