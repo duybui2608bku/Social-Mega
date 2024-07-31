@@ -617,29 +617,21 @@ export const updateMevValidator = validate(
           },
           errorMessage: userMessages.NAME_LENGTH
         },
-        trim: true
-      },
-      username: {
-        optional: true,
-        isString: {
-          errorMessage: userMessages.USER_NAME_MUST_BE_STRING
-        },
         custom: {
           options: async (value: string) => {
             if (!REGEX_USER_NAME.test(value)) {
               throw new Error(userMessages.USER_NAME_INVALID)
             }
             const user = await databaseService.users.findOne({
-              username: value
+              name: value
             })
-            if (user && user.username !== value) {
+            if (user && user.name !== value) {
               throw new Error(userMessages.USER_NAME_EXISTS)
             }
           }
         },
         trim: true
       },
-
       date_of_birth: {
         optional: true,
         isISO8601: {

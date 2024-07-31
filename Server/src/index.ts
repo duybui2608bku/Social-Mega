@@ -15,7 +15,11 @@ const corsOptions = {
   allowedHeaders: 'Content-Type,Authorization' // Các tiêu đề HTTP được phép
 }
 
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.indexUsers()
+  databaseService.indexRefreshTokens()
+  databaseService.indexFollowers()
+})
 const app = express()
 const port = process.env.PORT || 8081
 initFolder()
