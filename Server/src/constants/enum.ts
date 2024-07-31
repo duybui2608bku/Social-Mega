@@ -16,6 +16,18 @@ export enum MediaType {
   Video
 }
 
+export enum InstagramsType {
+  Instagrams,
+  ReInstagrams,
+  Comment,
+  QuoteInstagrams
+}
+
+export enum InstagramsAudiance {
+  Everyone,
+  InstagramsCircle
+}
+
 export enum HttpStatusCode {
   Continue = 100,
   SwitchingProtocols = 101,

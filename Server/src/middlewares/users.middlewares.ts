@@ -1,4 +1,3 @@
-import { LOADIPHLPAPI } from 'dns'
 import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { JsonWebTokenError } from 'jsonwebtoken'

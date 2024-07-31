@@ -68,3 +68,15 @@ export const userMessages = {
   REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
   UPLOAD_VIDEO_HLS_SUCCESS: 'Upload video hls successfully'
 } as const
+
+export const InstagramsMessgaes = {
+  INSTAGRAMS_TYPE_INVALID: 'Instagrams type is invalid',
+  INSTAGRAMS_AUDIANCE_INVALID: 'Instagrams audiance is invalid',
+  PARENT_ID_MUST_BE_INSTAGRAMS_ID: 'Parent id must be instagrams id',
+  PARENT_ID_MUST_BE_NULL: 'Parent id must be null',
+  CONTENT_MUST_BE_NON_EMPTY_STRING: 'Content must be non empty string',
+  CONTENT_MUST_BE_EMPTY_STRING: 'Content must be empty string',
+  HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array of string',
+  MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
+  MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object'
+} as const
