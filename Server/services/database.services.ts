@@ -5,6 +5,7 @@ import { RefreshToken } from '~/models/schemas/RefreshToekn.chema'
 import Followers from '~/models/schemas/Fllowers.chema'
 import Instagrams from '~/models/schemas/Instagrams.schema'
 import Hashtags from '~/models/schemas/Hashtags.schema'
+import { Bookmark } from '~/models/schemas/Bookmark.schema'
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@social-app.9mqzjou.mongodb.net/?appName=SOCIAL-APP?retryWrites=true&w=majority`
 
@@ -72,6 +73,10 @@ class DatabaseService {
 
   get hashtags(): Collection<Hashtags> {
     return this.db.collection(process.env.HASHTAGS_COLLECTION as string)
+  }
+
+  get bookmarks(): Collection<Bookmark> {
+    return this.db.collection(process.env.BOOKMARKS_COLLECTION as string)
   }
 }
 

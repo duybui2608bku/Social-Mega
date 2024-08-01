@@ -81,3 +81,7 @@ export const InstagramsMessgaes = {
   MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object',
   CREATE_INSTAGRAM_SUCCESS: 'Create instagram successfully'
 } as const
+
+export const BookmarkMessgaes = {
+  BOOKMARK_INSTAGRAM_CREATE_SUCCESS: 'Bookmark instagram create successfully'
+} as const
