@@ -78,5 +78,6 @@ export const InstagramsMessgaes = {
   CONTENT_MUST_BE_EMPTY_STRING: 'Content must be empty string',
   HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array of string',
   MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
-  MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object'
+  MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object',
+  CREATE_INSTAGRAM_SUCCESS: 'Create instagram successfully'
 } as const

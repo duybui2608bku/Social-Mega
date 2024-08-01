@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import { RefreshToken } from '~/models/schemas/RefreshToekn.chema'
 import Followers from '~/models/schemas/Fllowers.chema'
+import Instagrams from '~/models/schemas/Instagrams.schema'
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@social-app.9mqzjou.mongodb.net/?appName=SOCIAL-APP?retryWrites=true&w=majority`
 
@@ -54,6 +55,10 @@ class DatabaseService {
 
   get users(): Collection<User> {
     return this.db.collection(process.env.USERS_COLLECTION as string)
+  }
+
+  get instagrams(): Collection<Instagrams> {
+    return this.db.collection(process.env.USERS_INSTAGRAMS_COLLECTION as string)
   }
 
   get refreshTokens(): Collection<RefreshToken> {

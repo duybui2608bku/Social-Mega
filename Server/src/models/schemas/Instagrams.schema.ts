@@ -8,12 +8,12 @@ interface InstagramsContructor {
   type: InstagramsType
   audiance: InstagramsAudiance
   content: string
-  parent_id?: ObjectId | null
+  parent_id?: string | null
   hashtags: ObjectId[]
-  mentions: ObjectId[]
+  mentions: string[]
   medias: Media[]
-  guest_view: number
-  user_view: number
+  guest_view?: number
+  user_view?: number
   created_at?: Date
   updated_at?: Date
 }
@@ -53,11 +53,13 @@ export default class Instagrams {
     this.type = type
     this.audiance = audiance
     this.content = content
-    this.parent_id = parent_id
+    this.parent_id = parent_id ? new ObjectId(parent_id) : null
     this.hashtags = hashtags
-    this.mentions = mentions
+    this.mentions = mentions.map((mention) => new ObjectId(mention))
     this.medias = medias
-    this.guest_view = guest_view
-    this.user_view = user_view
+    this.guest_view = guest_view || 0
+    this.user_view = user_view || 0
+    this.created_at = created_at || date
+    this.updated_at = updated_at || date
   }
 }

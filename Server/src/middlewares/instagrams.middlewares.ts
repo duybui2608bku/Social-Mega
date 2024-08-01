@@ -19,7 +19,7 @@ export const createInstagramsValidator = validate(
           errorMessage: InstagramsMessgaes.INSTAGRAMS_TYPE_INVALID
         }
       },
-      audience: {
+      audiance: {
         isIn: {
           options: [InstagramsAudiances],
           errorMessage: InstagramsMessgaes.INSTAGRAMS_AUDIANCE_INVALID
@@ -86,7 +86,7 @@ export const createInstagramsValidator = validate(
           }
         }
       },
-      media: {
+      medias: {
         isArray: true,
         custom: {
           options: (value, { req }) => {
