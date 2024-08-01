@@ -14,13 +14,14 @@ import './Header.scss'
 import { useEffect, useRef, useState } from 'react'
 import SearchUI from 'src/Components/SearchUI/SearchUI'
 import Notification from 'src/Components/Notifications/Notification'
+import CreateInstagrams from 'src/Components/CreateInstagrams/CreateInstagrams'
 const Header = () => {
   const location = useLocation()
   const navBar = [
     { display: 'Trang Chủ', path: '/', icon: <GrHomeRounded /> },
     { display: 'Tìm Kiếm', path: '/#', icon: <CiSearch /> },
     { display: 'Thông Báo', path: '/#', icon: <CiHeart /> },
-    { display: 'Đăng', path: '/post', icon: <CiSquarePlus /> },
+    { display: 'Đăng', path: '/#', icon: <CiSquarePlus /> },
     { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> },
     { display: 'Phê duyệt', path: '/appro', icon: <MdApproval /> },
     { display: 'Tài Khoản', path: '/#', icon: <RiImageCircleFill /> }
@@ -31,8 +32,12 @@ const Header = () => {
     { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> }
   ]
 
-  const [toggleNav, SettoggleNav] = useState(false)
+  const [toggleNavSearch, SettoggleNavSearch] = useState(false)
+  const [toggleNavNotification, SettoggleNavNotification] = useState(false)
+  const [toggleNavMenuAccount, settoggleNavMenuAccount] = useState(false)
+  const [toggleCreateInstagrams, settoggleCreateInstagrams] = useState(false)
   const navMenuRef = useRef<HTMLDivElement>(null)
+  const popoverAccountRef = useRef<HTMLAnchorElement>(null)
   interface logoutType {
     refresh_token: string
   }
@@ -64,33 +69,41 @@ const Header = () => {
   const handleClick = (item: string) => {
     if (item === 'Tài Khoản') {
       handleLogOut()
+      settoggleNavMenuAccount(!toggleNavMenuAccount)
     } else if (item === 'Tìm Kiếm') {
-      SettoggleNav(!toggleNav)
+      SettoggleNavSearch(!toggleNavSearch)
+      toggleNavNotification && SettoggleNavNotification(false)
     } else if (item === 'Thông Báo') {
-      SettoggleNav(!toggleNav)
+      SettoggleNavNotification(!toggleNavNotification)
+      toggleNavSearch && SettoggleNavSearch(false)
+    } else if (item === 'Đăng') {
+      settoggleCreateInstagrams(!toggleCreateInstagrams)
     }
   }
 
   useEffect(() => {
     const handleBodyClick = (event: MouseEvent) => {
       if (navMenuRef.current && !navMenuRef.current.contains(event.target as Node)) {
-        SettoggleNav(false)
+        SettoggleNavSearch(false)
+        SettoggleNavNotification(false)
       }
     }
     document.addEventListener('click', handleBodyClick)
     return () => {
       document.removeEventListener('click', handleBodyClick)
     }
-  }, [toggleNav])
+  }, [toggleNavNotification, toggleNavSearch])
 
   return (
     <>
       <div className='nav-menu' ref={navMenuRef}>
-        <div className={toggleNav ? 'nav-menu__nav nav-menu__toggle' : 'nav-menu__nav'}>
+        <div className={toggleNavSearch || toggleNavNotification ? 'nav-menu__nav nav-menu__toggle' : 'nav-menu__nav'}>
           <div className='nav-menu__nav__title'>SOCIAL MEGA</div>
+
           {navBar.map((item, index) => {
             return (
               <Link
+                ref={item.display === 'Tài Khoản' ? popoverAccountRef : null}
                 onClick={() => handleClick(item.display)}
                 key={index}
                 to={item.path}
@@ -117,8 +130,9 @@ const Header = () => {
             )
           })}
         </div>
-        <SearchUI toggle={toggleNav} />
-        <Notification toggle={toggleNav} />
+        <SearchUI toggle={toggleNavSearch} />
+        <Notification toggle={toggleNavNotification} />
+        <CreateInstagrams toggle={toggleCreateInstagrams} settoggleCreateInstagrams={settoggleCreateInstagrams} />
       </div>
     </>
   )

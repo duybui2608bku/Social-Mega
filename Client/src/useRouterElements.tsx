@@ -29,7 +29,11 @@ const useRouterElements = () => {
     },
     {
       path: '/profile',
-      element: <Profile />
+      element: (
+        <MainLayout>
+          <Profile />
+        </MainLayout>
+      )
     }
   ])
   return routeElemnts

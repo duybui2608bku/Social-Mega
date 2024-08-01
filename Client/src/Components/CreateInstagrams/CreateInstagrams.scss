@@ -1,0 +1,147 @@
+@use '../../Scss/breakPoint.scss' as *;
+.dialogOverlay-createInsta {
+  opacity: 0.5;
+  background-color: gray;
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 99;
+}
+
+.dialogContent-createInsta {
+  overflow-y: auto;
+  z-index: 999;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 900px;
+  max-height: 85vh;
+  padding: 25px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  @include mobile {
+  }
+}
+
+.dialogTitle-createInsta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  cursor: pointer;
+  padding-bottom: 10px;
+  border-bottom: 1px solid black;
+}
+
+.createInstagrams {
+  &__details {
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    @include mobile {
+      flex-direction: column;
+    }
+    &__image {
+      width: 50%;
+      @include mobile {
+        width: 100%;
+      }
+    }
+    &__caption {
+      @include mobile {
+        width: 100%;
+      }
+      width: 50%;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      &__user {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        &__avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+        &__name {
+          font-size: 20px;
+          font-weight: 900;
+        }
+      }
+      &__content {
+        margin-top: 10px;
+        height: 250px;
+        border-bottom: 1px solid black;
+        textarea {
+          width: 100%;
+          border: none;
+          height: 100%;
+          resize: none;
+          outline: none;
+          box-sizing: border-box;
+          font-size: 20px;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+}
+
+.SwitchRoot {
+  width: 32px;
+  height: 15px;
+  background-color: black;
+  border-radius: 9999px;
+  position: relative;
+  box-shadow: 0 2px 10px black;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.SwitchRoot:focus {
+  box-shadow: 0 0 0 2px black;
+}
+.SwitchRoot[data-state='checked'] {
+  background-color: green;
+}
+
+.SwitchThumb {
+  display: block;
+  width: 11px;
+  height: 11px;
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px black;
+  transition: transform 100ms;
+  transform: translateX(2px);
+  will-change: transform;
+}
+.SwitchThumb[data-state='checked'] {
+  transform: translateX(19px);
+}
+
+.accordion-trigger-createInsta {
+  width: 100%;
+  background: transparent;
+  font-size: 20px;
+}
+.accordion-content-createInsta {
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  div {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    p {
+      width: 200px;
+    }
+  }
+}
