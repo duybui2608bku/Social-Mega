@@ -19,7 +19,7 @@ export const createInstagramsValidator = validate(
           errorMessage: InstagramsMessgaes.INSTAGRAMS_TYPE_INVALID
         }
       },
-      audience: {
+      audiance: {
         isIn: {
           options: [InstagramsAudiances],
           errorMessage: InstagramsMessgaes.INSTAGRAMS_AUDIANCE_INVALID
@@ -78,7 +78,7 @@ export const createInstagramsValidator = validate(
       mentions: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (!value.every((item: any) => ObjectId.isValid(item))) {
               throw new Error(InstagramsMessgaes.MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID)
             }
@@ -86,7 +86,7 @@ export const createInstagramsValidator = validate(
           }
         }
       },
-      media: {
+      medias: {
         isArray: true,
         custom: {
           options: (value, { req }) => {

@@ -8,5 +8,5 @@ export interface InstagramsRequestBody {
   parent_id: string | null
   hashtags: string[]
   mentions: string[]
-  media: Media
+  medias: Media[]
 }

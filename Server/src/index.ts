@@ -10,6 +10,7 @@ import staticRouter from './routes/static.routes'
 config()
 import cors from 'cors'
 import InstagramsRouters from './routes/instagrams.routes'
+import bookmarkRouters from './routes/bookmark.routes'
 const corsOptions = {
   origin: 'http://localhost:3000', // Chỉ cho phép nguồn gốc này
   methods: 'GET,POST,PUT,DELETE', // Các phương thức HTTP được phép
@@ -30,6 +31,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/users', userRouters)
 app.use('/upload', mediaRouters)
 app.use('/instagrams', InstagramsRouters)
+app.use('/bookmark', bookmarkRouters)
 app.use(defaultErrorHandler)
 // app.use('/static', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static', staticRouter)
