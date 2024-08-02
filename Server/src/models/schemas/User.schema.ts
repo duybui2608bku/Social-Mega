@@ -12,6 +12,7 @@ interface UserType {
   email_verify_token?: string
   forgot_password_token?: string
   verify?: UserVerifyStatus
+  instagrams_circle?: ObjectId[]
   bio?: string
   location?: string
   website?: string
@@ -30,6 +31,7 @@ export default class User {
   email_verify_token: string
   forgot_password_token: string
   verify: UserVerifyStatus
+  instagrams_circle: ObjectId[]
   bio: string
   location: string
   website: string
@@ -52,5 +54,6 @@ export default class User {
     this.website = user.website || ''
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
+    this.instagrams_circle = user.instagrams_circle || []
   }
 }

@@ -94,7 +94,8 @@ export const emailVerifyController = async (
   const result = await usersService.verifyEmail(user_id)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
-    message: result.message
+    message: result.message,
+    result: result.token
   })
 }
 

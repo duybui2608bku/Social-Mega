@@ -17,3 +17,11 @@ export const InstagramsController = async (
     result
   })
 }
+
+export const getInstagramsController = async (req: Request, res: Response) => {
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: InstagramsMessgaes.GET_INSTAGRAMS_SUCCESS,
+    result: {}
+  })
+}

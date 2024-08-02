@@ -86,7 +86,9 @@ export const InstagramsMessgaes = {
   UN_LIKE_INSTAGRAM_SUCCESS: 'Un like instagram successfully',
   INSTAGRAMS_LIKED: 'Instagrams liked',
   INVALID_INSTAGRAMS_ID: 'Invalid instagrams id',
-  INSTAGRAMS_ID_NOT_FOUND: 'Instagrams id not found'
+  INSTAGRAMS_ID_NOT_FOUND: 'Instagrams id not found',
+  GET_INSTAGRAMS_SUCCESS: 'Get instagrams successfully',
+  INSTAGRAMS_NOT_PUBLIC: 'Instagrams not public'
 } as const
 
 export const BookmarkMessgaes = {

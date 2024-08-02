@@ -2,11 +2,15 @@ import { checkSchema } from 'express-validator'
 import { isEmpty } from 'lodash'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
-import { HttpStatusCode, InstagramsAudiance, InstagramsType, MediaType } from '~/constants/enum'
-import { InstagramsMessgaes } from '~/constants/messages'
+import { HttpStatusCode, InstagramsAudiance, InstagramsType, MediaType, UserVerifyStatus } from '~/constants/enum'
+import { InstagramsMessgaes, userMessages } from '~/constants/messages'
 import { ErrorWithStatusCode } from '~/models/Errors'
 import { numberEnumToArr } from '~/utils/other'
 import { validate } from '~/utils/validation'
+import { NextFunction, Request, Response } from 'express'
+import Instagrams from '~/models/schemas/Instagrams.schema'
+import { TokenPayload } from '~/models/requestes/User.requests'
+import { wrapRequestHandler } from '~/utils/handlers'
 const InstagramsTypes = numberEnumToArr(InstagramsType)
 const InstagramsAudiances = numberEnumToArr(InstagramsAudiance)
 const mediaType = numberEnumToArr(MediaType)
@@ -112,7 +116,7 @@ export const instagramsIDValidator = validate(
     {
       instagram_id: {
         custom: {
-          options: async (value) => {
+          options: async (value, { req }) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatusCode({
                 statusCode: HttpStatusCode.BadRequest,
@@ -126,6 +130,7 @@ export const instagramsIDValidator = validate(
                 message: InstagramsMessgaes.INSTAGRAMS_ID_NOT_FOUND
               })
             }
+            ;(req as Request).instagram = Intagram
             return true
           }
         }
@@ -134,3 +139,33 @@ export const instagramsIDValidator = validate(
     ['params', 'body']
   )
 )
+
+export const audienceValidator = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const instagram = req.instagram as Instagrams
+  if (instagram.audiance === InstagramsAudiance.InstagramsCircle) {
+    if (!req.decode_authorization) {
+      throw new ErrorWithStatusCode({
+        statusCode: HttpStatusCode.Unauthorized,
+        message: userMessages.ACCESS_TOKEN_REQUIRED
+      })
+    }
+  }
+  const author = await databaseService.users.findOne({ _id: new ObjectId(instagram.user_id) })
+
+  if (!author || author.verify === UserVerifyStatus.Banned) {
+    throw new ErrorWithStatusCode({
+      statusCode: HttpStatusCode.NotFound,
+      message: userMessages.USER_NOT_FOUND
+    })
+  }
+  const { user_id } = req.decode_authorization as TokenPayload
+  const isIntagramsCircle = author.instagrams_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+  if (!isIntagramsCircle && !author._id.equals(new ObjectId(user_id))) {
+    throw new ErrorWithStatusCode({
+      statusCode: HttpStatusCode.Forbidden,
+      message: InstagramsMessgaes.INSTAGRAMS_NOT_PUBLIC
+    })
+  }
+
+  next()
+})
