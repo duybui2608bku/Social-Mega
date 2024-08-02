@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { isEmpty } from 'lodash'
 import { ObjectId } from 'mongodb'
-import { InstagramsAudiance, InstagramsType, MediaType } from '~/constants/enum'
-import { InstagramsMessgaes, userMessages } from '~/constants/messages'
+import databaseService from 'services/database.services'
+import { HttpStatusCode, InstagramsAudiance, InstagramsType, MediaType } from '~/constants/enum'
+import { InstagramsMessgaes } from '~/constants/messages'
+import { ErrorWithStatusCode } from '~/models/Errors'
 import { numberEnumToArr } from '~/utils/other'
 import { validate } from '~/utils/validation'
 const InstagramsTypes = numberEnumToArr(InstagramsType)
@@ -103,5 +104,33 @@ export const createInstagramsValidator = validate(
       }
     },
     ['body']
+  )
+)
+
+export const instagramsIDValidator = validate(
+  checkSchema(
+    {
+      instagram_id: {
+        custom: {
+          options: async (value) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                statusCode: HttpStatusCode.BadRequest,
+                message: InstagramsMessgaes.INVALID_INSTAGRAMS_ID
+              })
+            }
+            const Intagram = await databaseService.instagrams.findOne({ _id: new ObjectId(value) })
+            if (!Intagram) {
+              throw new ErrorWithStatusCode({
+                statusCode: HttpStatusCode.NotFound,
+                message: InstagramsMessgaes.INSTAGRAMS_ID_NOT_FOUND
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params', 'body']
   )
 )

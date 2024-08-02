@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { InstagramsController } from '~/controllers/instagrams.controllers'
-import { createInstagramsValidator } from '~/middlewares/instagrams.middlewares'
+import { likeInstagramsController, unLikeInstagramsController } from '~/controllers/likeInstagrams.controllers'
+import { createInstagramsValidator, instagramsIDValidator } from '~/middlewares/instagrams.middlewares'
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -19,6 +20,36 @@ InstagramsRouters.post(
   verifiedUserValidator,
   createInstagramsValidator,
   wrapRequestHandler(InstagramsController)
+)
+
+/**
+ * Description: like instagrams
+ * Path: '/like'
+ * Method: POST
+ * Body:{instagram_id: string}
+ */
+
+InstagramsRouters.post(
+  '/like',
+  accessTokenValidator,
+  verifiedUserValidator,
+  instagramsIDValidator,
+  wrapRequestHandler(likeInstagramsController)
+)
+
+/**
+ * Description: like instagrams
+ * Path: '/like'
+ * Method: POST
+ * Body:{instagram_id: string}
+ */
+
+InstagramsRouters.delete(
+  '/un-like/:instagram_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  instagramsIDValidator,
+  wrapRequestHandler(unLikeInstagramsController)
 )
 
 export default InstagramsRouters

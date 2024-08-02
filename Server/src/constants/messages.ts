@@ -79,9 +79,18 @@ export const InstagramsMessgaes = {
   HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING: 'Hashtags must be an array of string',
   MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID: 'Mentions must be an array of user id',
   MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object',
-  CREATE_INSTAGRAM_SUCCESS: 'Create instagram successfully'
+  CREATE_INSTAGRAM_SUCCESS: 'Create instagram successfully',
+  LIKE_INSTAGRAM_CREATE_SUCCESS: 'Like instagram create successfully',
+  UN_LIKE_INSTAGRAM_CREATE_SUCCESS: 'Un like instagram create successfully',
+  INSTAGRAMS_NOT_LIKED: 'Instagrams not liked',
+  UN_LIKE_INSTAGRAM_SUCCESS: 'Un like instagram successfully',
+  INSTAGRAMS_LIKED: 'Instagrams liked',
+  INVALID_INSTAGRAMS_ID: 'Invalid instagrams id',
+  INSTAGRAMS_ID_NOT_FOUND: 'Instagrams id not found'
 } as const
 
 export const BookmarkMessgaes = {
-  BOOKMARK_INSTAGRAM_CREATE_SUCCESS: 'Bookmark instagram create successfully'
+  BOOKMARK_INSTAGRAM_CREATE_SUCCESS: 'Bookmark instagram create successfully',
+  UN_BOOKMARK_INSTAGRAM_CREATE_SUCCESS: 'Un bookmark instagram create successfully',
+  BOOKMARK_INSTAGRAM_NOT_SAVE_OR_NOT_FOUND: 'Bookmark instagram not save or not found'
 } as const

@@ -23,7 +23,18 @@ const CreateInstagrams = ({ toggle, settoggleCreateInstagrams }: CreateInstagram
 
           <Dialog.Content className='dialogContent-createInsta'>
             <Dialog.Title className='dialogTitle-createInsta'>
-              <div onClick={() => settoggleCreateInstagrams(!toggle)} className='btn-close-dialogCreateInsta'>
+              <div
+                role='button'
+                tabIndex={0}
+                onClick={() => settoggleCreateInstagrams(!toggle)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    settoggleCreateInstagrams(!toggle)
+                  }
+                }}
+                aria-label='Close dialog'
+                className='btn-close-dialogCreateInsta'
+              >
                 <FaArrowLeft />
               </div>
               <div>Đăng bài mới</div>
@@ -32,12 +43,15 @@ const CreateInstagrams = ({ toggle, settoggleCreateInstagrams }: CreateInstagram
             <Dialog.Description>
               <div className='createInstagrams__details'>
                 <div className='createInstagrams__details__image'>
-                  <img src='https://scontent.fhan4-3.fna.fbcdn.net/v/t39.30808-6/273405250_1884129491791495_3985241061784500257_n.jpg?stp=c52.0.206.206a_dst-jpg_p206x206&_nc_cat=110&ccb=1-7&_nc_sid=50c75d&_nc_eui2=AeEMcL433FUFRuA-iRHGCfv6uHoVgvwvgYu4ehWC_C-Bi4nKR7FLsnieHeWu_tE225EkG-LUeGO-1R8CJHtSjNct&_nc_ohc=Nbmr_J7I0M8Q7kNvgG5ZXA5&_nc_ht=scontent.fhan4-3.fna&gid=A3o169kbxnJaIQHGQnclS7K&oh=00_AYBKv_wpRZLQ4kSrB_6kb_mepDQaB8dIzV54aQ-fzNtzCw&oe=66B17B16' />
+                  <img
+                    alt=''
+                    src='https://scontent.fhan4-3.fna.fbcdn.net/v/t39.30808-6/273405250_1884129491791495_3985241061784500257_n.jpg?stp=c52.0.206.206a_dst-jpg_p206x206&_nc_cat=110&ccb=1-7&_nc_sid=50c75d&_nc_eui2=AeEMcL433FUFRuA-iRHGCfv6uHoVgvwvgYu4ehWC_C-Bi4nKR7FLsnieHeWu_tE225EkG-LUeGO-1R8CJHtSjNct&_nc_ohc=Nbmr_J7I0M8Q7kNvgG5ZXA5&_nc_ht=scontent.fhan4-3.fna&gid=A3o169kbxnJaIQHGQnclS7K&oh=00_AYBKv_wpRZLQ4kSrB_6kb_mepDQaB8dIzV54aQ-fzNtzCw&oe=66B17B16'
+                  />
                 </div>
                 <div className='createInstagrams__details__caption'>
                   <div className='createInstagrams__details__caption__user'>
                     <div className='createInstagrams__details__caption__user__avatar'>
-                      <img src={UserFake.avatar} />
+                      <img alt='avatar' src={UserFake.avatar} />
                     </div>
                     <div className='createInstagrams__details__caption__user__name'>{UserFake.name}</div>
                   </div>

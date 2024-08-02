@@ -17,3 +17,16 @@ export const bookmarkController = async (
     result
   })
 }
+
+export const unBookmarkController = async (req: Request, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const result = await bookmarService.unBookmarkInstagrams(user_id, req.params.instagram_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message:
+      result === null
+        ? BookmarkMessgaes.BOOKMARK_INSTAGRAM_NOT_SAVE_OR_NOT_FOUND
+        : BookmarkMessgaes.UN_BOOKMARK_INSTAGRAM_CREATE_SUCCESS,
+    result: result === null ? {} : result
+  })
+}
