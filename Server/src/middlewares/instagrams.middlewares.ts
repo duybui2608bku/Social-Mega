@@ -7,10 +7,11 @@ import { InstagramsMessgaes, userMessages } from '~/constants/messages'
 import { ErrorWithStatusCode } from '~/models/Errors'
 import { numberEnumToArr } from '~/utils/other'
 import { validate } from '~/utils/validation'
-import { NextFunction, Request, Response } from 'express'
+import e, { NextFunction, Request, Response } from 'express'
 import Instagrams from '~/models/schemas/Instagrams.schema'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { wrapRequestHandler } from '~/utils/handlers'
+import { hash } from 'crypto'
 const InstagramsTypes = numberEnumToArr(InstagramsType)
 const InstagramsAudiances = numberEnumToArr(InstagramsAudiance)
 const mediaType = numberEnumToArr(MediaType)
@@ -123,7 +124,103 @@ export const instagramsIDValidator = validate(
                 message: InstagramsMessgaes.INVALID_INSTAGRAMS_ID
               })
             }
-            const Intagram = await databaseService.instagrams.findOne({ _id: new ObjectId(value) })
+
+            const Intagram = (
+              await databaseService.instagrams
+                .aggregate<Instagrams>([
+                  {
+                    $match: {
+                      _id: new ObjectId('66ac5ead450ac3f250e6aae7')
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'hashtags',
+                      localField: 'hashtags',
+                      foreignField: '_id',
+                      as: 'hashtags'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'mentions',
+                      foreignField: '_id',
+                      as: 'mentions'
+                    }
+                  },
+                  {
+                    $addFields: {
+                      mentions: {
+                        $map: {
+                          input: '$mentions',
+                          as: 'mention',
+                          in: {
+                            _id: '$$mention._id',
+                            name: '$$mention.name',
+                            username: '$$mention.username',
+                            email: '$$mention.email'
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'bookmarks',
+                      localField: '_id',
+                      foreignField: 'instagram_id',
+                      as: 'bookmarks'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'instagrams',
+                      localField: '_id',
+                      foreignField: 'parent_id',
+                      as: 'instagram_children'
+                    }
+                  },
+                  {
+                    $addFields: {
+                      bookmarks: { $size: '$bookmarks' },
+                      like: { $size: '$like' },
+                      reInstagrams: {
+                        $size: {
+                          $filter: {
+                            input: '$instagram_children',
+                            as: 'item',
+                            cond: { $eq: ['$$item.type', 1] }
+                          }
+                        }
+                      },
+                      comment_count: {
+                        $size: {
+                          $filter: {
+                            input: '$instagram_children',
+                            as: 'item',
+                            cond: { $eq: ['$$item.type', 2] }
+                          }
+                        }
+                      },
+                      qoute_count: {
+                        $size: {
+                          $filter: {
+                            input: '$instagram_children',
+                            as: 'item',
+                            cond: { $eq: ['$$item.type', 3] }
+                          }
+                        }
+                      },
+                      views: {
+                        $add: ['$user_views', '$guest_views'] // Chú ý thêm dấu ngoặc kép cho 'guest_views'
+                      }
+                    }
+                  }
+                ])
+                .toArray()
+            )[0]
+
             if (!Intagram) {
               throw new ErrorWithStatusCode({
                 statusCode: HttpStatusCode.NotFound,
