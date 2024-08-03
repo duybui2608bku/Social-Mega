@@ -4,7 +4,8 @@ import { InstagramsRequestBody } from '~/models/requestes/Instagrams.requests'
 import instagramsService from '../../services/instagrams.services'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { InstagramsMessgaes } from '~/constants/messages'
-import { HttpStatusCode } from '~/constants/enum'
+import { HttpStatusCode, InstagramsType } from '~/constants/enum'
+import { get } from 'lodash'
 export const InstagramsController = async (
   req: Request<ParamsDictionary, any, InstagramsRequestBody>,
   res: Response
@@ -29,5 +30,27 @@ export const getInstagramsController = async (req: Request, res: Response) => {
     success: true,
     message: InstagramsMessgaes.GET_INSTAGRAMS_SUCCESS,
     result: instagram
+  })
+}
+
+export const getInstagramsChildrentController = async (req: Request, res: Response) => {
+  const instagrams_type = Number(req.query.instagrams_type) as InstagramsType
+  const page = Number(req.query.page as string)
+  const limit = Number(req.query.limit as string)
+  const { Instagrams, total } = await instagramsService.getInstagramsChildrent({
+    instagrams_id: req.params.instagram_id,
+    instagrams_type,
+    page,
+    limit
+  })
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: InstagramsMessgaes.GET_CHILDRENT_INSTAGRAMS_SUCCESS,
+    result: {
+      Instagrams,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit)
+    }
   })
 }

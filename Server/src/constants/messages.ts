@@ -88,7 +88,8 @@ export const InstagramsMessgaes = {
   INVALID_INSTAGRAMS_ID: 'Invalid instagrams id',
   INSTAGRAMS_ID_NOT_FOUND: 'Instagrams id not found',
   GET_INSTAGRAMS_SUCCESS: 'Get instagrams successfully',
-  INSTAGRAMS_NOT_PUBLIC: 'Instagrams not public'
+  INSTAGRAMS_NOT_PUBLIC: 'Instagrams not public',
+  GET_CHILDRENT_INSTAGRAMS_SUCCESS: 'Get children instagrams successfully'
 } as const
 
 export const BookmarkMessgaes = {

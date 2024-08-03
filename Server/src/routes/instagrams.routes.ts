@@ -1,5 +1,9 @@
 import { Router } from 'express'
-import { getInstagramsController, InstagramsController } from '~/controllers/instagrams.controllers'
+import {
+  getInstagramsChildrentController,
+  getInstagramsController,
+  InstagramsController
+} from '~/controllers/instagrams.controllers'
 import { likeInstagramsController, unLikeInstagramsController } from '~/controllers/likeInstagrams.controllers'
 import {
   audienceValidator,
@@ -58,7 +62,7 @@ InstagramsRouters.delete(
 
 /**
  * Description: Get Instagrams Details
- * Path: '/'
+ * Path: '/:instagram_id'
  * Method: GET
  * Headers: {Authorization ?: Bearer <access_token>}
  */
@@ -70,6 +74,23 @@ InstagramsRouters.get(
   isUserLoggedValidator(verifiedUserValidator),
   audienceValidator,
   wrapRequestHandler(getInstagramsController)
+)
+
+/**
+ * Description: Get Instagrams Children
+ * Path: '/:instagram_id/children'
+ * Method: GET
+ * Headers: {Authorization ?: Bearer <access_token>}
+ * Query: {page ?: number, limit ?: number,instagram_type ?: InstagramsType}
+ */
+
+InstagramsRouters.get(
+  '/:instagram_id/children',
+  instagramsIDValidator,
+  isUserLoggedValidator(accessTokenValidator),
+  isUserLoggedValidator(verifiedUserValidator),
+  audienceValidator,
+  wrapRequestHandler(getInstagramsChildrentController)
 )
 
 export default InstagramsRouters

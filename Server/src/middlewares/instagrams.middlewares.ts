@@ -129,7 +129,7 @@ export const instagramsIDValidator = validate(
                 .aggregate<Instagrams>([
                   {
                     $match: {
-                      _id: new ObjectId('66ac5ead450ac3f250e6aae7')
+                      _id: new ObjectId(value as ObjectId)
                     }
                   },
                   {
@@ -201,7 +201,7 @@ export const instagramsIDValidator = validate(
                             input: '$instagrams_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 1]
+                              $eq: ['$$item.type', InstagramsType.ReInstagrams]
                             }
                           }
                         }
@@ -212,7 +212,7 @@ export const instagramsIDValidator = validate(
                             input: '$instagrams_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 2]
+                              $eq: ['$$item.type', InstagramsType.Comment]
                             }
                           }
                         }
@@ -223,7 +223,7 @@ export const instagramsIDValidator = validate(
                             input: '$instagrams_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 3]
+                              $eq: ['$$item.type', InstagramsType.QuoteInstagrams]
                             }
                           }
                         }
@@ -260,7 +260,6 @@ export const instagramsIDValidator = validate(
               })
             }
             ;(req as Request).instagram = Intagram
-            console.log(Intagram)
             return true
           }
         }
