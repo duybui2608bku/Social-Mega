@@ -7,11 +7,10 @@ import { InstagramsMessgaes, userMessages } from '~/constants/messages'
 import { ErrorWithStatusCode } from '~/models/Errors'
 import { numberEnumToArr } from '~/utils/other'
 import { validate } from '~/utils/validation'
-import e, { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Instagrams from '~/models/schemas/Instagrams.schema'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { wrapRequestHandler } from '~/utils/handlers'
-import { hash } from 'crypto'
 const InstagramsTypes = numberEnumToArr(InstagramsType)
 const InstagramsAudiances = numberEnumToArr(InstagramsAudiance)
 const mediaType = numberEnumToArr(MediaType)
@@ -73,7 +72,7 @@ export const createInstagramsValidator = validate(
       hashtags: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (!value.every((item: any) => typeof item === 'string')) {
               throw new Error(InstagramsMessgaes.HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING)
             }
@@ -158,7 +157,6 @@ export const instagramsIDValidator = validate(
                           in: {
                             _id: '$$mention._id',
                             name: '$$mention.name',
-                            username: '$$mention.username',
                             email: '$$mention.email'
                           }
                         }
@@ -175,45 +173,79 @@ export const instagramsIDValidator = validate(
                   },
                   {
                     $lookup: {
+                      from: 'like_instagrams',
+                      localField: '_id',
+                      foreignField: 'instagram_id',
+                      as: 'like'
+                    }
+                  },
+                  {
+                    $lookup: {
                       from: 'instagrams',
                       localField: '_id',
                       foreignField: 'parent_id',
-                      as: 'instagram_children'
+                      as: 'instagrams_children'
                     }
                   },
                   {
                     $addFields: {
-                      bookmarks: { $size: '$bookmarks' },
-                      like: { $size: '$like' },
+                      like: {
+                        $size: '$like'
+                      },
+                      bookmarks: {
+                        $size: '$bookmarks'
+                      },
                       reInstagrams: {
                         $size: {
                           $filter: {
-                            input: '$instagram_children',
+                            input: '$instagrams_children',
                             as: 'item',
-                            cond: { $eq: ['$$item.type', 1] }
+                            cond: {
+                              $eq: ['$$item.type', 1]
+                            }
                           }
                         }
                       },
-                      comment_count: {
+                      commentInstagrams: {
                         $size: {
                           $filter: {
-                            input: '$instagram_children',
+                            input: '$instagrams_children',
                             as: 'item',
-                            cond: { $eq: ['$$item.type', 2] }
+                            cond: {
+                              $eq: ['$$item.type', 2]
+                            }
                           }
                         }
                       },
-                      qoute_count: {
+                      qouteInstagrams: {
                         $size: {
                           $filter: {
-                            input: '$instagram_children',
+                            input: '$instagrams_children',
                             as: 'item',
-                            cond: { $eq: ['$$item.type', 3] }
+                            cond: {
+                              $eq: ['$$item.type', 3]
+                            }
                           }
                         }
-                      },
-                      views: {
-                        $add: ['$user_views', '$guest_views'] // Chú ý thêm dấu ngoặc kép cho 'guest_views'
+                      }
+                    }
+                  },
+                  {
+                    $project: {
+                      instagrams_children: 0
+                    }
+                  },
+                  {
+                    $addFields: {
+                      hashtags: {
+                        $map: {
+                          input: '$hashtags',
+                          as: 'hashtag',
+                          in: {
+                            name: '$$hashtag.name',
+                            _id: '$$hashtag._id'
+                          }
+                        }
                       }
                     }
                   }
@@ -228,6 +260,7 @@ export const instagramsIDValidator = validate(
               })
             }
             ;(req as Request).instagram = Intagram
+            console.log(Intagram)
             return true
           }
         }

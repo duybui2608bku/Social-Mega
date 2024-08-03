@@ -35,6 +35,27 @@ class InstagramsService {
     const InstagramsResult = await databaseService.instagrams.findOne({ _id: (await result).insertedId })
     return InstagramsResult
   }
+
+  async increaseView(instagrams_id: string, user_id?: string) {
+    const inc = user_id ? { user_view: 1 } : { guest_view: 1 }
+
+    const result = await databaseService.instagrams.findOneAndUpdate(
+      {
+        _id: new ObjectId(instagrams_id)
+      },
+      {
+        $inc: inc,
+        $currentDate: {
+          updated_at: true
+        }
+      },
+      {
+        returnDocument: 'after',
+        projection: { user_view: 1, guest_view: 1 }
+      }
+    )
+    return result
+  }
 }
 
 const instagramsService = new InstagramsService()

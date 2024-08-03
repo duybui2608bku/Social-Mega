@@ -19,9 +19,15 @@ export const InstagramsController = async (
 }
 
 export const getInstagramsController = async (req: Request, res: Response) => {
+  const result = await instagramsService.increaseView(req.params.instagram_id, req.decode_authorization?.user_id)
+  const instagram = {
+    ...req.instagram,
+    guest_view: result?.guest_view,
+    user_view: result?.user_view
+  }
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: InstagramsMessgaes.GET_INSTAGRAMS_SUCCESS,
-    result: {}
+    result: instagram
   })
 }
