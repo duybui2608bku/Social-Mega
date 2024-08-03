@@ -1,0 +1,124 @@
+@use '../../Scss//breakPoint.scss' as *;
+.chat {
+  margin-left: 65px;
+  display: flex;
+  @include mobile {
+    margin-left: 0;
+  }
+  &__users {
+    width: 350px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 10px;
+    overflow: hidden;
+    border-right: 2px solid #ddd;
+    @include mobile {
+      width: 90px;
+      &__title {
+        display: none;
+      }
+    }
+    &__title {
+      font-weight: 900;
+    }
+    &__detail {
+      cursor: pointer;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      &__avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      @include mobile {
+        &__name {
+          display: none;
+        }
+      }
+    }
+  }
+  &__detail {
+    flex: 1;
+    &__header {
+      position: fixed;
+      border-bottom: 2px solid #ddd;
+      top: 0;
+      padding: 10px;
+      width: calc(100% - 415px);
+      @include mobile {
+        width: calc(100% - 90px);
+        z-index: 9999 !important;
+        background-color: white;
+      }
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &__user {
+        cursor: pointer;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        &__avatar {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          overflow: hidden;
+        }
+      }
+      &__call {
+        cursor: pointer;
+        font-size: 30px;
+      }
+    }
+    &__input {
+      position: fixed;
+      bottom: 0;
+      width: calc(100% - 455px);
+      @include mobile {
+        width: calc(100% - 120px);
+        bottom: 50px;
+        padding: 10px;
+        &__file {
+          width: 25% !important;
+        }
+        &__emoj {
+          width: 15% !important;
+        }
+      }
+      height: 60px;
+      border-radius: 40px;
+      border: 2px solid #ddd;
+      margin: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &__emoj {
+        cursor: pointer;
+        width: 5%;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      &__file {
+        cursor: pointer;
+        width: 15%;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      &__text {
+        height: 40px;
+        border: none;
+        font-size: 20px;
+        width: calc(100% - 15% - 5% - 5%);
+      }
+    }
+  }
+}
