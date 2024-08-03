@@ -4,6 +4,7 @@ import databaseService from './database.services'
 import { ObjectId, WithId } from 'mongodb'
 import Hashtags from '~/models/schemas/Hashtags.schema'
 import { InstagramsType } from '~/constants/enum'
+import { update } from 'lodash'
 
 class InstagramsService {
   async checkAndCreateHashtags(hashtags: string[]) {
@@ -52,7 +53,7 @@ class InstagramsService {
       },
       {
         returnDocument: 'after',
-        projection: { user_view: 1, guest_view: 1 }
+        projection: { user_view: 1, guest_view: 1, updated_at: 1 }
       }
     )
     return result
@@ -62,12 +63,14 @@ class InstagramsService {
     instagrams_id,
     instagrams_type,
     limit,
-    page
+    page,
+    user_id
   }: {
     instagrams_id: string
     instagrams_type: InstagramsType
     limit: number
     page: number
+    user_id?: string
   }) {
     const Instagrams = await databaseService.instagrams
       .aggregate<Instagrams>([
@@ -172,9 +175,6 @@ class InstagramsService {
                   }
                 }
               }
-            },
-            views: {
-              $add: ['$user_view', '$guest_view']
             }
           }
         },
@@ -205,10 +205,39 @@ class InstagramsService {
         }
       ])
       .toArray()
-    const total = await databaseService.instagrams.countDocuments({
-      parent_id: new ObjectId(instagrams_id),
-      type: instagrams_type
+
+    const ids = Instagrams.map((instagram) => instagram._id as ObjectId)
+    const inc = user_id ? { user_view: 1 } : { guest_view: 1 }
+
+    const [, total] = await Promise.all([
+      databaseService.instagrams.updateMany(
+        {
+          _id: {
+            $in: ids
+          }
+        },
+        {
+          $inc: inc,
+          $set: {
+            updated_at: new Date()
+          }
+        }
+      ),
+      databaseService.instagrams.countDocuments({
+        parent_id: new ObjectId(instagrams_id),
+        type: instagrams_type
+      })
+    ])
+
+    Instagrams.forEach((instagram) => {
+      instagram.updated_at = new Date()
+      if (user_id) {
+        instagram.user_view += 1
+      } else {
+        instagram.guest_view += 1
+      }
     })
+
     return {
       Instagrams,
       total
