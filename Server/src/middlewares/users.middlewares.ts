@@ -730,22 +730,37 @@ export const followerUserValidator = validate(
     {
       follow_user_id: {
         custom: {
-          options: async (value: string) => {
+          options: async (value: string, { req }) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatusCode({
                 message: userMessages.ID_FLLOW_USER_INVALID,
                 statusCode: HttpStatusCode.NotFound
               })
             }
-            const followerUser = await databaseService.users.findOne({
-              _id: new ObjectId(value)
-            })
+
+            const { user_id } = req.decode_authorization
+            const [followerUser, user] = await Promise.all([
+              databaseService.users.findOne({
+                _id: new ObjectId(value)
+              }),
+              databaseService.users.findOne({
+                _id: new ObjectId(user_id as ObjectId)
+              })
+            ])
             if (followerUser === null) {
               throw new ErrorWithStatusCode({
                 message: userMessages.USER_NOT_FOUND,
                 statusCode: HttpStatusCode.NotFound
               })
             }
+
+            if (followerUser._id.toString() === user?._id.toString()) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.CAN_NOT_FOLLOW_YOURSELF,
+                statusCode: HttpStatusCode.BadRequest
+              })
+            }
+
             return true
           }
         }

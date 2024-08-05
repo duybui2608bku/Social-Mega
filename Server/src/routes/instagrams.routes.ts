@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   getInstagramsChildrentController,
   getInstagramsController,
+  getNewFeedController,
   InstagramsController
 } from '~/controllers/instagrams.controllers'
 import { likeInstagramsController, unLikeInstagramsController } from '~/controllers/likeInstagrams.controllers'
@@ -9,7 +10,8 @@ import {
   audienceValidator,
   createInstagramsValidator,
   getInstagramsChildrenValidator,
-  instagramsIDValidator
+  instagramsIDValidator,
+  paginatonValidator
 } from '~/middlewares/instagrams.middlewares'
 import { accessTokenValidator, isUserLoggedValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
@@ -88,11 +90,28 @@ InstagramsRouters.get(
 InstagramsRouters.get(
   '/:instagram_id/children',
   instagramsIDValidator,
+  paginatonValidator,
   getInstagramsChildrenValidator,
   isUserLoggedValidator(accessTokenValidator),
   isUserLoggedValidator(verifiedUserValidator),
   audienceValidator,
   wrapRequestHandler(getInstagramsChildrentController)
+)
+
+/**
+ * Description: Get New Feeds Instagrams
+ * Path: '/'
+ * Method: GET
+ * Headers: {Authorization : Bearer <access_token>}
+ * Query: {page ?: number, limit ?: number}
+ */
+
+InstagramsRouters.get(
+  '/',
+  paginatonValidator,
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(getNewFeedController)
 )
 
 export default InstagramsRouters

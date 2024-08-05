@@ -307,7 +307,15 @@ export const getInstagramsChildrenValidator = validate(
           options: [InstagramsTypes],
           errorMessage: InstagramsMessgaes.INSTAGRAMS_TYPE_INVALID
         }
-      },
+      }
+    },
+    ['query']
+  )
+)
+
+export const paginatonValidator = validate(
+  checkSchema(
+    {
       limit: {
         isNumeric: true,
         custom: {

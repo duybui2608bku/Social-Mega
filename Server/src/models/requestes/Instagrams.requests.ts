@@ -14,8 +14,11 @@ export interface InstagramsChildrenParams extends ParamsDictionary {
   instagrams_id: string
 }
 
-export interface InstagramsChildrentQuery extends Query {
+export interface InstagramsChildrentQuery extends Query, Pagination {
+  instagram_type: string
+}
+
+export interface Pagination {
   page: string
   limit: string
-  instagram_type: string
 }

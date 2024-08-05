@@ -3,7 +3,8 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import {
   InstagramsChildrenParams,
   InstagramsChildrentQuery,
-  InstagramsRequestBody
+  InstagramsRequestBody,
+  Pagination
 } from '~/models/requestes/Instagrams.requests'
 import instagramsService from '../../services/instagrams.services'
 import { TokenPayload } from '~/models/requestes/User.requests'
@@ -61,5 +62,18 @@ export const getInstagramsChildrentController = async (
       limit,
       total_pages: Math.ceil(total / limit)
     }
+  })
+}
+
+export const getNewFeedController = async (req: Request<ParamsDictionary, any, any, Pagination>, res: Response) => {
+  const user_id = req.decode_authorization as TokenPayload
+  const page = Number(req.query.page)
+  const limit = Number(req.query.limit)
+  const result = await instagramsService.getNewFeed({ user_id, limit, page })
+
+  res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: InstagramsMessgaes.GET_NEW_FEED_SUCCESS,
+    result: result
   })
 }

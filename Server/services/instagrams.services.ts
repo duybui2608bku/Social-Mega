@@ -4,7 +4,7 @@ import databaseService from './database.services'
 import { ObjectId, WithId } from 'mongodb'
 import Hashtags from '~/models/schemas/Hashtags.schema'
 import { InstagramsType } from '~/constants/enum'
-import { update } from 'lodash'
+import { TokenPayload } from '~/models/requestes/User.requests'
 
 class InstagramsService {
   async checkAndCreateHashtags(hashtags: string[]) {
@@ -21,8 +21,7 @@ class InstagramsService {
   }
   async createInstagram(user_id: string, body: InstagramsRequestBody) {
     const hashtags = await this.checkAndCreateHashtags(body.hashtags)
-    console.log(hashtags)
-    const result = databaseService.instagrams.insertOne(
+    const result = await databaseService.instagrams.insertOne(
       new Instagrams({
         audiance: body.audiance,
         content: body.content,
@@ -34,7 +33,7 @@ class InstagramsService {
         user_id: new ObjectId(user_id)
       })
     )
-    const InstagramsResult = await databaseService.instagrams.findOne({ _id: (await result).insertedId })
+    const InstagramsResult = await databaseService.instagrams.findOne({ _id: result.insertedId })
     return InstagramsResult
   }
 
@@ -242,6 +241,25 @@ class InstagramsService {
       Instagrams,
       total
     }
+  }
+
+  async getNewFeed({ user_id, limit, page }: { user_id: TokenPayload; limit: number; page: number }) {
+    const follower_user_ids = await databaseService.followers
+      .find(
+        {
+          user_id: new ObjectId(user_id.user_id)
+        },
+        {
+          projection: {
+            follow_user_id: 1,
+            _id: 0
+          }
+        }
+      )
+      .toArray()
+    const ids = follower_user_ids.map((follower) => follower.follow_user_id)
+    ids.push(new ObjectId(user_id.user_id))
+    return ids
   }
 }
 

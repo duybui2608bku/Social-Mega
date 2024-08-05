@@ -66,7 +66,8 @@ export const userMessages = {
   GET_IMAGE_SUCCESS: 'Get image successfully',
   UPLOAD_VIDEO_SUCCESS: 'Upload video successfully',
   REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
-  UPLOAD_VIDEO_HLS_SUCCESS: 'Upload video hls successfully'
+  UPLOAD_VIDEO_HLS_SUCCESS: 'Upload video hls successfully',
+  CAN_NOT_FOLLOW_YOURSELF: 'Can not follow yourself'
 } as const
 
 export const InstagramsMessgaes = {
@@ -92,7 +93,8 @@ export const InstagramsMessgaes = {
   GET_CHILDRENT_INSTAGRAMS_SUCCESS: 'Get children instagrams successfully',
   LIMIT_MUST_BE_LESS_THAN_100: 'Limit must be less than 100',
   LIMIT_MUST_BE_BIGGER_THAN_0: 'Limit must be bigger than 0',
-  PAGE_MUST_BE_BIGGER_THAN_0: 'Page must be bigger than 0'
+  PAGE_MUST_BE_BIGGER_THAN_0: 'Page must be bigger than 0',
+  GET_NEW_FEED_SUCCESS: 'Get new feed successfully'
 } as const
 
 export const BookmarkMessgaes = {
