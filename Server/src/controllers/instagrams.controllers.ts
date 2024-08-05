@@ -1,6 +1,10 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { InstagramsRequestBody } from '~/models/requestes/Instagrams.requests'
+import {
+  InstagramsChildrenParams,
+  InstagramsChildrentQuery,
+  InstagramsRequestBody
+} from '~/models/requestes/Instagrams.requests'
 import instagramsService from '../../services/instagrams.services'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { InstagramsMessgaes } from '~/constants/messages'
@@ -33,11 +37,14 @@ export const getInstagramsController = async (req: Request, res: Response) => {
   })
 }
 
-export const getInstagramsChildrentController = async (req: Request, res: Response) => {
+export const getInstagramsChildrentController = async (
+  req: Request<InstagramsChildrenParams, any, any, InstagramsChildrentQuery>,
+  res: Response
+) => {
   const { user_id } = req.decode_authorization as TokenPayload
   const instagrams_type = Number(req.query.instagrams_type) as InstagramsType
-  const page = Number(req.query.page as string)
-  const limit = Number(req.query.limit as string)
+  const page = Number(req.query.page)
+  const limit = Number(req.query.limit)
   const { Instagrams, total } = await instagramsService.getInstagramsChildrent({
     instagrams_id: req.params.instagram_id,
     instagrams_type,

@@ -89,7 +89,10 @@ export const InstagramsMessgaes = {
   INSTAGRAMS_ID_NOT_FOUND: 'Instagrams id not found',
   GET_INSTAGRAMS_SUCCESS: 'Get instagrams successfully',
   INSTAGRAMS_NOT_PUBLIC: 'Instagrams not public',
-  GET_CHILDRENT_INSTAGRAMS_SUCCESS: 'Get children instagrams successfully'
+  GET_CHILDRENT_INSTAGRAMS_SUCCESS: 'Get children instagrams successfully',
+  LIMIT_MUST_BE_LESS_THAN_100: 'Limit must be less than 100',
+  LIMIT_MUST_BE_BIGGER_THAN_0: 'Limit must be bigger than 0',
+  PAGE_MUST_BE_BIGGER_THAN_0: 'Page must be bigger than 0'
 } as const
 
 export const BookmarkMessgaes = {

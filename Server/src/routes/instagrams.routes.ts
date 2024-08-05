@@ -8,6 +8,7 @@ import { likeInstagramsController, unLikeInstagramsController } from '~/controll
 import {
   audienceValidator,
   createInstagramsValidator,
+  getInstagramsChildrenValidator,
   instagramsIDValidator
 } from '~/middlewares/instagrams.middlewares'
 import { accessTokenValidator, isUserLoggedValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
@@ -87,6 +88,7 @@ InstagramsRouters.get(
 InstagramsRouters.get(
   '/:instagram_id/children',
   instagramsIDValidator,
+  getInstagramsChildrenValidator,
   isUserLoggedValidator(accessTokenValidator),
   isUserLoggedValidator(verifiedUserValidator),
   audienceValidator,

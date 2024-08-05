@@ -298,3 +298,43 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
 
   next()
 })
+
+export const getInstagramsChildrenValidator = validate(
+  checkSchema(
+    {
+      instagrams_type: {
+        isIn: {
+          options: [InstagramsTypes],
+          errorMessage: InstagramsMessgaes.INSTAGRAMS_TYPE_INVALID
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value)
+            if (num > 100) {
+              throw new Error(InstagramsMessgaes.LIMIT_MUST_BE_LESS_THAN_100)
+            } else if (num < 1) {
+              throw new Error(InstagramsMessgaes.LIMIT_MUST_BE_BIGGER_THAN_0)
+            }
+            return true
+          }
+        }
+      },
+      page: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value)
+            if (num < 1) {
+              throw new Error(InstagramsMessgaes.PAGE_MUST_BE_BIGGER_THAN_0)
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)
