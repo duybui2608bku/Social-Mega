@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { UserVerifyStatus } from '~/constants/enum'
+import { userStatus, UserVerifyStatus } from '~/constants/enum'
 
 interface UserType {
   _id?: ObjectId
@@ -18,6 +18,8 @@ interface UserType {
   website?: string
   avatar?: string
   cover_photo?: string
+  status?: userStatus
+  request_follow?: ObjectId[]
 }
 
 export default class User {
@@ -37,6 +39,8 @@ export default class User {
   website: string
   avatar: string
   cover_photo: string
+  status: userStatus
+  request_follow?: ObjectId[]
 
   constructor(user: UserType) {
     this._id = user._id
@@ -55,5 +59,7 @@ export default class User {
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
     this.instagrams_circle = user.instagrams_circle || []
+    this.status = user.status || userStatus.public
+    this.request_follow = user.request_follow || []
   }
 }

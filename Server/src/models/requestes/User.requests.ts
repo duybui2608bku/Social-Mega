@@ -75,6 +75,14 @@ export interface UnfollowerRequestBody extends ParamsDictionary {
   unfollow_user_id: string
 }
 
+export interface FollowerAcceptRequestBody extends ParamsDictionary {
+  follow_user_id_accept: string
+}
+
+export interface FollowerCancleRequestBody extends ParamsDictionary {
+  follow_user_id_cancle_request: string
+}
+
 export interface changePasswordRequestBody {
   old_password: string
   password: string

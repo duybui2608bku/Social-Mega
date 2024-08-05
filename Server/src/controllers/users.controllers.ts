@@ -4,6 +4,8 @@ import usersService from '../../services/users.services'
 import {
   changePasswordRequestBody,
   EmailVerifyRequestBody,
+  FollowerAcceptRequestBody,
+  FollowerCancleRequestBody,
   FollowRequestBody,
   ForgotPasswordRequestBody,
   getProfileRequestBody,
@@ -17,7 +19,7 @@ import {
   updateMeRequestBody,
   VerifyForgotPasswordRequestBody
 } from '~/models/requestes/User.requests'
-import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
+import { HttpStatusCode, userStatus, UserVerifyStatus } from '~/constants/enum'
 import { userMessages } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
@@ -206,7 +208,32 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, upd
 export const followController = async (req: Request<ParamsDictionary, any, FollowRequestBody>, res: Response) => {
   const { user_id } = req.decode_authorization as TokenPayload
   const { follow_user_id } = req.body
-  const result = await usersService.follow(user_id, follow_user_id)
+  const statusUser = req.statusUser as userStatus
+  console.log('statusUser', statusUser)
+  const result = await usersService.follow(user_id, follow_user_id, statusUser)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const followAppectController = async (req: Request<FollowerAcceptRequestBody, any, any>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { follow_user_id_accept } = req.params
+  const result = await usersService.followAccept(user_id, follow_user_id_accept)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const followCancleRequestController = async (
+  req: Request<FollowerCancleRequestBody, any, any>,
+  res: Response
+) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { follow_user_id_cancle_request } = req.params
+  const result = await usersService.cancleRequestFollower(user_id, follow_user_id_cancle_request)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: result.message

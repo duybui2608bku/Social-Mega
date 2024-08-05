@@ -760,13 +760,55 @@ export const followerUserValidator = validate(
                 statusCode: HttpStatusCode.BadRequest
               })
             }
-
+            req.statusUser = followerUser.status
             return true
           }
         }
       }
     },
     ['body']
+  )
+)
+
+export const followUserAcceptValidator = validate(
+  checkSchema(
+    {
+      follow_user_id_accept: {
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.ID_FLLOW_USER_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
+
+export const followUserCancleValidator = validate(
+  checkSchema(
+    {
+      follow_user_id_cancle_request: {
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.ID_FLLOW_USER_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
   )
 )
 

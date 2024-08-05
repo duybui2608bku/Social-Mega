@@ -3,12 +3,13 @@ import databaseService from '../services/database.services'
 import User from '../src/models/schemas/User.schema'
 import { hashPassword } from '~/utils/crypro'
 import { signToken, verifyToken } from '~/utils/jwt'
-import { TokenType, UserVerifyStatus } from '~/constants/enum'
+import { HttpStatusCode, TokenType, userStatus, UserVerifyStatus } from '~/constants/enum'
 import { RefreshToken } from '~/models/schemas/RefreshToekn.chema'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { userMessages } from '~/constants/messages'
 import Followers from '~/models/schemas/Fllowers.chema'
+import { ErrorWithStatusCode } from '~/models/Errors'
 config()
 
 class UsersService {
@@ -248,9 +249,10 @@ class UsersService {
       { projection: { password: 0, email_verify_token: 0, forgot_password_token: 0 } }
     )
     if (!user) {
-      return {
-        message: userMessages.USER_NOT_FOUND
-      }
+      throw new ErrorWithStatusCode({
+        message: userMessages.USER_NOT_FOUND,
+        statusCode: HttpStatusCode.NotFound
+      })
     }
     return {
       message: userMessages.GET_PROFILE_SUCCESS,
@@ -281,11 +283,39 @@ class UsersService {
     return user
   }
 
-  async follow(user_id: string, follow_user_id: string) {
-    const follower = await databaseService.followers.findOne({
-      user_id: new ObjectId(user_id),
-      follow_user_id: new ObjectId(follow_user_id)
-    })
+  async follow(user_id: string, follow_user_id: string, statusUser: userStatus) {
+    const [follower, checkUserFllowerd] = await Promise.all([
+      await databaseService.followers.findOne({
+        user_id: new ObjectId(user_id),
+        follow_user_id: new ObjectId(follow_user_id)
+      }),
+      await databaseService.users.findOne({
+        _id: new ObjectId(follow_user_id),
+        request_follow: { $in: [new ObjectId(user_id)] }
+      })
+    ])
+
+    if (statusUser === userStatus.private && checkUserFllowerd === null) {
+      await databaseService.users.updateOne(
+        {
+          _id: new ObjectId(follow_user_id)
+        },
+        {
+          $push: { request_follow: new ObjectId(user_id) }
+        }
+      )
+      return {
+        message: userMessages.REQUEST_FOLLOW_SUCCESS
+      }
+    }
+
+    if (statusUser === userStatus.private && checkUserFllowerd !== null) {
+      throw new ErrorWithStatusCode({
+        message: userMessages.ALREADY_SEND_REQUEST_FOLLOW,
+        statusCode: HttpStatusCode.BadRequest
+      })
+    }
+
     if (follower === null) {
       await databaseService.followers.insertOne(
         new Followers({ user_id: new ObjectId(user_id), follow_user_id: new ObjectId(follow_user_id) })
@@ -298,15 +328,17 @@ class UsersService {
       message: userMessages.USER_FLLOWERED
     }
   }
+
   async unfollow(user_id: string, unfollow_user_id: string) {
     const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
       follow_user_id: new ObjectId(unfollow_user_id)
     })
     if (follower === null) {
-      return {
-        message: userMessages.USER_ALREADY_FOLLOWED
-      }
+      throw new ErrorWithStatusCode({
+        message: userMessages.USER_ALREADY_FOLLOWED,
+        statusCode: HttpStatusCode.BadRequest
+      })
     }
     await databaseService.followers.deleteOne({
       user_id: new ObjectId(user_id),
@@ -314,6 +346,60 @@ class UsersService {
     })
     return {
       message: userMessages.UNFOLOWER_SUCCESS
+    }
+  }
+
+  async followAccept(user_id: string, follow_user_id_accept: string) {
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(user_id),
+      request_follow: { $in: [new ObjectId(follow_user_id_accept)] }
+    })
+    if (user === null) {
+      throw new ErrorWithStatusCode({
+        message: userMessages.USER_FLLOWER_NOT_FOUND,
+        statusCode: HttpStatusCode.BadRequest
+      })
+    }
+    await Promise.all([
+      await databaseService.users.updateOne(
+        {
+          _id: new ObjectId(user_id)
+        },
+        {
+          $pull: { request_follow: new ObjectId(follow_user_id_accept) }
+        }
+      ),
+      await databaseService.followers.insertOne(
+        new Followers({ user_id: new ObjectId(user_id), follow_user_id: new ObjectId(follow_user_id_accept) })
+      )
+    ])
+    return {
+      message: userMessages.CANCLE_FOLLOW_REQUEST_SUCCESS
+    }
+  }
+
+  async cancleRequestFollower(user_id: string, follow_user_id_cancle_request: string) {
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(follow_user_id_cancle_request),
+      request_follow: { $in: [new ObjectId(user_id)] }
+    })
+    if (user === null) {
+      throw new ErrorWithStatusCode({
+        message: userMessages.YOU_DONT_HAVE_REQUEST_FOLLOW,
+        statusCode: HttpStatusCode.BadRequest
+      })
+    }
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(follow_user_id_cancle_request)
+      },
+      {
+        $pull: { request_follow: new ObjectId(user_id) }
+      }
+    )
+
+    return {
+      message: userMessages.CANCLE_FOLLOW_REQUEST_SUCCESS
     }
   }
 }

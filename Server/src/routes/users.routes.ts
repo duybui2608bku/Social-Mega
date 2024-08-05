@@ -2,6 +2,8 @@ import { Router } from 'express'
 import {
   changePasswordController,
   emailVerifyController,
+  followAppectController,
+  followCancleRequestController,
   followController,
   forgotPasswordController,
   getMeController,
@@ -28,7 +30,9 @@ import {
   updateMevValidator,
   followerUserValidator,
   unfollowerUserValidator,
-  changePasswordValidator
+  changePasswordValidator,
+  followUserAcceptValidator,
+  followUserCancleValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -165,6 +169,38 @@ userRouters.post(
   verifiedUserValidator,
   followerUserValidator,
   wrapRequestHandler(followController)
+)
+
+/*
+Description: Accept some one
+path: /follow-accept/:follow_user_id_accept
+method: POST
+Header:{Authorization: Bearer <access_token>}
+Body:{flow_user_id_accept: string}
+*/
+
+userRouters.post(
+  '/follow-accept/:follow_user_id_accept',
+  accessTokenValidator,
+  verifiedUserValidator,
+  followUserAcceptValidator,
+  wrapRequestHandler(followAppectController)
+)
+
+/*
+Description: Cancle request follow some one
+path: /follow-accept/:follow_user_id_accept
+method: DELETE
+Header:{Authorization: Bearer <access_token>}
+Body:{flow_user_id_cancle_request: string}
+*/
+
+userRouters.delete(
+  '/follow-cancle-request/:follow_user_id_cancle_request',
+  accessTokenValidator,
+  verifiedUserValidator,
+  followUserCancleValidator,
+  wrapRequestHandler(followCancleRequestController)
 )
 
 /*

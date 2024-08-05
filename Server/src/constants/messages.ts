@@ -67,7 +67,12 @@ export const userMessages = {
   UPLOAD_VIDEO_SUCCESS: 'Upload video successfully',
   REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
   UPLOAD_VIDEO_HLS_SUCCESS: 'Upload video hls successfully',
-  CAN_NOT_FOLLOW_YOURSELF: 'Can not follow yourself'
+  CAN_NOT_FOLLOW_YOURSELF: 'Can not follow yourself',
+  REQUEST_FOLLOW_SUCCESS: 'Request follow successfully',
+  ALREADY_SEND_REQUEST_FOLLOW: 'Already send request follow',
+  ACCEPT_FOLLOW_SUCCESS: 'Accept follow successfully',
+  YOU_DONT_HAVE_REQUEST_FOLLOW: 'You dont have request follow',
+  CANCLE_FOLLOW_REQUEST_SUCCESS: 'Cancle follow request successfully'
 } as const
 
 export const InstagramsMessgaes = {
