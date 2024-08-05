@@ -17,19 +17,20 @@ import Notification from 'src/Components/Notifications/Notification'
 import CreateInstagrams from 'src/Components/CreateInstagrams/CreateInstagrams'
 const Header = () => {
   const location = useLocation()
+  console.log(location)
   const navBar = [
     { display: 'Trang Chủ', path: '/', icon: <GrHomeRounded /> },
     { display: 'Tìm Kiếm', path: '/#', icon: <CiSearch /> },
     { display: 'Thông Báo', path: '/#', icon: <CiHeart /> },
     { display: 'Đăng', path: '/#', icon: <CiSquarePlus /> },
-    { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> },
+    { display: 'Tin Nhắn', path: '/chat', icon: <PiPaperPlaneTilt /> },
     { display: 'Phê duyệt', path: '/appro', icon: <MdApproval /> },
     { display: 'Tài Khoản', path: '/#', icon: <RiImageCircleFill /> }
   ]
 
   const navBarMobile = [
     { display: 'Thông Báo', path: '/#', icon: <CiHeart /> },
-    { display: 'Tin Nhắn', path: '/contact', icon: <PiPaperPlaneTilt /> }
+    { display: 'Tin Nhắn', path: '/chat', icon: <PiPaperPlaneTilt /> }
   ]
 
   const [toggleNavSearch, SettoggleNavSearch] = useState(false)
@@ -97,7 +98,13 @@ const Header = () => {
   return (
     <>
       <div className='nav-menu' ref={navMenuRef}>
-        <div className={toggleNavSearch || toggleNavNotification ? 'nav-menu__nav nav-menu__toggle' : 'nav-menu__nav'}>
+        <div
+          className={
+            toggleNavSearch || toggleNavNotification || location.pathname === '/chat'
+              ? 'nav-menu__nav nav-menu__toggle'
+              : 'nav-menu__nav'
+          }
+        >
           <div className='nav-menu__nav__title'>SOCIAL MEGA</div>
 
           {navBar.map((item, index) => {

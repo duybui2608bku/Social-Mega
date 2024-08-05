@@ -5,6 +5,7 @@ import Register from 'src/Pages/Register/Register'
 import ForgotPassword from 'src/Pages/Forgot_Password/forgotPassword'
 import Home from 'src/Pages/Home/Home'
 import Profile from 'src/Pages/Profile/Profile'
+import Chat from 'src/Pages/Chat/Chat'
 const useRouterElements = () => {
   const routeElemnts = useRoutes([
     {
@@ -32,6 +33,14 @@ const useRouterElements = () => {
       element: (
         <MainLayout>
           <Profile />
+        </MainLayout>
+      )
+    },
+    {
+      path: '/chat',
+      element: (
+        <MainLayout>
+          <Chat />
         </MainLayout>
       )
     }
