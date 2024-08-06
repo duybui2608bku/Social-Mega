@@ -244,10 +244,11 @@ class InstagramsService {
   }
 
   async getNewFeed({ user_id, limit, page }: { user_id: TokenPayload; limit: number; page: number }) {
+    const user_id_object = new ObjectId(user_id.user_id)
     const follower_user_ids = await databaseService.followers
       .find(
         {
-          user_id: new ObjectId(user_id.user_id)
+          user_id: user_id_object
         },
         {
           projection: {
@@ -258,8 +259,268 @@ class InstagramsService {
       )
       .toArray()
     const ids = follower_user_ids.map((follower) => follower.follow_user_id)
-    ids.push(new ObjectId(user_id.user_id))
-    return ids
+    ids.push(user_id_object)
+
+    const [Instagrams, total] = await Promise.all([
+      databaseService.instagrams
+        .aggregate<Instagrams>([
+          {
+            $match: {
+              user_id: {
+                $in: ids
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $unwind: {
+              path: '$user'
+            }
+          },
+          {
+            $match: {
+              $or: [
+                {
+                  audiance: 0
+                },
+                {
+                  $and: [
+                    {
+                      audiance: 1
+                    },
+                    {
+                      'user.instagrams_circle': {
+                        $in: [user_id_object]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $lookup: {
+              from: 'hashtags',
+              localField: 'hashtags',
+              foreignField: '_id',
+              as: 'hashtags'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'mentions',
+              foreignField: '_id',
+              as: 'mentions'
+            }
+          },
+          {
+            $addFields: {
+              mentions: {
+                $map: {
+                  input: '$mentions',
+                  as: 'mention',
+                  in: {
+                    _id: '$$mention._id',
+                    name: '$$mention.name',
+                    email: '$$mention.email'
+                  }
+                }
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'bookmarks',
+              localField: '_id',
+              foreignField: 'instagram_id',
+              as: 'bookmarks'
+            }
+          },
+          {
+            $lookup: {
+              from: 'like_instagrams',
+              localField: '_id',
+              foreignField: 'instagram_id',
+              as: 'like'
+            }
+          },
+          {
+            $lookup: {
+              from: 'instagrams',
+              localField: '_id',
+              foreignField: 'parent_id',
+              as: 'instagrams_children'
+            }
+          },
+          {
+            $addFields: {
+              like: {
+                $size: '$like'
+              },
+              bookmarks: {
+                $size: '$bookmarks'
+              },
+              reInstagrams: {
+                $size: {
+                  $filter: {
+                    input: '$instagrams_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', InstagramsType.ReInstagrams]
+                    }
+                  }
+                }
+              },
+              commentInstagrams: {
+                $size: {
+                  $filter: {
+                    input: '$instagrams_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', InstagramsType.Comment]
+                    }
+                  }
+                }
+              },
+              qouteInstagrams: {
+                $size: {
+                  $filter: {
+                    input: '$instagrams_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', InstagramsType.QuoteInstagrams]
+                    }
+                  }
+                }
+              },
+              views: {
+                $add: ['$user_view', '$guest_view']
+              }
+            }
+          },
+          {
+            $project: {
+              instagrams_children: 0,
+              user: {
+                password: 0,
+                email_verify_token: 0,
+                forgot_password_token: 0,
+                instagrams_circle: 0,
+                bio: 0,
+                location: 0,
+                website: 0,
+                verify: 0,
+                cover_photo: 0,
+                date_of_birth: 0,
+                created_at: 0,
+                updated_at: 0
+              }
+            }
+          },
+          {
+            $skip: limit * (page - 1)
+          },
+          {
+            $limit: limit
+          },
+          {
+            $addFields: {
+              hashtags: {
+                $map: {
+                  input: '$hashtags',
+                  as: 'hashtag',
+                  in: {
+                    name: '$$hashtag.name',
+                    _id: '$$hashtag._id'
+                  }
+                }
+              }
+            }
+          }
+        ])
+        .toArray(),
+      databaseService.instagrams
+        .aggregate([
+          {
+            $match: {
+              user_id: {
+                $in: ids
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $unwind: {
+              path: '$user'
+            }
+          },
+          {
+            $match: {
+              $or: [
+                {
+                  audiance: 0
+                },
+                {
+                  $and: [
+                    {
+                      audiance: 1
+                    },
+                    {
+                      'user.instagrams_circle': {
+                        $in: [user_id_object]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $count: 'total'
+          }
+        ])
+        .toArray()
+    ])
+
+    const InstagramsId = Instagrams.map((instagram) => instagram._id as ObjectId)
+    await databaseService.instagrams.updateMany(
+      {
+        _id: {
+          $in: InstagramsId
+        }
+      },
+      {
+        $inc: { user_view: 1 },
+        $set: {
+          updated_at: new Date()
+        }
+      }
+    )
+
+    Instagrams.forEach((instagram) => {
+      instagram.updated_at = new Date()
+      instagram.user_view += 1
+    })
+
+    return {
+      Instagrams,
+      total: total[0].total
+    }
   }
 }
 

@@ -74,6 +74,12 @@ export const getNewFeedController = async (req: Request<ParamsDictionary, any, a
   res.status(HttpStatusCode.Ok).json({
     success: true,
     message: InstagramsMessgaes.GET_NEW_FEED_SUCCESS,
-    result: result
+    result: {
+      instagrams: result.Instagrams,
+      total: result.total,
+      page,
+      limit,
+      total_pages: Math.ceil(result.total / limit)
+    }
   })
 }

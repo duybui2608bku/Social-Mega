@@ -99,7 +99,8 @@ export const InstagramsMessgaes = {
   LIMIT_MUST_BE_LESS_THAN_100: 'Limit must be less than 100',
   LIMIT_MUST_BE_BIGGER_THAN_0: 'Limit must be bigger than 0',
   PAGE_MUST_BE_BIGGER_THAN_0: 'Page must be bigger than 0',
-  GET_NEW_FEED_SUCCESS: 'Get new feed successfully'
+  GET_NEW_FEED_SUCCESS: 'Get new feed successfully',
+  SEARCH_SUCCESS: 'Search successfully'
 } as const
 
 export const BookmarkMessgaes = {
