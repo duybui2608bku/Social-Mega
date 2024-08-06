@@ -22,6 +22,7 @@ databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
   databaseService.indexFollowers()
+  databaseService.indexInstagrams()
 })
 const app = express()
 const port = process.env.PORT || 8081

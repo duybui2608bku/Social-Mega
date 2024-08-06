@@ -1,18 +1,55 @@
 import { ObjectId } from 'mongodb'
 import databaseService from '../services/database.services'
-import { InstagramsType } from '~/constants/enum'
+import { InstagramsType, PeopleFollow } from '~/constants/enum'
 
 class SearchServices {
-  async search({ limit, page, content, user_id }: { limit: number; page: number; content: string; user_id: string }) {
+  async search({
+    limit,
+    page,
+    content,
+    user_id,
+    people_follow
+  }: {
+    limit: number
+    page: number
+    content: string
+    user_id: string
+    people_follow?: PeopleFollow
+  }) {
+    const $match: any = {
+      $text: {
+        $search: content
+      }
+    }
+
+    if (people_follow && people_follow === PeopleFollow.Following) {
+      const user_id_object = new ObjectId(user_id)
+      const follower_user_ids = await databaseService.followers
+        .find(
+          {
+            user_id: user_id_object
+          },
+          {
+            projection: {
+              follow_user_id: 1,
+              _id: 0
+            }
+          }
+        )
+        .toArray()
+      const ids = follower_user_ids.map((follower) => follower.follow_user_id)
+
+      ids.push(user_id_object)
+      $match['user_id'] = {
+        $in: ids
+      }
+    }
+
     const [Instagrams, total] = await Promise.all([
       databaseService.instagrams
         .aggregate([
           {
-            $match: {
-              $text: {
-                $search: content
-              }
-            }
+            $match
           },
           {
             $lookup: {
@@ -193,11 +230,7 @@ class SearchServices {
       databaseService.instagrams
         .aggregate([
           {
-            $match: {
-              $text: {
-                $search: content
-              }
-            }
+            $match
           },
           {
             $lookup: {

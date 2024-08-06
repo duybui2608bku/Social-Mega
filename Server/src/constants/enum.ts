@@ -16,6 +16,10 @@ export enum MediaType {
   Video
 }
 
+export enum PeopleFollow {
+  Anyone = '0',
+  Following = '1'
+}
 export enum InstagramsType {
   Instagrams,
   ReInstagrams,

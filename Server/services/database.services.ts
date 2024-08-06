@@ -56,6 +56,13 @@ class DatabaseService {
     }
   }
 
+  async indexInstagrams() {
+    const exsit = await this.instagrams.indexExists(['content_text'])
+    if (!exsit) {
+      this.instagrams.createIndex({ content_text: 'text' }, { default_language: 'none' })
+    }
+  }
+
   get users(): Collection<User> {
     return this.db.collection(process.env.USERS_COLLECTION as string)
   }

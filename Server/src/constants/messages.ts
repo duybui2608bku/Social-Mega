@@ -108,3 +108,8 @@ export const BookmarkMessgaes = {
   UN_BOOKMARK_INSTAGRAM_CREATE_SUCCESS: 'Un bookmark instagram create successfully',
   BOOKMARK_INSTAGRAM_NOT_SAVE_OR_NOT_FOUND: 'Bookmark instagram not save or not found'
 } as const
+
+export const SearchMessgaes = {
+  CONTENT_MUST_BE_STRING: 'Content must be a string',
+  PEOPLE_FOLLOW_MUST_BE_0_OR_1: 'People follow must be 0 or 1'
+} as const

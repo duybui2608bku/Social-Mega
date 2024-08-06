@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { HttpStatusCode } from '~/constants/enum'
+import { HttpStatusCode, PeopleFollow } from '~/constants/enum'
 import { SearchQuery, SearchQueryHashtags } from '~/models/requestes/Search.requests'
 import searchServices from '../../services/search.services'
 import { InstagramsMessgaes } from '~/constants/messages'
@@ -12,7 +12,8 @@ export const searchController = async (req: Request<ParamsDictionary, any, any, 
     limit,
     page,
     content: req.query.content,
-    user_id: req.decode_authorization?.user_id as string
+    user_id: req.decode_authorization?.user_id as string,
+    people_follow: req.query.people_follow
   })
 
   return res.status(HttpStatusCode.Ok).json({
