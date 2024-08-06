@@ -562,6 +562,28 @@ class SearchServices {
       total: total.length > 0 ? total[0].total : 0
     }
   }
+
+  async searchUsers(name: string) {
+    const user = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            $text: {
+              $search: name
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            avatar: 1
+          }
+        }
+      ])
+      .toArray()
+    return user
+  }
 }
 
 const searchServices = new SearchServices()

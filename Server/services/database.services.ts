@@ -33,6 +33,7 @@ class DatabaseService {
       this.users.createIndex({ email: 1, password: 1 })
       this.users.createIndex({ email: 1 }, { unique: true })
       this.users.createIndex({ name: 1 })
+      this.users.createIndex({ name_text: 'text' }, { default_language: 'none' })
     }
   }
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { HttpStatusCode, PeopleFollow } from '~/constants/enum'
-import { SearchQuery, SearchQueryHashtags } from '~/models/requestes/Search.requests'
+import { SearchQuery, SearchQueryHashtags, SearchQueryUsers } from '~/models/requestes/Search.requests'
 import searchServices from '../../services/search.services'
 import { InstagramsMessgaes } from '~/constants/messages'
 
@@ -52,5 +52,18 @@ export const searchHashtagsController = async (
       limit,
       total_page: Math.ceil(result.total / limit)
     }
+  })
+}
+
+export const searchUsersController = async (
+  req: Request<ParamsDictionary, any, any, SearchQueryUsers>,
+  res: Response
+) => {
+  const result = await searchServices.searchUsers(req.query.name)
+
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: InstagramsMessgaes.SEARCH_SUCCESS,
+    result
   })
 }

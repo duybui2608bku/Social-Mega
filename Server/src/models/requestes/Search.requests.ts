@@ -9,3 +9,7 @@ export interface SearchQuery extends Pagination {
 export interface SearchQueryHashtags extends Pagination {
   hashtag: string
 }
+
+export interface SearchQueryUsers {
+  name: string
+}
