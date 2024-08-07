@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { HttpStatusCode, PeopleFollow } from '~/constants/enum'
+import { HttpStatusCode } from '~/constants/enum'
 import { SearchQuery, SearchQueryHashtags, SearchQueryUsers } from '~/models/requestes/Search.requests'
 import searchServices from '../../services/search.services'
 import { InstagramsMessgaes } from '~/constants/messages'

@@ -81,21 +81,29 @@ const Chat = () => {
 
   const { profile } = useContext(AppContext)
   const [messagesSendOne, setMessagesSendOne] = useState('')
-
-  const [messagesReceive, setMessagesReceive] = useState<string[]>([])
+  interface Message {
+    content: string
+    isSender: boolean
+  }
+  const [messagesReceive, setMessagesReceive] = useState<Message[]>([])
   useEffect(() => {
     socket.auth = {
       _id: profile?._id
     }
     socket.connect()
     socket.on('receive private message', (data) => {
-      const newMessages = [data.content]
-      setMessagesReceive((prev) => [...prev, ...newMessages])
+      setMessagesReceive((message) => [
+        ...message,
+        {
+          content: data.content,
+          isSender: false
+        }
+      ])
     })
     return () => {
       socket.disconnect()
     }
-  }, [profile])
+  }, [])
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -104,6 +112,13 @@ const Chat = () => {
       to: '66b1e9c49572c42beb598727'
     })
     setMessagesSendOne('')
+    setMessagesReceive((prev) => [
+      ...prev,
+      {
+        content: messagesSendOne,
+        isSender: true
+      }
+    ])
   }
 
   return (
@@ -137,11 +152,24 @@ const Chat = () => {
           <div>
             {messagesReceive.map((message, index) => {
               return (
-                <div className='chat__detail__content__receive' key={index}>
-                  <div className='chat__detail__content__receive__avatar'>
-                    <img alt={userDetail.name} src={userDetail.avatar} />
+                <div
+                  className={
+                    message.isSender ? 'chat__detail__content__message-sender' : 'chat__detail__content__message'
+                  }
+                  key={index}
+                >
+                  <div className='chat__detail__content__message__avatar'>
+                    {message.isSender ? null : <img alt={userDetail.name} src={userDetail.avatar} />}
                   </div>
-                  <div className='chat__detail__content__receive__text'>{message}</div>
+                  <p
+                    className={
+                      message.isSender
+                        ? 'chat__detail__content__message__text sender'
+                        : 'chat__detail__content__message__text'
+                    }
+                  >
+                    {message.content}
+                  </p>
                 </div>
               )
             })}
