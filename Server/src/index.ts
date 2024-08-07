@@ -5,17 +5,20 @@ import { defaultErrorHandler } from './middlewares/errorsMiddlewares'
 import mediaRouters from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
-// import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TERM_DIR } from './constants/dir'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import staticRouter from './routes/static.routes'
+import '~/utils/s3'
 config()
+
 import cors from 'cors'
 import InstagramsRouters from './routes/instagrams.routes'
 import bookmarkRouters from './routes/bookmark.routes'
 import searchRouters from './routes/search.routes'
 const corsOptions = {
-  origin: 'http://localhost:3000', // Chỉ cho phép nguồn gốc này
-  methods: 'GET,POST,PUT,DELETE', // Các phương thức HTTP được phép
-  allowedHeaders: 'Content-Type,Authorization' // Các tiêu đề HTTP được phép
+  origin: 'http://localhost:3000',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
 }
 
 databaseService.connect().then(() => {
@@ -25,6 +28,7 @@ databaseService.connect().then(() => {
   databaseService.indexInstagrams()
 })
 const app = express()
+const httpServer = createServer(app)
 const port = process.env.PORT || 8081
 initFolder()
 app.use(cors(corsOptions))
@@ -35,9 +39,20 @@ app.use('/upload', mediaRouters)
 app.use('/instagrams', InstagramsRouters)
 app.use('/bookmark', bookmarkRouters)
 app.use('/search', searchRouters)
-app.use(defaultErrorHandler)
-// app.use('/static', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static', staticRouter)
-app.listen(port, () => {
+app.use(defaultErrorHandler)
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+})
+io.on('connection', (socket) => {
+  console.log(socket.id)
+  socket.on('disconnect', () => {
+    console.log(`${socket.id} disconnected`)
+  })
+})
+httpServer.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
 })

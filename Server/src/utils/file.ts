@@ -8,7 +8,7 @@ export const handleUploadImage = async (req: Request) => {
     uploadDir: UPLOAD_IMAGE_TERM_DIR,
     maxFiles: 10,
     keepExtensions: true,
-    maxFileSize: 3000 * 1024 * 4,
+    maxFileSize: 30000 * 1024 * 4,
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
       if (!valid) {
@@ -34,7 +34,7 @@ export const handleUploadImage = async (req: Request) => {
 export const handleUploadVideo = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_VIDEO_DIR,
-    maxFiles: 1,
+    maxFiles: 3,
     keepExtensions: true,
     maxFileSize: 50 * 1024 * 1024,
     filter: function ({ name, originalFilename, mimetype }) {
