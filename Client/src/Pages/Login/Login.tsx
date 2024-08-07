@@ -31,7 +31,7 @@ const Login = () => {
     }
   }, [images.length])
 
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const nagivate = useNavigate()
 
   type formLoginValues = z.infer<typeof formLoginSchema>
@@ -63,7 +63,7 @@ const Login = () => {
     loginMutaion.mutate(data, {
       onSuccess: (data) => {
         setIsAuthenticated(true)
-        toast.success(data.data.message)
+        setProfile(data.data.result.user)
         toast.success('Đăng nhập thành công')
         nagivate('/')
       },

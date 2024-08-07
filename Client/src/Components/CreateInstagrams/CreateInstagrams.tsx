@@ -13,7 +13,7 @@ const CreateInstagrams = ({ toggle, settoggleCreateInstagrams }: CreateInstagram
   const UserFake = {
     name: 'Amme',
     avatar:
-      'https://scontent.fhan4-6.fna.fbcdn.net/v/t39.30808-6/240377124_2842777692701178_2246908654717259309_n.jpg?stp=c52.0.206.206a_dst-jpg_p206x206&_nc_cat=109&ccb=1-7&_nc_sid=efbe48&_nc_eui2=AeGWvMnPkPlwykXh_aVA8ihWRHAHn27lS3dEcAefbuVLd6f97_v2aVAwYmPvG6pDFwCB9t1WiXQOjyUhtSyjRhbv&_nc_ohc=FxW7mLB4PasQ7kNvgGZjbiZ&_nc_ht=scontent.fhan4-6.fna&gid=AKdyR05zUUPhfWo3UC6ngNU&oh=00_AYAyr9pzAdSt0ONzbMeotbyxEzfRtrGQjHFwWt3TLnFC1w&oe=66B1868E'
+      'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771'
   }
   return (
     <div className='createInstagrams'>
@@ -45,7 +45,7 @@ const CreateInstagrams = ({ toggle, settoggleCreateInstagrams }: CreateInstagram
                 <div className='createInstagrams__details__image'>
                   <img
                     alt=''
-                    src='https://scontent.fhan4-3.fna.fbcdn.net/v/t39.30808-6/273405250_1884129491791495_3985241061784500257_n.jpg?stp=c52.0.206.206a_dst-jpg_p206x206&_nc_cat=110&ccb=1-7&_nc_sid=50c75d&_nc_eui2=AeEMcL433FUFRuA-iRHGCfv6uHoVgvwvgYu4ehWC_C-Bi4nKR7FLsnieHeWu_tE225EkG-LUeGO-1R8CJHtSjNct&_nc_ohc=Nbmr_J7I0M8Q7kNvgG5ZXA5&_nc_ht=scontent.fhan4-3.fna&gid=A3o169kbxnJaIQHGQnclS7K&oh=00_AYBKv_wpRZLQ4kSrB_6kb_mepDQaB8dIzV54aQ-fzNtzCw&oe=66B17B16'
+                    src='https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771'
                   />
                 </div>
                 <div className='createInstagrams__details__caption'>

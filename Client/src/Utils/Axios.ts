@@ -1,16 +1,19 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios'
 import { toast } from 'react-toastify'
-import { AuthResponse } from 'src/Types/Auth.type'
+import { AuthLoginResponse, AuthResponse } from 'src/Types/Auth.type'
 import {
   clearLS,
   getAccessTokenFormLS,
+  getProfileFromLS,
   getRefreshTokenFormLS,
   saveAccessTokenToLS,
-  saveRefreshTokenToLS
+  saveRefreshTokenToLS,
+  setProfileFromLS
 } from 'src/Utils/Auth'
 
 let access_token = getAccessTokenFormLS()
 let refresh_token = getRefreshTokenFormLS()
+let profileUsuer = getProfileFromLS()
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8081/',
   timeout: 10000,
@@ -39,14 +42,14 @@ axiosInstance.interceptors.response.use(
     if (url === 'users/login' || url === 'users/register') {
       access_token = (response.data as AuthResponse).result.access_token
       refresh_token = (response.data as AuthResponse).result.refresh_token
+      profileUsuer = (response.data as AuthLoginResponse).result.user
+      setProfileFromLS(profileUsuer)
       saveAccessTokenToLS(access_token)
       saveRefreshTokenToLS(refresh_token)
+    } else if (url === 'users/logout') {
+      access_token = ''
+      clearLS()
     }
-    // } else if (url === 'users/logout') {
-    //   access_token = ''
-    //   saveAccessTokenToLS('')
-    //   clearLS()
-    // }
     return response
   },
   function (error: AxiosError) {

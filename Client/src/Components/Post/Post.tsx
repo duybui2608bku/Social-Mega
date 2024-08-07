@@ -6,7 +6,7 @@ import './Post.scss'
 import { useState } from 'react'
 
 const Post = () => {
-  const [more, setMore] = useState<Boolean>(false)
+  const [more, setMore] = useState(false)
   const handleSeeMore = () => {
     setMore(!more)
   }
@@ -14,9 +14,9 @@ const Post = () => {
   const postItem = [
     {
       avatar:
-        'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
+        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771',
       username: 'Duy Muối',
-      img: 'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
+      img: 'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771',
       like: 246,
       comment: 20,
       content:
@@ -24,9 +24,9 @@ const Post = () => {
     },
     {
       avatar:
-        'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
+        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771',
       username: 'Duy Muối',
-      img: 'https://scontent.fhan4-1.fna.fbcdn.net/v/t39.30808-6/437859980_954554949374562_8329538841922092765_n.jpg?stp=c0.23.206.206a_dst-jpg_p206x206&_nc_cat=105&ccb=1-7&_nc_sid=50ad20&_nc_eui2=AeERfAcL3EGPp6DzbqTlhuVu2cIqh-ukZLDZwiqH66RksLdPQadOxscNRSTNbodM0jBsAoUj1bU5nsmIiXxboO7d&_nc_ohc=fhKMQ4wG5HkQ7kNvgHkXcWq&_nc_ht=scontent.fhan4-1.fna&oh=00_AYANEhzEWOmWGfO-L6YyCiP3ZtO0HirR5BfOIjLEFycTJg&oe=66B032FC',
+      img: 'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/338542677_911657383288229_231872306489757536_n.jpg?stp=dst-jpg_p206x206&_nc_cat=107&ccb=1-7&_nc_sid=efbe48&_nc_ohc=VdY-YzrulBYQ7kNvgHqq_NN&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYCvaWlD_3jhooxg7_b1YYiZOC_ow8D8Bd5iizSVBRnulQ&oe=66B8E771',
       like: 246,
       comment: 20,
       content:

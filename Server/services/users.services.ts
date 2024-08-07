@@ -102,7 +102,15 @@ class UsersService {
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
-    return { access_token, refresh_token }
+    const user = await databaseService.users.findOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        projection: { password: 0, email_verify_token: 0, forgot_password_token: 0, instagrams_circle: 0 }
+      }
+    )
+    return { access_token, refresh_token, user }
   }
 
   async logout(refresh_token: string) {

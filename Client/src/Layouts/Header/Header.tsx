@@ -17,7 +17,7 @@ import Notification from 'src/Components/Notifications/Notification'
 import CreateInstagrams from 'src/Components/CreateInstagrams/CreateInstagrams'
 const Header = () => {
   const location = useLocation()
-  console.log(location)
+
   const navBar = [
     { display: 'Trang Chủ', path: '/', icon: <GrHomeRounded /> },
     { display: 'Tìm Kiếm', path: '/#', icon: <CiSearch /> },
