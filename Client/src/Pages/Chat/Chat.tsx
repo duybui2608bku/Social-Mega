@@ -10,6 +10,8 @@ import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
 import { useQuery } from '@tanstack/react-query'
 import { getConversation } from 'src/Service/Conversations'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
 const Chat = () => {
   const userFake = [
     {
@@ -20,7 +22,7 @@ const Chat = () => {
     },
     {
       _id: '66b1e9c49572c42beb598727',
-      name: 'Nguyễn Phương Nhi',
+      name: 'Nguyễn Phương Nhi Nhi',
       avatar:
         'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
     }
@@ -32,11 +34,16 @@ const Chat = () => {
       'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
   }
 
+  const LIMIT = 10
+  const PAGE = 1
+
   const { profile } = useContext(AppContext)
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
   const [message, setMessage] = useState<any[]>([])
+  const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
+  console.log(pagination)
   useEffect(() => {
     socket.auth = {
       _id: profile?._id
@@ -44,7 +51,6 @@ const Chat = () => {
     socket.connect()
     socket.on('receive private message', (data) => {
       const { payload } = data
-      console.log(payload)
       setMessage((conversation) => [...conversation, payload])
     })
     return () => {
@@ -56,7 +62,7 @@ const Chat = () => {
     queryKey: ['conversation'],
     queryFn: () => {
       if (IdUser) {
-        return getConversation(IdUser)
+        return getConversation({ receiver_id: IdUser, limit: LIMIT, page: PAGE })
       }
       return Promise.resolve(null)
     },
@@ -74,6 +80,10 @@ const Chat = () => {
     if (conversations?.data.result.conversation?.length) {
       conversations?.data.result.conversation.reverse().map((conversation) => {
         setMessage((prev) => [...prev, conversation])
+      })
+      setPagination({
+        page: conversations?.data.result.page,
+        total_page: conversations?.data.result.total
       })
     }
   }, [conversations?.data.result.conversation])
@@ -119,9 +129,27 @@ const Chat = () => {
     }
   }
 
+  const fetchMoreDataConversations = () => {
+    if (pagination.page < Math.ceil(pagination.total_page / LIMIT)) {
+      getConversation({ receiver_id: IdUser, limit: LIMIT, page: pagination.page + 1 }).then((res) => {
+        if (res) {
+          res.data.result.conversation.reverse().map((conversation) => {
+            setMessage((prev) => [conversation, ...prev])
+          })
+          setPagination({
+            page: res.data.result.page,
+            total_page: res.data.result.total
+          })
+        }
+      })
+    }
+  }
+
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index))
   }
+
+  console.log(pagination.page < pagination.total_page / LIMIT)
 
   return (
     <div className='chat'>
@@ -150,7 +178,7 @@ const Chat = () => {
             <LuPhone /> <CiVideoOn /> <IoInformationCircleOutline />
           </div>
         </div>
-        <div className='chat__detail__content'>
+        <div id='scrollableDiv' className='chat__detail__content'>
           <div>
             {message.map((message, index) => {
               return (
@@ -177,6 +205,42 @@ const Chat = () => {
                 </div>
               )
             })}
+            <InfiniteScroll
+              dataLength={message.length}
+              next={fetchMoreDataConversations}
+              hasMore={pagination.page < pagination.total_page}
+              scrollableTarget='scrollableDiv'
+              loader={<p></p>}
+              inverse={true}
+            >
+              {message.map((message, index) => {
+                return (
+                  <div
+                    className={
+                      message.sender_id === profile?._id
+                        ? 'chat__detail__content__message-sender'
+                        : 'chat__detail__content__message'
+                    }
+                    key={index}
+                  >
+                    <div className='chat__detail__content__message__avatar'>
+                      {message.sender_id === profile?._id ? null : (
+                        <img alt={userDetail.name} src={userDetail.avatar} />
+                      )}
+                    </div>
+                    <p
+                      className={
+                        message.sender_id === profile?._id
+                          ? 'chat__detail__content__message__text sender'
+                          : 'chat__detail__content__message__text'
+                      }
+                    >
+                      {message.content}
+                    </p>
+                  </div>
+                )
+              })}
+            </InfiniteScroll>
           </div>
         </div>
         <div className='chat__detail__input'>

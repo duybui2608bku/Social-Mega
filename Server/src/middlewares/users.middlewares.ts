@@ -775,7 +775,7 @@ export const followUserAcceptValidator = validate(
     {
       follow_user_id_accept: {
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatusCode({
                 message: userMessages.ID_FLLOW_USER_INVALID,
@@ -850,3 +850,24 @@ export const isUserLoggedValidator = (middlewares: (req: Request, res: Response,
     next()
   }
 }
+
+export const getConversationValidator = validate(
+  checkSchema(
+    {
+      receiver_id: {
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.ID_FLLOW_USER_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)

@@ -64,13 +64,10 @@ io.on('connection', (socket) => {
     socket_id: socket.id
   }
   console.log(users)
+
   socket.on('private message', async (data) => {
     const { payload } = data
     const receiver_socket_id = users[payload.receiver_id]?.socket_id
-    if (!receiver_socket_id) {
-      return
-    }
-
     const conversation = new Conversation({
       sender_id: new ObjectId(payload.sender_id),
       receiver_id: new ObjectId(payload.receiver_id),
@@ -78,15 +75,20 @@ io.on('connection', (socket) => {
     })
     const result = await databaseService.conversations.insertOne(conversation)
     conversation._id = result.insertedId
-    socket.to(receiver_socket_id).emit('receive private message', {
-      payload: conversation
-    })
+
+    if (receiver_socket_id) {
+      socket.to(receiver_socket_id).emit('receive private message', {
+        payload: conversation
+      })
+    }
   })
+
   socket.on('disconnect', () => {
     delete users[user_id]
     console.log(`${socket.id} disconnected`)
   })
 })
+
 httpServer.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
 })
