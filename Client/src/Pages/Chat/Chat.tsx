@@ -4,11 +4,12 @@ import { CiVideoOn } from 'react-icons/ci'
 import { IoInformationCircleOutline, IoImageOutline } from 'react-icons/io5'
 import { FiSmile } from 'react-icons/fi'
 import { AiTwotoneAudio } from 'react-icons/ai'
-import { FaRegHeart } from 'react-icons/fa6'
+import { FaRegHeart, FaXmark } from 'react-icons/fa6'
 import { useContext, useEffect, useState } from 'react'
 import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
-import { FaXmark } from 'react-icons/fa6'
+import { useQuery } from '@tanstack/react-query'
+import { getConversation } from 'src/Service/Conversations'
 const Chat = () => {
   const userFake = [
     {
@@ -32,51 +33,69 @@ const Chat = () => {
   }
 
   const { profile } = useContext(AppContext)
-  interface Message {
-    content: string
-    isSender: boolean
-  }
   const [messagesSendOne, setMessagesSendOne] = useState('')
-  const [messagesReceive, setMessagesReceive] = useState<Message[]>([])
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
-
+  const [message, setMessage] = useState<any[]>([])
   useEffect(() => {
     socket.auth = {
       _id: profile?._id
     }
     socket.connect()
     socket.on('receive private message', (data) => {
-      setMessagesReceive((message) => [
-        ...message,
-        {
-          content: data.content,
-          isSender: false
-        }
-      ])
+      const { payload } = data
+      console.log(payload)
+      setMessage((conversation) => [...conversation, payload])
     })
     return () => {
       socket.disconnect()
     }
-  }, [])
+  }, [profile?._id])
+
+  const { data: conversations, refetch } = useQuery({
+    queryKey: ['conversation'],
+    queryFn: () => {
+      if (IdUser) {
+        return getConversation(IdUser)
+      }
+      return Promise.resolve(null)
+    },
+    enabled: !!IdUser
+  })
+
+  useEffect(() => {
+    if (IdUser) {
+      setMessage([])
+      refetch()
+    }
+  }, [IdUser, refetch])
+
+  useEffect(() => {
+    if (conversations?.data.result.conversation?.length) {
+      conversations?.data.result.conversation.reverse().map((conversation) => {
+        setMessage((prev) => [...prev, conversation])
+      })
+    }
+  }, [conversations?.data.result.conversation])
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
-    if (messagesSendOne === '') {
+    if (messagesSendOne.trim() === '') {
       return
     }
+
     event.preventDefault()
-    socket.emit('private message', {
+    const conversation = {
+      sender_id: profile?._id,
+      receiver_id: IdUser,
       content: messagesSendOne,
-      to: IdUser
+      _id: new Date().getTime().toString()
+    }
+
+    socket.emit('private message', {
+      payload: conversation
     })
+    setMessage((prevMessage) => [...prevMessage, conversation])
     setMessagesSendOne('')
-    setMessagesReceive((prev) => [
-      ...prev,
-      {
-        content: messagesSendOne,
-        isSender: true
-      }
-    ])
   }
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
@@ -103,8 +122,6 @@ const Chat = () => {
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index))
   }
-
-  console.log(images)
 
   return (
     <div className='chat'>
@@ -135,20 +152,22 @@ const Chat = () => {
         </div>
         <div className='chat__detail__content'>
           <div>
-            {messagesReceive.map((message, index) => {
+            {message.map((message, index) => {
               return (
                 <div
                   className={
-                    message.isSender ? 'chat__detail__content__message-sender' : 'chat__detail__content__message'
+                    message.sender_id === profile?._id
+                      ? 'chat__detail__content__message-sender'
+                      : 'chat__detail__content__message'
                   }
                   key={index}
                 >
                   <div className='chat__detail__content__message__avatar'>
-                    {message.isSender ? null : <img alt={userDetail.name} src={userDetail.avatar} />}
+                    {message.sender_id === profile?._id ? null : <img alt={userDetail.name} src={userDetail.avatar} />}
                   </div>
                   <p
                     className={
-                      message.isSender
+                      message.sender_id === profile?._id
                         ? 'chat__detail__content__message__text sender'
                         : 'chat__detail__content__message__text'
                     }

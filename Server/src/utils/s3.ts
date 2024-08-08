@@ -2,7 +2,7 @@ import { S3 } from '@aws-sdk/client-s3'
 import { config } from 'dotenv'
 import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs'
-import path from 'path'
+
 config()
 const s3 = new S3({
   region: process.env.AWS_REGION,

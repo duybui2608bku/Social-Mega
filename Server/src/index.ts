@@ -15,6 +15,9 @@ import cors from 'cors'
 import InstagramsRouters from './routes/instagrams.routes'
 import bookmarkRouters from './routes/bookmark.routes'
 import searchRouters from './routes/search.routes'
+import { Conversation } from './models/schemas/Conversations.schema'
+import conversationsRouter from './routes/conversations.routes'
+import { ObjectId } from 'mongodb'
 const corsOptions = {
   origin: 'http://localhost:3000',
   methods: 'GET,POST,PUT,DELETE',
@@ -40,6 +43,7 @@ app.use('/instagrams', InstagramsRouters)
 app.use('/bookmark', bookmarkRouters)
 app.use('/search', searchRouters)
 app.use('/static', staticRouter)
+app.use('/conversation', conversationsRouter)
 app.use(defaultErrorHandler)
 const io = new Server(httpServer, {
   cors: {
@@ -60,14 +64,22 @@ io.on('connection', (socket) => {
     socket_id: socket.id
   }
   console.log(users)
-  socket.on('private message', ({ content, to }) => {
-    const receiver_socket_id = users[to]?.socket_id
+  socket.on('private message', async (data) => {
+    const { payload } = data
+    const receiver_socket_id = users[payload.receiver_id]?.socket_id
     if (!receiver_socket_id) {
       return
     }
+
+    const conversation = new Conversation({
+      sender_id: new ObjectId(payload.sender_id),
+      receiver_id: new ObjectId(payload.receiver_id),
+      content: payload.content
+    })
+    const result = await databaseService.conversations.insertOne(conversation)
+    conversation._id = result.insertedId
     socket.to(receiver_socket_id).emit('receive private message', {
-      content,
-      from: user_id
+      payload: conversation
     })
   })
   socket.on('disconnect', () => {

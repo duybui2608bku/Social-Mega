@@ -113,3 +113,7 @@ export const SearchMessgaes = {
   CONTENT_MUST_BE_STRING: 'Content must be a string',
   PEOPLE_FOLLOW_MUST_BE_0_OR_1: 'People follow must be 0 or 1'
 } as const
+
+export const ConversationMessages = {
+  GET_CONVERSATION_SUCCESS: 'Get conversation success'
+} as const
