@@ -1,5 +1,4 @@
-const nodemailer = require('nodemailer')
-const asyncHandler = require('express-async-handler')
+import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -11,13 +10,13 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-const sendMail = asyncHandler(async ({ email, html }: { email: unknown; html: unknown }) => {
+const sendMail = async ({ email, html }: { email: string; html: string }) => {
   await transporter.sendMail({
     from: '"SOCIAL MEGAKOREA" <no-reply@example.com>',
     to: email,
     subject: 'XÁC THỰC TÀI KHOẢN',
     html: html
   })
-})
+}
 
 export default sendMail

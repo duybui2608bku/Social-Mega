@@ -8,84 +8,39 @@ import { FaRegHeart } from 'react-icons/fa6'
 import { useContext, useEffect, useState } from 'react'
 import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
-
+import { FaXmark } from 'react-icons/fa6'
 const Chat = () => {
   const userFake = [
     {
-      _id: '1',
-      name: 'Nguyễn Văn A',
+      _id: '66ac8dc0ce862139d991e55a',
+      name: 'Bùi Nhật Duy',
       avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
+        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
     },
     {
-      _id: '2',
-      name: 'Nguyễn Văn B',
+      _id: '66b1e9c49572c42beb598727',
+      name: 'Nguyễn Phương Nhi',
       avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '3',
-      name: 'Nguyễn Văn C',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '4',
-      name: 'Nguyễn Văn D',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '5',
-      name: 'Nguyễn Văn A',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '6',
-      name: 'Nguyễn Văn B',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '7',
-      name: 'Nguyễn Văn C',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '8',
-      name: 'Nguyễn Văn D',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '9',
-      name: 'Nguyễn Văn C',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
-    },
-    {
-      _id: '10',
-      name: 'Nguyễn Văn D',
-      avatar:
-        'https://scontent.cdninstagram.com/v/t51.2885-19/413856789_720235946744654_18997929553714076_n.jpg?stp=dst-jpg_p100x100&_nc_cat=1&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=gWLb7Wi7WLwQ7kNvgF3A_AA&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYBe6-Nsj65N7dct9PhsaV0hr50jlvC_PxR4Cx_2S5ZdtA&oe=66B3FB86'
+        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
     }
   ]
   const userDetail = {
     _id: '1',
     name: 'Phương Nhi',
     avatar:
-      'https://scontent.cdninstagram.com/v/t51.2885-19/450538020_875865001033913_4586504415322551856_n.jpg?stp=dst-jpg_p100x100&_nc_cat=101&ccb=1-7&_nc_sid=fcb8ef&_nc_ohc=G2QFAZSzNTcQ7kNvgGMDjlt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.cdninstagram.com&oh=00_AYCtSpMosHvWsxx0ZzEu52VmbYZ5Q1Rd8z20UMhKBc6qZg&oe=66B41D85'
+      'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
   }
 
   const { profile } = useContext(AppContext)
-  const [messagesSendOne, setMessagesSendOne] = useState('')
   interface Message {
     content: string
     isSender: boolean
   }
+  const [messagesSendOne, setMessagesSendOne] = useState('')
   const [messagesReceive, setMessagesReceive] = useState<Message[]>([])
+  const [IdUser, setIdUser] = useState<string>('')
+  const [images, setImages] = useState<string[]>([])
+
   useEffect(() => {
     socket.auth = {
       _id: profile?._id
@@ -106,10 +61,13 @@ const Chat = () => {
   }, [])
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    if (messagesSendOne === '') {
+      return
+    }
     event.preventDefault()
     socket.emit('private message', {
       content: messagesSendOne,
-      to: '66b1e9c49572c42beb598727'
+      to: IdUser
     })
     setMessagesSendOne('')
     setMessagesReceive((prev) => [
@@ -121,13 +79,40 @@ const Chat = () => {
     ])
   }
 
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const items = event.clipboardData.items
+    const newImages: string[] = []
+
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile()
+        if (file) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              newImages.push(e.target.result as string)
+              setImages((prevImages) => [...prevImages, ...newImages])
+            }
+          }
+          reader.readAsDataURL(file)
+        }
+      }
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index))
+  }
+
+  console.log(images)
+
   return (
     <div className='chat'>
       <div className='chat__users'>
         <div className='chat__users__title'>Tin Nhắn</div>
         {userFake.map((user) => {
           return (
-            <div key={user._id} className='chat__users__detail'>
+            <div onClick={() => setIdUser(user._id)} key={user._id} className='chat__users__detail'>
               <div className='chat__users__detail__avatar'>
                 <img alt={user.name} src={user.avatar} />
               </div>
@@ -176,18 +161,55 @@ const Chat = () => {
           </div>
         </div>
         <div className='chat__detail__input'>
-          <div className='chat__detail__input__emoj'>
-            <FiSmile />
-          </div>
-          <form onSubmit={handleSendMessage} className='chat__detail__input__text'>
-            <input
-              value={messagesSendOne}
-              onChange={(event) => setMessagesSendOne(event.target.value)}
-              placeholder='Nhập tin nhắn ....'
-            />
-          </form>
-          <div className='chat__detail__input__file'>
-            <AiTwotoneAudio /> <IoImageOutline /> <FaRegHeart />
+          {images.length > 0 && (
+            <div className='chat__detail__input__images'>
+              {images.length > 0 &&
+                images.map((image, index) => (
+                  <div
+                    key={index}
+                    className='chat__detail__input__image'
+                    style={{ position: 'relative', display: 'inline-block', margin: '10px', border: '1px solid black' }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '0px',
+                        right: '0px',
+                        cursor: 'pointer',
+                        backgroundColor: '#ddd',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                      }}
+                      onClick={() => removeImage(index)}
+                      className='chat__detail__input__image__icon'
+                    >
+                      <FaXmark size={15} />
+                    </div>
+                    <img src={image} alt={`Pasted ${index}`} style={{ maxWidth: '150px', maxHeight: '150px' }} />
+                  </div>
+                ))}
+            </div>
+          )}
+          <div className='chat__detail__input__bottom'>
+            <div className='chat__detail__input__bottom__emoj'>
+              <FiSmile />
+            </div>
+            <form onSubmit={handleSendMessage} className='chat__detail__input__bottom__text'>
+              <input
+                onPaste={handlePaste}
+                value={messagesSendOne}
+                onChange={(event) => setMessagesSendOne(event.target.value)}
+                placeholder='Nhập tin nhắn ....'
+              />
+            </form>
+
+            <div className='chat__detail__input__bottom__file'>
+              <AiTwotoneAudio /> <IoImageOutline /> <FaRegHeart />
+            </div>
           </div>
         </div>
       </div>

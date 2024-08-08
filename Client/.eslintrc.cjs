@@ -40,6 +40,8 @@ module.exports = {
     'react/jsx-no-target-blank': 'warn',
     // Tăng cường một số rule prettier (copy từ file .prettierrc qua),
     '@typescript-eslint/no-explicit-any': 'off',
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off',
     'prettier/prettier': [
       'warn',
       {
