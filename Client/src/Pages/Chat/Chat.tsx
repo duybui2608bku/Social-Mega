@@ -16,7 +16,8 @@ import { PiArrowBendUpLeftLight } from 'react-icons/pi'
 import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { toast } from 'react-toastify'
 import config from '../../constants/config'
-
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 const Chat = () => {
   const userFake = [
     {
@@ -57,8 +58,9 @@ const Chat = () => {
   const [images, setImages] = useState<string[]>([])
   const [message, setMessage] = useState<Message[]>([])
   const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
+  const [pickerVisible, setPickerVisible] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
+  const pickerRef = useRef<HTMLDivElement>(null)
   const handleUpload = () => {
     fileInputRef.current?.click()
   }
@@ -105,7 +107,7 @@ const Chat = () => {
         total_page: conversations?.data.result.total
       })
     }
-  }, [conversations?.data.result.conversation])
+  }, [conversations?.data.result.conversation, conversations?.data.result.page, conversations?.data.result.total])
 
   const sendMessage = (content: string) => {
     const conversation = {
@@ -196,6 +198,19 @@ const Chat = () => {
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index))
   }
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      setPickerVisible(false)
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   return (
     <div className='chat'>
@@ -316,7 +331,17 @@ const Chat = () => {
           )}
           <div className='chat__detail__input__bottom'>
             <div className='chat__detail__input__bottom__emoj'>
-              <FiSmile />
+              {pickerVisible && (
+                <div ref={pickerRef} style={{ position: 'absolute', bottom: '100px', left: '20px' }}>
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(event: any) => {
+                      setMessagesSendOne(messagesSendOne + event.native)
+                    }}
+                  />
+                </div>
+              )}
+              <FiSmile onClick={() => setPickerVisible(!pickerVisible)} />
             </div>
             <form onSubmit={handleSendMessage} className='chat__detail__input__bottom__text'>
               <input

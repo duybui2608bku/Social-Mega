@@ -55,7 +55,7 @@ const Header = () => {
     LogoutMutation.mutate(
       { refresh_token },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           // toast.success(data.data.message)
           toast.success('Đăng xuất thành công')
           nagivate('/login')
