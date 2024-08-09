@@ -5,12 +5,17 @@ import { IoInformationCircleOutline, IoImageOutline } from 'react-icons/io5'
 import { FiSmile } from 'react-icons/fi'
 import { AiTwotoneAudio } from 'react-icons/ai'
 import { FaRegHeart, FaXmark } from 'react-icons/fa6'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
-import { useQuery } from '@tanstack/react-query'
 import { getConversation } from 'src/Service/Conversations'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { useQuery } from '@tanstack/react-query'
+import { getHourAndMinute } from 'src/Utils/Other'
+import { PiArrowBendUpLeftLight } from 'react-icons/pi'
+import { HiOutlineDotsVertical } from 'react-icons/hi'
+import { toast } from 'react-toastify'
+import config from '../../constants/config'
 
 const Chat = () => {
   const userFake = [
@@ -34,16 +39,30 @@ const Chat = () => {
       'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
   }
 
-  const LIMIT = 10
+  const LIMIT = 15
+  const LIMIT_FECTH_MORE = 3
   const PAGE = 1
+  interface Message {
+    _id: string
+    sender_id: string | undefined
+    receiver_id: string | undefined
+    content: string | undefined
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
 
   const { profile } = useContext(AppContext)
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
-  const [message, setMessage] = useState<any[]>([])
+  const [message, setMessage] = useState<Message[]>([])
   const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
-  console.log(pagination)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleUpload = () => {
+    fileInputRef.current?.click()
+  }
+
   useEffect(() => {
     socket.auth = {
       _id: profile?._id
@@ -78,7 +97,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (conversations?.data.result.conversation?.length) {
-      conversations?.data.result.conversation.reverse().map((conversation) => {
+      conversations?.data.result.conversation.reverse().map((conversation: any) => {
         setMessage((prev) => [...prev, conversation])
       })
       setPagination({
@@ -88,30 +107,37 @@ const Chat = () => {
     }
   }, [conversations?.data.result.conversation])
 
-  const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
-    if (messagesSendOne.trim() === '') {
-      return
-    }
-
-    event.preventDefault()
+  const sendMessage = (content: string) => {
     const conversation = {
       sender_id: profile?._id,
       receiver_id: IdUser,
-      content: messagesSendOne,
+      content: content,
+      created_at: new Date(),
+      updated_at: new Date(),
       _id: new Date().getTime().toString()
     }
-
     socket.emit('private message', {
       payload: conversation
     })
     setMessage((prevMessage) => [...prevMessage, conversation])
+  }
+
+  const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (messagesSendOne.trim() === '') {
+      return
+    }
+    sendMessage(messagesSendOne)
     setMessagesSendOne('')
+  }
+
+  const handleSendHeartIcon = () => {
+    sendMessage('❤️')
   }
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     const items = event.clipboardData.items
     const newImages: string[] = []
-
     for (const item of items) {
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile()
@@ -129,17 +155,39 @@ const Chat = () => {
     }
   }
 
+  const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileFromLocal = event.target.files?.[0]
+    if (
+      (fileFromLocal && fileFromLocal?.size >= config.maxSizeUploadAvatar) ||
+      !fileFromLocal?.type.includes('image')
+    ) {
+      toast.error('File không hợp lệ')
+    } else {
+      setImages((prevImages) => [...prevImages, URL.createObjectURL(fileFromLocal)])
+    }
+  }
+
   const fetchMoreDataConversations = () => {
-    if (pagination.page < Math.ceil(pagination.total_page / LIMIT)) {
-      getConversation({ receiver_id: IdUser, limit: LIMIT, page: pagination.page + 1 }).then((res) => {
+    if (pagination.page < pagination.total_page) {
+      const scrollableDiv = document.getElementById('scrollableDiv')
+      const currentScrollTop = scrollableDiv?.scrollTop || 0
+      const currentScrollHeight = scrollableDiv?.scrollHeight || 0
+      getConversation({ receiver_id: IdUser, limit: LIMIT_FECTH_MORE, page: pagination.page + 1 }).then((res) => {
         if (res) {
-          res.data.result.conversation.reverse().map((conversation) => {
-            setMessage((prev) => [conversation, ...prev])
-          })
+          const newMessages = res.data.result.conversation.reverse()
+
+          setMessage((prev) => [...newMessages, ...prev])
           setPagination({
             page: res.data.result.page,
             total_page: res.data.result.total
           })
+
+          setTimeout(() => {
+            const newScrollHeight = scrollableDiv?.scrollHeight || 0
+            const heightDifference = newScrollHeight - currentScrollHeight
+            const scrollOffset = 100
+            scrollableDiv!.scrollTop = currentScrollTop + heightDifference - scrollOffset
+          }, 0)
         }
       })
     }
@@ -148,8 +196,6 @@ const Chat = () => {
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index))
   }
-
-  console.log(pagination.page < pagination.total_page / LIMIT)
 
   return (
     <div className='chat'>
@@ -180,31 +226,6 @@ const Chat = () => {
         </div>
         <div id='scrollableDiv' className='chat__detail__content'>
           <div>
-            {message.map((message, index) => {
-              return (
-                <div
-                  className={
-                    message.sender_id === profile?._id
-                      ? 'chat__detail__content__message-sender'
-                      : 'chat__detail__content__message'
-                  }
-                  key={index}
-                >
-                  <div className='chat__detail__content__message__avatar'>
-                    {message.sender_id === profile?._id ? null : <img alt={userDetail.name} src={userDetail.avatar} />}
-                  </div>
-                  <p
-                    className={
-                      message.sender_id === profile?._id
-                        ? 'chat__detail__content__message__text sender'
-                        : 'chat__detail__content__message__text'
-                    }
-                  >
-                    {message.content}
-                  </p>
-                </div>
-              )
-            })}
             <InfiniteScroll
               dataLength={message.length}
               next={fetchMoreDataConversations}
@@ -212,6 +233,7 @@ const Chat = () => {
               scrollableTarget='scrollableDiv'
               loader={<p></p>}
               inverse={true}
+              scrollThreshold={0.9}
             >
               {message.map((message, index) => {
                 return (
@@ -229,6 +251,12 @@ const Chat = () => {
                       )}
                     </div>
                     <p
+                      className={message.sender_id === profile?._id ? '' : 'chat__detail__content__message__date'}
+                      style={{ fontSize: '12px', color: '#000' }}
+                    >
+                      {getHourAndMinute(message.created_at as Date)}
+                    </p>
+                    <p
                       className={
                         message.sender_id === profile?._id
                           ? 'chat__detail__content__message__text sender'
@@ -236,6 +264,15 @@ const Chat = () => {
                       }
                     >
                       {message.content}
+                    </p>
+                    <p
+                      className={
+                        message.sender_id === profile?._id
+                          ? 'chat__detail__content__message-sender__react-sender'
+                          : 'chat__detail__content__message__react'
+                      }
+                    >
+                      <FiSmile /> <PiArrowBendUpLeftLight /> <HiOutlineDotsVertical />
                     </p>
                   </div>
                 )
@@ -291,7 +328,8 @@ const Chat = () => {
             </form>
 
             <div className='chat__detail__input__bottom__file'>
-              <AiTwotoneAudio /> <IoImageOutline /> <FaRegHeart />
+              <AiTwotoneAudio /> <IoImageOutline onClick={handleUpload} /> <FaRegHeart onClick={handleSendHeartIcon} />
+              <input onChange={onFileChange} ref={fileInputRef} type='file' style={{ display: 'none' }} />
             </div>
           </div>
         </div>
