@@ -6,8 +6,8 @@ import mediaRouters from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
 import { createServer } from 'http'
-import { Server } from 'socket.io'
 import staticRouter from './routes/static.routes'
+import setupSocket from './socketIO/socketIO'
 import '~/utils/s3'
 config()
 
@@ -15,9 +15,7 @@ import cors from 'cors'
 import InstagramsRouters from './routes/instagrams.routes'
 import bookmarkRouters from './routes/bookmark.routes'
 import searchRouters from './routes/search.routes'
-import { Conversation } from './models/schemas/Conversations.schema'
 import conversationsRouter from './routes/conversations.routes'
-import { ObjectId } from 'mongodb'
 const corsOptions = {
   origin: 'http://localhost:3000',
   methods: 'GET,POST,PUT,DELETE',
@@ -45,49 +43,8 @@ app.use('/search', searchRouters)
 app.use('/static', staticRouter)
 app.use('/conversation', conversationsRouter)
 app.use(defaultErrorHandler)
-const io = new Server(httpServer, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
-  }
-})
 
-const users: {
-  [key: string]: {
-    socket_id: string
-  }
-} = {}
-io.on('connection', (socket) => {
-  console.log(`${socket.id} connected`)
-  const user_id = socket.handshake.auth._id
-  users[user_id] = {
-    socket_id: socket.id
-  }
-  console.log(users)
-
-  socket.on('private message', async (data) => {
-    const { payload } = data
-    const receiver_socket_id = users[payload.receiver_id]?.socket_id
-    const conversation = new Conversation({
-      sender_id: new ObjectId(payload.sender_id),
-      receiver_id: new ObjectId(payload.receiver_id),
-      content: payload.content
-    })
-    const result = await databaseService.conversations.insertOne(conversation)
-    conversation._id = result.insertedId
-
-    if (receiver_socket_id) {
-      socket.to(receiver_socket_id).emit('receive private message', {
-        payload: conversation
-      })
-    }
-  })
-
-  socket.on('disconnect', () => {
-    delete users[user_id]
-    console.log(`${socket.id} disconnected`)
-  })
-})
+setupSocket(httpServer)
 
 httpServer.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)

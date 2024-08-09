@@ -12,6 +12,7 @@ import { ErrorWithStatusCode } from '~/models/Errors'
 import { TokenPayload } from '~/models/requestes/User.requests'
 import { hashPassword } from '~/utils/crypro'
 import { verifyToken } from '~/utils/jwt'
+import { verifyAccessToken } from '~/utils/other'
 import { validate } from '~/utils/validation'
 
 export const loginValidator = validate(
@@ -186,25 +187,7 @@ export const accessTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             const access_token = (value || '').split(' ')[1]
-            if (!access_token) {
-              throw new ErrorWithStatusCode({
-                message: userMessages.ACCESS_TOKEN_REQUIRED,
-                statusCode: HttpStatusCode.Unauthorized
-              })
-            }
-            try {
-              const decode_authorization = await verifyToken({
-                token: access_token,
-                secretOrPublicKey: process.env.JWT_SECRET_ACCESSTOKEN as string
-              })
-              req.decode_authorization = decode_authorization
-            } catch (error) {
-              throw new ErrorWithStatusCode({
-                message: capitalize((error as JsonWebTokenError).message),
-                statusCode: HttpStatusCode.Unauthorized
-              })
-            }
-            return true
+            return await verifyAccessToken(access_token, req as Request)
           }
         }
       }

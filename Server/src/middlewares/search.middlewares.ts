@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import { PeopleFollow } from '~/constants/enum'
 import { SearchMessgaes } from '~/constants/messages'

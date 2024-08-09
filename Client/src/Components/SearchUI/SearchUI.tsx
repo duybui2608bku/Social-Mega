@@ -34,14 +34,12 @@ const SearchUI = ({ toggle }: SearchUIProps) => {
       <div className='searchUI__results'>
         {userFake.map((user, index) => {
           return (
-            <>
-              <div key={index} className='searchUI__results__user'>
-                <div className='searchUI__results__user__avatar'>
-                  <img src={user.avatar} alt='' />
-                </div>
-                <div className='searchUI__results__user__name'>{user.name}</div>
+            <div key={index} className='searchUI__results__user'>
+              <div className='searchUI__results__user__avatar'>
+                <img src={user.avatar} alt='' />
               </div>
-            </>
+              <div className='searchUI__results__user__name'>{user.name}</div>
+            </div>
           )
         })}
       </div>

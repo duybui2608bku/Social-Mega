@@ -1,7 +1,6 @@
-import { FaRegHeart } from 'react-icons/fa6'
-import { FaRegComment } from 'react-icons/fa6'
+import { FaRegHeart, FaRegComment, FaRegBookmark } from 'react-icons/fa6'
 import { PiPaperPlaneTiltBold } from 'react-icons/pi'
-import { FaRegBookmark } from 'react-icons/fa6'
+
 import './Post.scss'
 import { useState } from 'react'
 
@@ -35,61 +34,57 @@ const Post = () => {
   ]
 
   return (
-    <>
-      <div className='post'>
-        {postItem.map((item, index) => {
-          return (
-            <>
-              <div key={index} className='post__item'>
-                <div className='post__item__infor'>
-                  <div className='post__item__infor__avatar'>
-                    <img src={item.avatar} alt='' />
-                  </div>
-                  <div className='post__item__infor__user-name'>{item.username}</div>
-                </div>
-                <div className='post__item__img'>
-                  <img src={item.img} alt='' />
-                </div>
-                <div className='post__item__react'>
-                  <div className='post__item__react__left'>
-                    <span>
-                      <FaRegHeart />
-                    </span>
-                    <span>
-                      <FaRegComment />
-                    </span>
-                    <span>
-                      <PiPaperPlaneTiltBold />
-                    </span>
-                  </div>
-                  <div className='post__item__react__right'>
-                    <FaRegBookmark />
-                  </div>
-                </div>
-                <div className='post__item__like'>{item.like} Thích</div>
-                <div className={more ? '' : 'post__item__content'}>{item.content}</div>
-                <div
-                  onClick={handleSeeMore}
-                  style={{ fontSize: '20px', margin: '10px 0', color: '#ccd0d5', cursor: 'pointer' }}
-                >
-                  {more ? 'Rút gọn' : 'Xem thêm'}
-                </div>
-                <div
-                  style={{ fontSize: '20px', margin: '10px 0', color: '#ccd0d5', cursor: 'pointer' }}
-                  className='post__item__comments'
-                >
-                  Xem tất cả {item.comment} bình luận
-                </div>
-                <div className='post__item__add-comment'>
-                  <input type='text' placeholder='Thêm bình luận...' />
-                  <span className='post__item__add-comment__post-comment'>Đăng</span>
-                </div>
+    <div className='post'>
+      {postItem.map((item, index) => {
+        return (
+          <div key={index} className='post__item'>
+            <div className='post__item__infor'>
+              <div className='post__item__infor__avatar'>
+                <img src={item.avatar} alt='' />
               </div>
-            </>
-          )
-        })}
-      </div>
-    </>
+              <div className='post__item__infor__user-name'>{item.username}</div>
+            </div>
+            <div className='post__item__img'>
+              <img src={item.img} alt='' />
+            </div>
+            <div className='post__item__react'>
+              <div className='post__item__react__left'>
+                <span>
+                  <FaRegHeart />
+                </span>
+                <span>
+                  <FaRegComment />
+                </span>
+                <span>
+                  <PiPaperPlaneTiltBold />
+                </span>
+              </div>
+              <div className='post__item__react__right'>
+                <FaRegBookmark />
+              </div>
+            </div>
+            <div className='post__item__like'>{item.like} Thích</div>
+            <div className={more ? '' : 'post__item__content'}>{item.content}</div>
+            <div
+              onClick={handleSeeMore}
+              style={{ fontSize: '20px', margin: '10px 0', color: '#ccd0d5', cursor: 'pointer' }}
+            >
+              {more ? 'Rút gọn' : 'Xem thêm'}
+            </div>
+            <div
+              style={{ fontSize: '20px', margin: '10px 0', color: '#ccd0d5', cursor: 'pointer' }}
+              className='post__item__comments'
+            >
+              Xem tất cả {item.comment} bình luận
+            </div>
+            <div className='post__item__add-comment'>
+              <input type='text' placeholder='Thêm bình luận...' />
+              <span className='post__item__add-comment__post-comment'>Đăng</span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
