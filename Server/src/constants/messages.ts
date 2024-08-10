@@ -115,5 +115,23 @@ export const SearchMessgaes = {
 } as const
 
 export const ConversationMessages = {
-  GET_CONVERSATION_SUCCESS: 'Get conversation success'
+  GET_CONVERSATION_SUCCESS: 'Get conversation success',
+  CREATE_GROUP_CONVERSATION_SUCCESS: 'Create group conversation success',
+  MEMBERS_MUST_BE_ARRAY_OF_USER_ID: 'Members must be an array of user id',
+  MEMBERS_MUST_BE_ARRAY_STRING_OF_USER_ID: 'Members must be an array string of user id',
+  MEMBERS_MUST_BE_EMPTY_STRING: 'Members must be empty string',
+  MEMBERS_NOT_FOUND: 'Members not found',
+  MEMBERS_ALREADY_IN_GROUP: 'Members already in group',
+  GROUP_ID_MUST_BE_STRING: 'Group id must be string',
+  GROUP_NOT_FOUND: 'Group not found',
+  MEMBERS_NOT_EXIST_IN_GROUP: 'Members not exist in group',
+  ADD_MEMBERS_TO_GROUP_CONVERSATION_SUCCESS: 'Add members to group conversation success',
+  DELETE_MEMBERS_FROM_GROUP_CONVERSATION_SUCCESS: 'Delete members from group conversation success',
+  YOU_NOT_ADMIN_GROUP: 'You not admin group',
+  Name_MUST_BE_STRING: 'Name must be a string',
+  NAME_IS_NOT_EMPTY: 'Name is not empty',
+  MEMBERS_MUST_BE_LARGE_THAN_THREE: 'Members must be large than three',
+  MEMBERS_MUST_BE_STRING: 'Members must be a string',
+  LEAVE_GROUP_CONVERSATION_SUCCESS: 'Leave group conversation success',
+  DELETE_GROUP_CONVERSATION_SUCCESS: 'Delete group conversation success'
 } as const

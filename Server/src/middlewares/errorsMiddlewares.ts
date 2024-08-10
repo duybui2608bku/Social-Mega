@@ -1,4 +1,4 @@
-import e, { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '~/constants/enum'
 import { omit } from 'lodash'
 import { ErrorWithStatusCode } from '~/models/Errors'

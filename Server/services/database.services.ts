@@ -8,6 +8,7 @@ import Hashtags from '~/models/schemas/Hashtags.schema'
 import { Bookmark } from '~/models/schemas/Bookmark.schema'
 import { LikeInstagrams } from '~/models/schemas/LikeInstagrams.chema'
 import { Conversation } from '~/models/schemas/Conversations.schema'
+import { ConversationGroup } from '~/models/schemas/ConversationsGroup.schema'
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@social-app.9mqzjou.mongodb.net/?appName=SOCIAL-APP?retryWrites=true&w=majority`
 
@@ -95,6 +96,10 @@ class DatabaseService {
 
   get conversations(): Collection<Conversation> {
     return this.db.collection(process.env.CONVERSATIONS_COLLECTION as string)
+  }
+
+  get conversationGroups(): Collection<ConversationGroup> {
+    return this.db.collection(process.env.CONVERSATION_GROUPS_COLLECTION as string)
   }
 }
 

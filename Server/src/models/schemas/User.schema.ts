@@ -20,6 +20,7 @@ interface UserType {
   cover_photo?: string
   status?: userStatus
   request_follow?: ObjectId[]
+  group_conversations?: ObjectId[]
 }
 
 export default class User {
@@ -41,7 +42,7 @@ export default class User {
   cover_photo: string
   status: userStatus
   request_follow?: ObjectId[]
-
+  group_conversations?: ObjectId[]
   constructor(user: UserType) {
     this._id = user._id
     this.name = user.name || ''
@@ -61,5 +62,6 @@ export default class User {
     this.instagrams_circle = user.instagrams_circle || []
     this.status = user.status || userStatus.public
     this.request_follow = user.request_follow || []
+    this.group_conversations = user.group_conversations || []
   }
 }
