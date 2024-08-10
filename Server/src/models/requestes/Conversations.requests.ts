@@ -14,3 +14,11 @@ export interface AddMembersToGroupConversationRequests {
 }
 
 export interface DeleteMembersFromGroupConversationRequests extends AddMembersToGroupConversationRequests {}
+
+export interface LeaveGroupConversationRequests extends ParamsDictionary {
+  group_id: string
+}
+
+export interface DeleteGroupConversationRequests extends ParamsDictionary {
+  group_id: string
+}

@@ -18,24 +18,24 @@ import { toast } from 'react-toastify'
 import config from '../../constants/config'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
-import { getAccessTokenFormLS, getTimeDisconnect, setTimeDisconnectToLS } from 'src/Utils/Auth'
+import { getAccessTokenFormLS } from 'src/Utils/Auth'
 
 const Chat = () => {
   const userFake = [
     {
-      _id: '66ac8dc0ce862139d991e55a',
+      _id: '66b6dab4046b212a801f4147',
       name: 'Bùi Nhật Duy',
       avatar:
         'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
     },
     {
-      _id: '66b1e9c49572c42beb598727',
-      name: 'Nguyễn Phương Nhi Nhi',
+      _id: '66b6dabe046b212a801f4149',
+      name: 'Nguyễn Phương Nhi',
       avatar:
         'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
     },
     {
-      _id: '66ac9207d28f048e9a538127',
+      _id: '66b6dac3046b212a801f414b',
       name: 'Amee',
       avatar:
         'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
@@ -63,58 +63,16 @@ const Chat = () => {
   const { profile } = useContext(AppContext)
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
-  const [receiverIdActive, setReceiverIdActive] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [message, setMessage] = useState<Message[]>([])
   const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
   const [pickerVisible, setPickerVisible] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
-  const [disconnectTimes, setDisconnectTimes] = useState<
-    { receiver_id: string; disconnectTime: string; activeTime?: string }[]
-  >([])
-  // const [timeActive, setTimeActive] = useState<string | null>(null)
+
   const handleUpload = () => {
     fileInputRef.current?.click()
   }
-
-  const calculateTimeActive = (disconnectTime: string) => {
-    const disconnectDate = new Date(disconnectTime)
-    const now = new Date()
-    const difference = now.getTime() - disconnectDate.getTime()
-    const minutes = Math.floor(difference / 1000 / 60)
-    return `${minutes} phút trước`
-  }
-
-  useEffect(() => {
-    const storedDisconnectTimes = userFake.map((user) => ({
-      receiver_id: user._id,
-      disconnectTime: getTimeDisconnect(user._id) || ''
-    }))
-    setDisconnectTimes(storedDisconnectTimes)
-
-    socket.on('receiver disconnected', (data) => {
-      const { disconnect_time, receiver_id } = data
-      setDisconnectTimes((prev) => [
-        ...prev.filter((item) => item.receiver_id !== receiver_id),
-        { receiver_id, disconnectTime: disconnect_time }
-      ])
-      setTimeDisconnectToLS(receiver_id, disconnect_time)
-    })
-
-    const intervalId = setInterval(() => {
-      setDisconnectTimes((prev) =>
-        prev.map((item) => ({
-          ...item,
-          activeTime: calculateTimeActive(item.disconnectTime)
-        }))
-      )
-    }, 60000)
-
-    return () => {
-      clearInterval(intervalId)
-    }
-  }, [])
 
   useEffect(() => {
     const token = getAccessTokenFormLS()
@@ -125,9 +83,6 @@ const Chat = () => {
         socket.on('receive private message', (data) => {
           const { payload } = data
           setMessage((conversation) => [...conversation, payload])
-          console.log('receive private message:', payload.sender_id)
-          setDisconnectTimes((prev) => prev.filter((item) => item.receiver_id !== payload.sender_id))
-          localStorage.removeItem(`disconnectTime_${payload.sender_id}`)
         })
 
         socket.on('connect_error', (error) => {
@@ -154,7 +109,6 @@ const Chat = () => {
 
   useEffect(() => {
     if (IdUser) {
-      setReceiverIdActive(IdUser)
       setMessage([])
       refetch()
     }
@@ -275,8 +229,6 @@ const Chat = () => {
     }
   }, [])
 
-  console.log('disconnectTimes', disconnectTimes)
-
   return (
     <div className='chat'>
       <div className='chat__users'>
@@ -287,14 +239,7 @@ const Chat = () => {
               <div className='chat__users__detail__avatar'>
                 <img alt={user.name} src={user.avatar} />
               </div>
-              <div className='chat__users__detail__name'>
-                <p>{user.name}</p>
-                {disconnectTimes.find((item) => item.receiver_id === user._id) ? (
-                  <p style={{ fontSize: '12px', color: '#000' }}>
-                    {disconnectTimes.find((item) => item.receiver_id === user._id)?.activeTime}
-                  </p>
-                ) : null}
-              </div>
+              <div className='chat__users__detail__name'>{user.name}</div>
             </div>
           )
         })}

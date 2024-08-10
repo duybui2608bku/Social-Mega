@@ -6,8 +6,10 @@ import { ConversationMessages } from '~/constants/messages'
 import {
   AddMembersToGroupConversationRequests,
   CreateGroupConversationRequests,
+  DeleteGroupConversationRequests,
   DeleteMembersFromGroupConversationRequests,
-  GetConversationsRequests
+  GetConversationsRequests,
+  LeaveGroupConversationRequests
 } from '~/models/requestes/Conversations.requests'
 import { ParamsDictionary } from 'express-serve-static-core'
 export const conversationController = async (req: Request<GetConversationsRequests>, res: Response) => {
@@ -65,7 +67,7 @@ export const deleteMembersFromGroupConversationController = async (
   })
 }
 
-export const leaveGroupConversationController = async (req: Request, res: Response) => {
+export const leaveGroupConversationController = async (req: Request<LeaveGroupConversationRequests>, res: Response) => {
   const { user_id } = req.decode_authorization as TokenPayload
   const { group_id } = req.params
   await conversationService.leaveGroupConversation({ group_id, user_id })
@@ -75,7 +77,10 @@ export const leaveGroupConversationController = async (req: Request, res: Respon
   })
 }
 
-export const deleteGroupConversationController = async (req: Request, res: Response) => {
+export const deleteGroupConversationController = async (
+  req: Request<DeleteGroupConversationRequests>,
+  res: Response
+) => {
   const { group_id } = req.params
   await conversationService.deleteGroupConversation({ group_id })
   return res.status(HttpStatusCode.Ok).json({

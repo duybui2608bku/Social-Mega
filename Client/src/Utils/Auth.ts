@@ -25,14 +25,6 @@ export const getProfileFromLS = () => {
   return result ? JSON.parse(result) : null
 }
 
-export const setTimeDisconnectToLS = (receiverId: string, disconnectTime: string) => {
-  localStorage.setItem(`disconnectTime_${receiverId}`, disconnectTime)
-}
-
-export const getTimeDisconnect = (receiverId: string) => {
-  return localStorage.getItem(`disconnectTime_${receiverId}`)
-}
-
 export const LocalStorageEventTarget = new EventTarget()
 export const clearLS = () => {
   localStorage.removeItem('access_token')

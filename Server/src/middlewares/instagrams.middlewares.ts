@@ -94,7 +94,7 @@ export const createInstagramsValidator = validate(
       medias: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (
               value.some((item: any) => {
                 return typeof item.url !== 'string' || !mediaType.includes(item.type)
