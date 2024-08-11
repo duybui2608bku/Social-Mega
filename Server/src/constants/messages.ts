@@ -72,7 +72,16 @@ export const userMessages = {
   ALREADY_SEND_REQUEST_FOLLOW: 'Already send request follow',
   ACCEPT_FOLLOW_SUCCESS: 'Accept follow successfully',
   YOU_DONT_HAVE_REQUEST_FOLLOW: 'You dont have request follow',
-  CANCLE_FOLLOW_REQUEST_SUCCESS: 'Cancle follow request successfully'
+  CANCLE_FOLLOW_REQUEST_SUCCESS: 'Cancle follow request successfully',
+  ADD_INSTAGRAMS_CIRCLE_SUCCESS: 'Add instagrams circle successfully',
+  INSTAGRAMS_CIRCLE_MUST_BE_ARRAY: 'Instagrams circle must be an array',
+  INSTAGRAMS_CIRCLE_MUST_BE_NON_EMPTY_ARRAY: 'Instagrams circle must be non empty array',
+  USER_ALREADY_IN_INSTAGRAMS_CIRCLE: 'User already in instagrams circle',
+  USERS_NOT_FOUND: 'Users not found',
+  CAN_ADD_YOURSELF_TO_INSTAGRAMS_CIRCLE: 'Can add yourself to instagrams circle',
+  DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS: 'Delete user out of instagrams circle successfully',
+  CANT_DELETE_YOURSELF_OUT_OF_INSTAGRAMS_CIRCLE: 'Cant delete yourself out of instagrams circle',
+  USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE: 'Users not exist in instagrams circle'
 } as const
 
 export const InstagramsMessgaes = {
@@ -133,5 +142,6 @@ export const ConversationMessages = {
   MEMBERS_MUST_BE_LARGE_THAN_THREE: 'Members must be large than three',
   MEMBERS_MUST_BE_STRING: 'Members must be a string',
   LEAVE_GROUP_CONVERSATION_SUCCESS: 'Leave group conversation success',
-  DELETE_GROUP_CONVERSATION_SUCCESS: 'Delete group conversation success'
+  DELETE_GROUP_CONVERSATION_SUCCESS: 'Delete group conversation success',
+  CANT_DELETE_YOURSELF: 'Cant delete yourself'
 } as const

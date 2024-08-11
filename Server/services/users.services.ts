@@ -410,6 +410,35 @@ class UsersService {
       message: userMessages.CANCLE_FOLLOW_REQUEST_SUCCESS
     }
   }
+
+  async addInstagramsCircleController(user_id: string, instagrams_circle: string[]) {
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $push: {
+          instagrams_circle: { $each: instagrams_circle.map((instagrams_circle) => new ObjectId(instagrams_circle)) }
+        }
+      }
+    )
+    return {
+      message: userMessages.ADD_INSTAGRAMS_CIRCLE_SUCCESS
+    }
+  }
+
+  async deleteUserOutOfInstagramsCircle(user_id: string, instagrams_circle: string[]) {
+    const ObjectIds = instagrams_circle.map((instagrams_circle) => new ObjectId(instagrams_circle))
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      { $pull: { instagrams_circle: { $in: ObjectIds } } as any }
+    )
+    return {
+      message: userMessages.DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS
+    }
+  }
 }
 
 const usersService = new UsersService()

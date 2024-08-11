@@ -854,3 +854,81 @@ export const getConversationValidator = validate(
     ['params']
   )
 )
+
+export const addIntagramsCircleValidator = validate(
+  checkSchema(
+    {
+      instagrams_circle: {
+        isArray: {
+          errorMessage: userMessages.INSTAGRAMS_CIRCLE_MUST_BE_ARRAY
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const { user_id } = req.decode_authorization as TokenPayload
+            const ObjectIds = value.map((id: string) => new ObjectId(id))
+            if (value.includes(user_id)) {
+              throw new Error(userMessages.CAN_ADD_YOURSELF_TO_INSTAGRAMS_CIRCLE)
+            }
+            if (value.length === 0) {
+              throw new Error(userMessages.INSTAGRAMS_CIRCLE_MUST_BE_NON_EMPTY_ARRAY)
+            }
+            const [users, isExistUsers] = await Promise.all([
+              databaseService.users.find({ _id: { $in: ObjectIds } }).toArray(),
+              databaseService.users
+                .find({ _id: new ObjectId(user_id), instagrams_circle: { $in: ObjectIds } })
+                .toArray()
+            ])
+            if (users.length === 0) {
+              throw new Error(userMessages.USERS_NOT_FOUND)
+            }
+            if (isExistUsers.length > 0) {
+              throw new Error(userMessages.USER_ALREADY_IN_INSTAGRAMS_CIRCLE)
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const deleteIntagramsCircleValidator = validate(
+  checkSchema(
+    {
+      instagrams_circle: {
+        isArray: {
+          errorMessage: userMessages.INSTAGRAMS_CIRCLE_MUST_BE_ARRAY
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const { user_id } = req.decode_authorization as TokenPayload
+            const ObjectIds = value.map((id: string) => new ObjectId(id))
+            if (value.includes(user_id)) {
+              throw new Error(userMessages.CANT_DELETE_YOURSELF_OUT_OF_INSTAGRAMS_CIRCLE)
+            }
+            if (value.length === 0) {
+              throw new Error(userMessages.INSTAGRAMS_CIRCLE_MUST_BE_NON_EMPTY_ARRAY)
+            }
+            const [users, isExistUsers] = await Promise.all([
+              databaseService.users.find({ _id: { $in: ObjectIds } }).toArray(),
+              databaseService.users
+                .find({ _id: new ObjectId(user_id), instagrams_circle: { $all: ObjectIds } })
+                .toArray()
+            ])
+            if (users.length === 0) {
+              throw new Error(userMessages.USERS_NOT_FOUND)
+            }
+
+            console.log(isExistUsers)
+            if (isExistUsers.length === 0) {
+              throw new Error(userMessages.USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE)
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)

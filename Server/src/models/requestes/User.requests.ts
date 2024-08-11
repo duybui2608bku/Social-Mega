@@ -88,3 +88,7 @@ export interface changePasswordRequestBody {
   password: string
   confirm_password: string
 }
+
+export interface AddInstagramsCircleRequestBody {
+  instagrams_circle: string[]
+}

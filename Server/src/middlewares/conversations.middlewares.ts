@@ -2,6 +2,7 @@ import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
 import databaseService from 'services/database.services'
 import { ConversationMessages } from '~/constants/messages'
+import { TokenPayload } from '~/models/requestes/User.requests'
 import { validate } from '~/utils/validation'
 
 export const checkAddMember = validate(
@@ -42,7 +43,7 @@ export const checkAddMember = validate(
         custom: {
           options: async (value) => {
             const group = await databaseService.conversationGroups.findOne({
-              _id: new ObjectId(value)
+              _id: new ObjectId(value as string)
             })
             if (!group) {
               throw new Error(ConversationMessages.GROUP_NOT_FOUND)
@@ -63,7 +64,11 @@ export const checkdeleteMember = validate(
           errorMessage: ConversationMessages.MEMBERS_MUST_BE_ARRAY_OF_USER_ID
         },
         custom: {
-          options: async (value) => {
+          options: async (value, { req }) => {
+            const { user_id } = req.decode_authorization as TokenPayload
+            if (value.includes(user_id)) {
+              throw new Error(ConversationMessages.CANT_DELETE_YOURSELF)
+            }
             if (value.length === 0) {
               throw new Error(ConversationMessages.MEMBERS_MUST_BE_EMPTY_STRING)
             }
@@ -71,7 +76,7 @@ export const checkdeleteMember = validate(
 
             const [members, isExistMembers] = await Promise.all([
               databaseService.users.find({ _id: { $in: objectIds } }).toArray(),
-              databaseService.conversationGroups.find({ members: { $in: objectIds } }).toArray()
+              databaseService.conversationGroups.find({ members: { $all: objectIds } }).toArray()
             ])
 
             if (members.length === 0) {
@@ -94,10 +99,10 @@ export const checkdeleteMember = validate(
           options: async (value, { req }) => {
             const [group, isAdminGroup] = await Promise.all([
               databaseService.conversationGroups.findOne({
-                _id: new ObjectId(value)
+                _id: new ObjectId(value as string)
               }),
               databaseService.conversationGroups.findOne({
-                _id: new ObjectId(value),
+                _id: new ObjectId(value as string),
                 admin: new ObjectId(req.decode_authorization.user_id)
               })
             ])

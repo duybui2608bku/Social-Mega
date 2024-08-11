@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import usersService from '../../services/users.services'
 import {
+  AddInstagramsCircleRequestBody,
   changePasswordRequestBody,
   EmailVerifyRequestBody,
   FollowerAcceptRequestBody,
@@ -244,6 +245,29 @@ export const unfollowController = async (req: Request<ParamsDictionary, any, Unf
   const { user_id } = req.decode_authorization as TokenPayload
   const { unfollow_user_id } = req.params
   const result = await usersService.unfollow(user_id, unfollow_user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const addInstagramsCircleController = async (
+  req: Request<ParamsDictionary, any, AddInstagramsCircleRequestBody>,
+  res: Response
+) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { instagrams_circle } = req.body
+  const result = await usersService.addInstagramsCircleController(user_id, instagrams_circle)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: result.message
+  })
+}
+
+export const deleteUserOutOfInstagramsCircleController = async (req: Request, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const { instagrams_circle } = req.body
+  const result = await usersService.deleteUserOutOfInstagramsCircle(user_id, instagrams_circle)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: result.message

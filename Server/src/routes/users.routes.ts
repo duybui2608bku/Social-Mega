@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import {
+  addInstagramsCircleController,
   changePasswordController,
+  deleteUserOutOfInstagramsCircleController,
   emailVerifyController,
   followAppectController,
   followCancleRequestController,
@@ -32,7 +34,9 @@ import {
   unfollowerUserValidator,
   changePasswordValidator,
   followUserAcceptValidator,
-  followUserCancleValidator
+  followUserCancleValidator,
+  addIntagramsCircleValidator,
+  deleteIntagramsCircleValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -208,7 +212,6 @@ Description: UnFllow some one
 path: /follow/unfllow_user_id
 method: DELETE
 Header:{Authorization: Bearer <access_token>}
-
 */
 
 userRouters.delete(
@@ -217,6 +220,38 @@ userRouters.delete(
   verifiedUserValidator,
   unfollowerUserValidator,
   wrapRequestHandler(unfollowController)
+)
+
+/*
+Description: Add instagrams cricle
+path: /instagrams-circle
+method: POST
+Header:{Authorization: Bearer <access_token>}
+Body:{instagrams_circle: string[]}
+*/
+
+userRouters.post(
+  '/instagrams-circle',
+  accessTokenValidator,
+  verifiedUserValidator,
+  addIntagramsCircleValidator,
+  wrapRequestHandler(addInstagramsCircleController)
+)
+
+/*
+Description: Delete user out of instagrams cricle
+path: /delete-instagrams-circle
+method: POST
+Header:{Authorization: Bearer <access_token>}
+Body:{instagrams_circle: string[]}
+*/
+
+userRouters.post(
+  '/delete-instagrams-circle',
+  accessTokenValidator,
+  verifiedUserValidator,
+  deleteIntagramsCircleValidator,
+  wrapRequestHandler(deleteUserOutOfInstagramsCircleController)
 )
 
 export default userRouters
