@@ -107,7 +107,16 @@ class UsersService {
         _id: new ObjectId(user_id)
       },
       {
-        projection: { password: 0, email_verify_token: 0, forgot_password_token: 0, instagrams_circle: 0 }
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+          instagrams_circle: 0,
+          created_at: 0,
+          updated_at: 0,
+          group_conversations: 0,
+          request_follow: 0
+        }
       }
     )
     return { access_token, refresh_token, user }
@@ -438,6 +447,188 @@ class UsersService {
     return {
       message: userMessages.DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS
     }
+  }
+
+  async getInforConversation(user_id: string) {
+    const inforConversation = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId('66b6dab4046b212a801f4147')
+          }
+        },
+        {
+          $lookup: {
+            from: 'conversation_groups',
+            localField: 'group_conversations',
+            foreignField: '_id',
+            as: 'group_conversations'
+          }
+        },
+        {
+          $sort: {
+            'group_conversations.content': -1
+          }
+        },
+        {
+          $unwind: '$group_conversations'
+        },
+        {
+          $sort: {
+            'group_conversations.created_at': -1
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'group_conversations.members',
+            foreignField: '_id',
+            as: 'group_conversations.members'
+          }
+        },
+        {
+          $addFields: {
+            'group_conversations.members': {
+              $map: {
+                input: '$group_conversations.members',
+                as: 'user',
+                in: {
+                  _id: '$$user._id',
+                  name: '$$user.name',
+                  avatar: '$$user.avatar'
+                }
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'conversations',
+            localField: '_id',
+            foreignField: 'sender_id',
+            as: 'private_conversations'
+          }
+        },
+        {
+          $unwind: '$private_conversations'
+        },
+        {
+          $sort: {
+            'private_conversations.created_at': -1
+          }
+        },
+        {
+          $addFields: {
+            'private_conversations.pair': {
+              $cond: [
+                {
+                  $lt: ['$private_conversations.sender_id', '$private_conversations.receiver_id']
+                },
+                {
+                  $concat: [
+                    {
+                      $toString: '$private_conversations.sender_id'
+                    },
+                    '_',
+                    {
+                      $toString: '$private_conversations.receiver_id'
+                    }
+                  ]
+                },
+                {
+                  $concat: [
+                    {
+                      $toString: '$private_conversations.receiver_id'
+                    },
+                    '_',
+                    {
+                      $toString: '$private_conversations.sender_id'
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$private_conversations.pair',
+            private_conversation: {
+              $first: '$private_conversations'
+            },
+            doc: {
+              $first: '$$ROOT'
+            }
+          }
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                '$doc',
+                {
+                  private_conversations: '$private_conversation'
+                }
+              ]
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'private_conversations.receiver_id',
+            foreignField: '_id',
+            as: 'private_conversations'
+          }
+        },
+        {
+          $addFields: {
+            private_conversations: {
+              $map: {
+                input: '$private_conversations',
+                as: 'private_conversation',
+                in: {
+                  _id: '$$private_conversation._id',
+                  name: '$$private_conversation.name',
+                  avatar: '$$private_conversation.avatar'
+                }
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            name: {
+              $first: '$name'
+            },
+            email: {
+              $first: '$email'
+            },
+            group_conversations: {
+              $push: '$group_conversations'
+            },
+            private_conversations: {
+              $push: '$private_conversations'
+            }
+          }
+        },
+        {
+          $addFields: {
+            private_conversations: {
+              $reduce: {
+                input: '$private_conversations',
+                initialValue: [],
+                in: {
+                  $concatArrays: ['$$value', '$$this']
+                }
+              }
+            }
+          }
+        }
+      ])
+      .toArray()
+    return inforConversation
   }
 }
 

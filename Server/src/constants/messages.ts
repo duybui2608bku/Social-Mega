@@ -81,7 +81,8 @@ export const userMessages = {
   CAN_ADD_YOURSELF_TO_INSTAGRAMS_CIRCLE: 'Can add yourself to instagrams circle',
   DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS: 'Delete user out of instagrams circle successfully',
   CANT_DELETE_YOURSELF_OUT_OF_INSTAGRAMS_CIRCLE: 'Cant delete yourself out of instagrams circle',
-  USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE: 'Users not exist in instagrams circle'
+  USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE: 'Users not exist in instagrams circle',
+  GET_INFOR_CONVERSATION_SUCCESS: 'Get infore conversation success'
 } as const
 
 export const InstagramsMessgaes = {

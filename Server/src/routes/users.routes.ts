@@ -8,6 +8,7 @@ import {
   followCancleRequestController,
   followController,
   forgotPasswordController,
+  getInforConversationController,
   getMeController,
   loginController,
   logUotController,
@@ -252,6 +253,20 @@ userRouters.post(
   verifiedUserValidator,
   deleteIntagramsCircleValidator,
   wrapRequestHandler(deleteUserOutOfInstagramsCircleController)
+)
+
+/*
+Description: Get infor conversation
+path: /conversation
+method: GET
+Header:{Authorization: Bearer <access_token>}
+*/
+
+userRouters.get(
+  '/conversation',
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(getInforConversationController)
 )
 
 export default userRouters

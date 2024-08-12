@@ -1,3 +1,4 @@
+import { pathConversation } from 'src/constants/path'
 import { ConversationsType } from 'src/Types/Conversations.type'
 import axiosInstance from 'src/Utils/Axios'
 
@@ -10,5 +11,7 @@ export const getConversation = ({
   limit?: number
   page?: number
 }) => {
-  return axiosInstance.get<ConversationsType>(`/conversation/receiver/${receiver_id}?limit=${limit}&page=${page}`)
+  return axiosInstance.get<ConversationsType>(
+    `${pathConversation.getConversation}/${receiver_id}?limit=${limit}&page=${page}`
+  )
 }

@@ -92,3 +92,7 @@ export interface changePasswordRequestBody {
 export interface AddInstagramsCircleRequestBody {
   instagrams_circle: string[]
 }
+
+export interface deleteInstagramsCircleRequestBody {
+  instagrams_circle: string[]
+}

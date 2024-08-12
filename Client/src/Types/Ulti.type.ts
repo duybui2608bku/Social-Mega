@@ -1,4 +1,5 @@
-export interface SuccessResponse<Data> {
+export interface SuccessResponse<Data = void> {
   mesage: string
-  data: Data
+  success: boolean
+  result: Data
 }

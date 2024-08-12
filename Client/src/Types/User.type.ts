@@ -11,4 +11,11 @@ export interface UserType {
   website: string
   avatar: string
   cover_photo: string
+  status: number
+}
+
+export interface UserProfileAggregationsType {
+  _id: string
+  name: string
+  avatar: string
 }

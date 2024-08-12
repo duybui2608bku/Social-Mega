@@ -19,35 +19,11 @@ import config from '../../constants/config'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { getAccessTokenFormLS } from 'src/Utils/Auth'
+import { UserApi } from 'src/Service/User.api'
+import { PrivateConversation } from 'src/Types/Conversations.type'
+import { UserProfileAggregationsType } from 'src/Types/User.type'
 
 const Chat = () => {
-  const userFake = [
-    {
-      _id: '66b6dab4046b212a801f4147',
-      name: 'Bùi Nhật Duy',
-      avatar:
-        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
-    },
-    {
-      _id: '66b6dabe046b212a801f4149',
-      name: 'Nguyễn Phương Nhi',
-      avatar:
-        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
-    },
-    {
-      _id: '66b6dac3046b212a801f414b',
-      name: 'Amee',
-      avatar:
-        'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
-    }
-  ]
-  const userDetail = {
-    _id: '1',
-    name: 'Phương Nhi',
-    avatar:
-      'https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/453979428_1019012882928768_5051986297995540054_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=mpJqxHnutekQ7kNvgGjmCnT&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYD1T1IO6n3Gn4UHzfcruCPwNbO_Lf-Qc1udYeyqmuNGBA&oe=66BA0ECC'
-  }
-
   const LIMIT = 15
   const LIMIT_FECTH_MORE = 3
   const PAGE = 1
@@ -69,6 +45,8 @@ const Chat = () => {
   const [pickerVisible, setPickerVisible] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
+  const [inforConversations, setInforConversations] = useState<PrivateConversation>([])
+  const [userDetail, setUserDetail] = useState<UserProfileAggregationsType>({ _id: '', name: '', avatar: '' })
 
   const handleUpload = () => {
     fileInputRef.current?.click()
@@ -106,6 +84,21 @@ const Chat = () => {
     },
     enabled: !!IdUser
   })
+
+  const { data: InforConversation } = useQuery({
+    queryKey: ['infor-conversation'],
+    queryFn: () => {
+      return UserApi.GetInforConversations()
+    }
+  })
+
+  useEffect(() => {
+    if (InforConversation?.data.result[0].private_conversations) {
+      setInforConversations(InforConversation?.data.result[0].private_conversations)
+      setUserDetail(InforConversation?.data.result[0].private_conversations[0])
+      setIdUser(InforConversation?.data.result[0].private_conversations[0]._id)
+    }
+  }, [InforConversation?.data.result])
 
   useEffect(() => {
     if (IdUser) {
@@ -233,11 +226,17 @@ const Chat = () => {
     <div className='chat'>
       <div className='chat__users'>
         <div className='chat__users__title'>Tin Nhắn</div>
-        {userFake.map((user) => {
+        {inforConversations.map((user) => {
           return (
-            <div onClick={() => setIdUser(user._id)} key={user._id} className='chat__users__detail'>
+            <div
+              onClick={() => {
+                setIdUser(user._id), setUserDetail({ _id: user._id, name: user.name, avatar: user.avatar })
+              }}
+              key={user._id}
+              className='chat__users__detail'
+            >
               <div className='chat__users__detail__avatar'>
-                <img alt={user.name} src={user.avatar} />
+                <img alt={user.avatar} src={user.avatar} />
               </div>
               <div className='chat__users__detail__name'>{user.name}</div>
             </div>

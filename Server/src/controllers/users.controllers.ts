@@ -4,6 +4,7 @@ import usersService from '../../services/users.services'
 import {
   AddInstagramsCircleRequestBody,
   changePasswordRequestBody,
+  deleteInstagramsCircleRequestBody,
   EmailVerifyRequestBody,
   FollowerAcceptRequestBody,
   FollowerCancleRequestBody,
@@ -264,12 +265,26 @@ export const addInstagramsCircleController = async (
   })
 }
 
-export const deleteUserOutOfInstagramsCircleController = async (req: Request, res: Response) => {
+export const deleteUserOutOfInstagramsCircleController = async (
+  req: Request<ParamsDictionary, any, deleteInstagramsCircleRequestBody>,
+  res: Response
+) => {
   const { user_id } = req.decode_authorization as TokenPayload
   const { instagrams_circle } = req.body
   const result = await usersService.deleteUserOutOfInstagramsCircle(user_id, instagrams_circle)
   return res.status(HttpStatusCode.Ok).json({
     success: true,
-    message: result.message
+    message: userMessages.DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS,
+    result
+  })
+}
+
+export const getInforConversationController = async (req: Request<ParamsDictionary, any, any>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const result = await usersService.getInforConversation(user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.GET_INFOR_CONVERSATION_SUCCESS,
+    result
   })
 }
