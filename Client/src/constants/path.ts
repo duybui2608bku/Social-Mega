@@ -4,7 +4,8 @@ export const pathUser = {
   logout: '/users/logout',
   forgotPassword: '/users/forgot-password',
   ChangePassword: '/users/change-password',
-  getInforConversations: 'users/conversation'
+  getInforConversations: 'users/conversation',
+  getInforConversationsGroup: 'users/conversation-group'
 }
 
 export const pathConversation = {

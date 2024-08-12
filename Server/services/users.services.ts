@@ -454,51 +454,7 @@ class UsersService {
       .aggregate([
         {
           $match: {
-            _id: new ObjectId('66b6dab4046b212a801f4147')
-          }
-        },
-        {
-          $lookup: {
-            from: 'conversation_groups',
-            localField: 'group_conversations',
-            foreignField: '_id',
-            as: 'group_conversations'
-          }
-        },
-        {
-          $sort: {
-            'group_conversations.content': -1
-          }
-        },
-        {
-          $unwind: '$group_conversations'
-        },
-        {
-          $sort: {
-            'group_conversations.created_at': -1
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'group_conversations.members',
-            foreignField: '_id',
-            as: 'group_conversations.members'
-          }
-        },
-        {
-          $addFields: {
-            'group_conversations.members': {
-              $map: {
-                input: '$group_conversations.members',
-                as: 'user',
-                in: {
-                  _id: '$$user._id',
-                  name: '$$user.name',
-                  avatar: '$$user.avatar'
-                }
-              }
-            }
+            _id: new ObjectId(user_id)
           }
         },
         {
@@ -605,9 +561,6 @@ class UsersService {
             email: {
               $first: '$email'
             },
-            group_conversations: {
-              $push: '$group_conversations'
-            },
             private_conversations: {
               $push: '$private_conversations'
             }
@@ -629,6 +582,69 @@ class UsersService {
       ])
       .toArray()
     return inforConversation
+  }
+
+  async getInforConversationGroup(user_id: string) {
+    const inforConversationGroup = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(user_id)
+          }
+        },
+        {
+          $lookup: {
+            from: 'conversation_groups',
+            localField: 'group_conversations',
+            foreignField: '_id',
+            as: 'group_conversations'
+          }
+        },
+        {
+          $unwind: '$group_conversations'
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'group_conversations.members',
+            foreignField: '_id',
+            as: 'group_conversations.members'
+          }
+        },
+        {
+          $addFields: {
+            'group_conversations.members': {
+              $map: {
+                input: '$group_conversations.members',
+                as: 'user',
+                in: {
+                  _id: '$$user._id',
+                  name: '$$user.name',
+                  avatar: '$$user.avatar'
+                }
+              }
+            }
+          }
+        },
+        {
+          $sort: {
+            'group_conversations.created_at': -1
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            name: {
+              $first: '$name'
+            },
+            group_conversations: {
+              $push: '$group_conversations'
+            }
+          }
+        }
+      ])
+      .toArray()
+    return inforConversationGroup
   }
 }
 

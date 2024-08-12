@@ -52,7 +52,7 @@ const ForgotPassword = () => {
 
   const handleForgotPassword = handleSubmit((data) => {
     forgotPasswordMutation.mutate(data, {
-      onSuccess: (_) => {
+      onSuccess: () => {
         // toast.success(data.data.message)
         toast.success('Kiểm tra email của bạn để lấy lại mật khẩu !')
       },

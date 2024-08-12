@@ -9,6 +9,7 @@ import {
   followController,
   forgotPasswordController,
   getInforConversationController,
+  getInforConversationGroupController,
   getMeController,
   loginController,
   logUotController,
@@ -267,6 +268,19 @@ userRouters.get(
   accessTokenValidator,
   verifiedUserValidator,
   wrapRequestHandler(getInforConversationController)
+)
+
+/*
+Description: Get infor conversation Group
+path: /conversation-group
+method: GET
+Header:{Authorization: Bearer <access_token>}
+*/
+userRouters.get(
+  '/conversation-group',
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(getInforConversationGroupController)
 )
 
 export default userRouters

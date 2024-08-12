@@ -6,7 +6,7 @@ import {
   AuthLogout,
   AuthRegisterResponse
 } from 'src/Types/Auth.type'
-import { UserInforConversationType } from 'src/Types/Conversations.type'
+import { UserInforConversationGroupType, UserInforConversationType } from 'src/Types/Conversations.type'
 import axiosInstance from 'src/Utils/Axios'
 
 export const UserApi = {
@@ -27,5 +27,8 @@ export const UserApi = {
   },
   GetInforConversations() {
     return axiosInstance.get<UserInforConversationType>(pathUser.getInforConversations)
+  },
+  GetInforConversationsGroup() {
+    return axiosInstance.get<UserInforConversationGroupType>(pathUser.getInforConversationsGroup)
   }
 }

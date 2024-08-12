@@ -288,3 +288,13 @@ export const getInforConversationController = async (req: Request<ParamsDictiona
     result
   })
 }
+
+export const getInforConversationGroupController = async (req: Request<ParamsDictionary, any, any>, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  const result = await usersService.getInforConversationGroup(user_id)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.GET_INFOR_CONVERSATION_SUCCESS,
+    result
+  })
+}

@@ -20,9 +20,10 @@ import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { getAccessTokenFormLS } from 'src/Utils/Auth'
 import { UserApi } from 'src/Service/User.api'
-import { PrivateConversation } from 'src/Types/Conversations.type'
+import { GroupConversationType, PrivateConversation } from 'src/Types/Conversations.type'
 import { UserProfileAggregationsType } from 'src/Types/User.type'
-
+import { RxPencil2 } from 'react-icons/rx'
+import { Avatar, AvatarGroup } from '@chakra-ui/react'
 const Chat = () => {
   const LIMIT = 15
   const LIMIT_FECTH_MORE = 3
@@ -46,7 +47,21 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
   const [inforConversations, setInforConversations] = useState<PrivateConversation>([])
+  const [inforConversationsGroup, setInforConversationsGroup] = useState<GroupConversationType[]>([])
+  const [isPrivateConversation, setIsPrivateConversation] = useState(true)
   const [userDetail, setUserDetail] = useState<UserProfileAggregationsType>({ _id: '', name: '', avatar: '' })
+  const [groupDetail, setGroupDetail] = useState<GroupConversationType>({
+    _id: '',
+    name: '',
+    admin: '',
+    members: [
+      {
+        _id: '',
+        name: '',
+        avatar: ''
+      }
+    ]
+  })
 
   const handleUpload = () => {
     fileInputRef.current?.click()
@@ -92,13 +107,27 @@ const Chat = () => {
     }
   })
 
+  const { data: InforConversationGroup } = useQuery({
+    queryKey: ['infor-conversation-group'],
+    queryFn: () => {
+      return UserApi.GetInforConversationsGroup()
+    }
+  })
+
   useEffect(() => {
-    if (InforConversation?.data.result[0].private_conversations) {
+    if (InforConversation?.data.result[0]) {
       setInforConversations(InforConversation?.data.result[0].private_conversations)
       setUserDetail(InforConversation?.data.result[0].private_conversations[0])
       setIdUser(InforConversation?.data.result[0].private_conversations[0]._id)
     }
   }, [InforConversation?.data.result])
+
+  useEffect(() => {
+    if (InforConversationGroup?.data.result[0]) {
+      setGroupDetail(InforConversationGroup?.data.result[0].group_conversations[0])
+      setInforConversationsGroup(InforConversationGroup?.data.result[0].group_conversations)
+    }
+  }, [InforConversationGroup?.data.result])
 
   useEffect(() => {
     if (IdUser) {
@@ -132,6 +161,9 @@ const Chat = () => {
       payload: conversation
     })
     setMessage((prevMessage) => [...prevMessage, conversation])
+    const indexUser = inforConversations.findIndex((user) => user._id === IdUser)
+    const userLastSender = inforConversations.splice(indexUser, 1)
+    inforConversations.unshift(userLastSender[0])
   }
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
@@ -225,32 +257,85 @@ const Chat = () => {
   return (
     <div className='chat'>
       <div className='chat__users'>
-        <div className='chat__users__title'>Tin Nhắn</div>
-        {inforConversations.map((user) => {
-          return (
-            <div
-              onClick={() => {
-                setIdUser(user._id), setUserDetail({ _id: user._id, name: user.name, avatar: user.avatar })
-              }}
-              key={user._id}
-              className='chat__users__detail'
-            >
-              <div className='chat__users__detail__avatar'>
-                <img alt={user.avatar} src={user.avatar} />
+        <div className='chat__users__title'>
+          <p>Tin Nhắn</p>
+          <RxPencil2 />
+        </div>
+        <div className='chat__users__status'>
+          <div
+            onClick={() => setIsPrivateConversation(true)}
+            className={isPrivateConversation ? 'chat__users__status__private' : ''}
+          >
+            Riêng Tư
+          </div>
+          <div
+            onClick={() => setIsPrivateConversation(false)}
+            className={isPrivateConversation ? '' : 'chat__users__status__group'}
+          >
+            Nhóm
+          </div>
+        </div>
+        {isPrivateConversation &&
+          inforConversations.map((user) => {
+            return (
+              <div
+                onClick={() => {
+                  setIdUser(user._id), setUserDetail({ _id: user._id, name: user.name, avatar: user.avatar })
+                }}
+                key={user._id}
+                className='chat__users__detail'
+              >
+                <div className='chat__users__detail__avatar'>
+                  <img alt={user.avatar} src={user.avatar} />
+                </div>
+                <div className='chat__users__detail__name'>{user.name}</div>
               </div>
-              <div className='chat__users__detail__name'>{user.name}</div>
-            </div>
-          )
-        })}
+            )
+          })}
+
+        {!isPrivateConversation &&
+          inforConversationsGroup.map((group) => {
+            return (
+              <div
+                onClick={() =>
+                  setGroupDetail({ _id: group._id, name: group.name, members: group.members, admin: group.admin })
+                }
+                key={group._id}
+                className='chat__users__group'
+              >
+                <div className='chat__users__group_avatar'>
+                  <AvatarGroup size='md' max={1}>
+                    {group.members.map((member, index) => {
+                      return <Avatar key={index} name={member.name} src={member.avatar} />
+                    })}
+                  </AvatarGroup>
+                </div>
+                <div className='chat_users_group_name'>{group.name}</div>
+              </div>
+            )
+          })}
       </div>
       <div className='chat__detail'>
         <div className='chat__detail__header'>
-          <div className='chat__detail__header__user'>
-            <div className='chat__detail__header__user__avatar'>
-              <img alt={userDetail.name} src={userDetail.avatar} />
+          {isPrivateConversation ? (
+            <div className='chat__detail__header__user'>
+              <div className='chat__detail__header__user__avatar'>
+                <img alt={userDetail.name} src={userDetail.avatar} />
+              </div>
+              <div className='chat__detail__header__user__name'>{userDetail.name}</div>
             </div>
-            <div className='chat__detail__header__user__name'>{userDetail.name}</div>
-          </div>
+          ) : (
+            <div className='chat__detail__header__group'>
+              <div className='chat__detail__header__group__avatar'>
+                <AvatarGroup size='md' max={2}>
+                  {groupDetail.members.map((member, index) => {
+                    return <Avatar key={index} name={member.name} src={member.avatar} />
+                  })}
+                </AvatarGroup>
+              </div>
+              <div className='chat__detail__header__group__name'>{groupDetail.name}</div>
+            </div>
+          )}
           <div className='chat__detail__header__call'>
             <LuPhone /> <CiVideoOn /> <IoInformationCircleOutline />
           </div>

@@ -21,6 +21,37 @@
     }
     &__title {
       font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      @include mobile {
+        font-size: 30px;
+        justify-content: center;
+        p {
+          display: none;
+        }
+      }
+    }
+    &__status {
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      @include mobile {
+        font-size: 13px;
+        gap: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      &__private {
+        border-bottom: 2px solid black;
+      }
+      &__group {
+        border-bottom: 2px solid black;
+      }
     }
     &__detail {
       cursor: pointer;
@@ -39,7 +70,14 @@
         }
       }
     }
+    &__group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
   }
+
   &__detail {
     flex: 1;
     &__header {
@@ -51,6 +89,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      min-height: 85px;
       &__user {
         cursor: pointer;
         display: flex;
@@ -64,6 +103,8 @@
         }
       }
       &__call {
+        display: flex;
+        gap: 15px;
         cursor: pointer;
         font-size: 30px;
       }
@@ -75,11 +116,27 @@
           font-size: 20px;
         }
       }
+      &__group {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+        font-weight: 600;
+        &__avatar {
+          display: flex;
+          &__item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: -10px;
+          }
+        }
+      }
     }
 
     &__content {
       position: fixed;
-      top: 80px;
+      top: 95px;
       height: calc(100vh - 175px);
       padding: 0 25px;
       width: calc(100% - 415px);
@@ -136,7 +193,7 @@
         }
         &:hover {
           .chat__detail__content__message__react {
-            display: block;
+            display: flex;
           }
         }
       }
