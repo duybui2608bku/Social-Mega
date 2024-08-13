@@ -289,6 +289,18 @@
         }
       }
 
+      &__message__video {
+        &__item {
+          max-height: 600px;
+          max-width: 400px;
+          height: auto;
+          width: auto;
+          border-radius: 15px;
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+      }
+
       &__message-group {
         position: relative;
         display: flex;
@@ -361,6 +373,18 @@
             img {
               object-fit: contain;
             }
+          }
+        }
+        &__video {
+          gap: 10px;
+          &__item {
+            max-height: 600px;
+            max-width: 400px;
+            height: auto;
+            width: auto;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
           }
         }
       }

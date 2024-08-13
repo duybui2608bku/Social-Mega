@@ -23,9 +23,9 @@ import { UserApi } from 'src/Service/User.api'
 import { GroupConversationType, PrivateConversation } from 'src/Types/Conversations.type'
 import { UserProfileAggregationsType } from 'src/Types/User.type'
 import { RxPencil2 } from 'react-icons/rx'
-import { Avatar, AvatarGroup } from '@chakra-ui/react'
+import { Avatar, AvatarGroup, Spinner } from '@chakra-ui/react'
 import { socketIOConversations } from 'src/constants/socketIO.config'
-import { uploadImages } from 'src/Service/Medias.api'
+import { uploadImages, uploadVideos } from 'src/Service/Medias.api'
 
 const Chat = () => {
   const LIMIT = 15
@@ -55,10 +55,13 @@ const Chat = () => {
 
   const { profile } = useContext(AppContext)
   const [imageFile, setImageFile] = useState<File[]>([])
+  const [videoFile, setVideoFile] = useState<File[]>([])
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
+  const [videos, setVideos] = useState<string[]>([])
   const [message, setMessage] = useState<Message[]>([])
+  const [loading, setLoading] = useState(false)
   const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
   const [pickerVisible, setPickerVisible] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -80,6 +83,7 @@ const Chat = () => {
       }
     ]
   })
+  console.log(loading)
 
   const handleUpload = () => {
     fileInputRef.current?.click()
@@ -203,68 +207,119 @@ const Chat = () => {
   ])
 
   const sendMessage = async (content: string) => {
-    let imageUrls: string[] = []
-    if (imageFile.length > 0) {
-      const formData = new FormData()
-      imageFile.forEach((file) => {
-        formData.append('image', file)
-      })
-      const response = await uploadImages(formData)
-      imageUrls = response.data.result.map((image: any) => image.url)
-    }
-    const conversation = {
-      sender_id: profile?._id,
-      receiver_id: IdUser,
-      content: content,
-      image_url: imageUrls,
-      created_at: new Date(),
-      updated_at: new Date(),
-      _id: new Date().getTime().toString()
-    }
-    socket.emit(socketIOConversations.PRIVATE_MESSAGE, {
-      payload: conversation
-    })
-    setMessage((prevMessage) => [...prevMessage, conversation])
-    setImageFile([])
-    setImages([])
-    const indexUser = inforConversations.findIndex((user) => user._id === IdUser)
-    const userLastSender = inforConversations.splice(indexUser, 1)
-    inforConversations.unshift(userLastSender[0])
-  }
+    setLoading(true)
 
-  const sendMessageGroup = async (content: string) => {
     let imageUrls: string[] = []
-    if (imageFile.length > 0) {
-      const formData = new FormData()
-      imageFile.forEach((file) => {
-        formData.append('image', file)
+    let videoUrls: string[] = []
+
+    try {
+      if (imageFile.length > 0 && videoFile.length === 0) {
+        console.log('imageFile', imageFile)
+        const formData = new FormData()
+        imageFile.forEach((file) => {
+          formData.append('image', file)
+        })
+        const response = await uploadImages(formData)
+        imageUrls = response.data.result.map((image: any) => image.url)
+      }
+
+      if (videoFile.length > 0 && imageFile.length === 0) {
+        const formData = new FormData()
+        videoFile.forEach((file) => {
+          formData.append('video', file)
+        })
+        const response = await uploadVideos(formData)
+        videoUrls = response.data.result.map((video: any) => video.url)
+      }
+
+      const conversation = {
+        sender_id: profile?._id,
+        receiver_id: IdUser,
+        content: content,
+        image_url: imageUrls,
+        video_url: videoUrls,
+        created_at: new Date(),
+        updated_at: new Date(),
+        _id: new Date().getTime().toString()
+      }
+
+      socket.emit(socketIOConversations.PRIVATE_MESSAGE, {
+        payload: conversation
       })
-      const response = await uploadImages(formData)
-      imageUrls = response.data.result.map((image: any) => image.url)
+
+      setMessage((prevMessage) => [...prevMessage, conversation])
+      setImageFile([])
+      setVideoFile([])
+      setImages([])
+      setVideos([])
+
+      const indexUser = inforConversations.findIndex((user) => user._id === IdUser)
+      const userLastSender = inforConversations.splice(indexUser, 1)
+      setInforConversations([userLastSender[0], ...inforConversations])
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      setLoading(false)
     }
-    const conversationsGroupMessage = {
-      sender_id: profile?._id,
-      group_id: groupDetail._id,
-      content: content,
-      image_url: imageUrls,
-      created_at: new Date(),
-      updated_at: new Date(),
-      _id: new Date().getTime().toString()
+  }
+  const sendMessageGroup = async (content: string) => {
+    setLoading(true)
+
+    let imageUrls: string[] = []
+    let videoUrls: string[] = []
+
+    try {
+      if (imageFile.length > 0 && videoFile.length === 0) {
+        const formData = new FormData()
+        imageFile.forEach((file) => {
+          formData.append('image', file)
+        })
+        const response = await uploadImages(formData)
+        imageUrls = response.data.result.map((image: any) => image.url)
+      }
+
+      if (videoFile.length > 0 && imageFile.length === 0) {
+        const formData = new FormData()
+        videoFile.forEach((file) => {
+          formData.append('video', file)
+        })
+        const response = await uploadVideos(formData)
+        videoUrls = response.data.result.map((video: any) => video.url)
+      }
+
+      const conversationsGroupMessage = {
+        sender_id: profile?._id,
+        group_id: groupDetail._id,
+        content: content,
+        image_url: imageUrls,
+        video_url: videoUrls,
+        created_at: new Date(),
+        updated_at: new Date(),
+        _id: new Date().getTime().toString()
+      }
+
+      socket.emit(socketIOConversations.GROUP_MESSAGE, {
+        payload: conversationsGroupMessage
+      })
+
+      setConversationGroupMessage((prevMessage) => [...prevMessage, conversationsGroupMessage])
+      setImageFile([])
+      setVideoFile([])
+      setImages([])
+      setVideos([])
+      const indexGroup = inforConversationsGroup.findIndex((group) => group._id === groupDetail._id)
+      const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
+      setInforConversationsGroup([groupLastSender[0], ...inforConversationsGroup])
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      setLoading(false)
     }
-    socket.emit(socketIOConversations.GROUP_MESSAGE, {
-      payload: conversationsGroupMessage
-    })
-    setConversationGroupMessage((prevMessage) => [...prevMessage, conversationsGroupMessage])
-    setImageFile([])
-    setImages([])
-    const indexGroup = inforConversationsGroup.findIndex((group) => group._id === groupDetail._id)
-    const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
-    inforConversationsGroup.unshift(groupLastSender[0])
   }
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (messagesSendOne.trim() === '' && images.length === 0) {
+    if (messagesSendOne.trim() === '' && images.length === 0 && videos.length === 0) {
       return
     }
     isPrivateConversation ? sendMessage(messagesSendOne) : sendMessageGroup(messagesSendOne)
@@ -299,17 +354,31 @@ const Chat = () => {
 
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = event.target.files?.[0]
-    if (
-      (fileFromLocal && fileFromLocal?.size >= config.maxSizeUploadAvatar) ||
-      !fileFromLocal?.type.includes('image')
-    ) {
+    if (!fileFromLocal) {
+      return
+    }
+    const isImage = fileFromLocal.type.startsWith('image/')
+    const isVideo = fileFromLocal.type.startsWith('video/')
+    if (fileFromLocal.size >= config.maxSizeUploadImage || (!isImage && !isVideo)) {
       toast.error('File không hợp lệ')
     } else {
-      setImageFile((filePrevios) => [...filePrevios, fileFromLocal])
-      setImages((prevImages) => [...prevImages, URL.createObjectURL(fileFromLocal)])
+      const fileURL = URL.createObjectURL(fileFromLocal)
+      if (isImage) {
+        setImageFile((filePrevios) => [...filePrevios, fileFromLocal])
+        setImages((prevImages) => [...prevImages, fileURL])
+      } else if (isVideo) {
+        setVideos((prevVideos) => [...prevVideos, fileURL])
+        setVideoFile((prevVideos) => [...prevVideos, fileFromLocal])
+      }
     }
   }
 
+  if (videos.length >= 3 || images.length >= 10) {
+    toast.error('Số lượng file upload không được vượt quá 10 file ảnh và 5 file video')
+  }
+  if (videos.length > 0 && images.length > 0) {
+    toast.error('Chỉ được upload ảnh hoặc video')
+  }
   const fetchMoreDataConversations = () => {
     if (pagination.page < pagination.total_page) {
       const scrollableDiv = document.getElementById('scrollableDiv')
@@ -366,6 +435,12 @@ const Chat = () => {
 
   const removeImage = (index: number) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index))
+    setImageFile((prevImages) => prevImages.filter((_, i) => i !== index))
+  }
+
+  const removeVideo = (index: number) => {
+    setVideos((prevVideos) => prevVideos.filter((_, i) => i !== index))
+    setVideoFile((prevVideos) => prevVideos.filter((_, i) => i !== index))
   }
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -417,8 +492,8 @@ const Chat = () => {
                 </div>
                 <div className='chat__users__detail__name'>
                   <p>{user.name}</p>
-                  {message[message.length - 1]?._id === profile?._id ? (
-                    <p> Bạn: {message[message.length - 1]?.content}</p>
+                  {message[message.length - 1]?.sender_id === profile?._id ? (
+                    <p style={{ fontSize: '12px' }}> Bạn: {message[message.length - 1]?.content}</p>
                   ) : (
                     <p>{message[message.length - 1]?.content}</p>
                   )}
@@ -506,7 +581,9 @@ const Chat = () => {
                         {getHourAndMinute(message.created_at as Date)}
                       </p>
 
-                      {message.content || (message.image_url?.length ?? 0) > 0 ? (
+                      {message.content ||
+                      (message.image_url?.length ?? 0) > 0 ||
+                      (message.video_url?.length ?? 0) > 0 ? (
                         <div
                           className={
                             message.sender_id === profile?._id
@@ -525,11 +602,25 @@ const Chat = () => {
                               {message.content}
                             </p>
                           )}
+
                           {(message.image_url?.length ?? 0) > 0 && (
                             <div className='chat__detail__content__message__images'>
                               {message?.image_url?.map((image, index) => (
                                 <div className='chat__detail__content__message__images__item' key={index}>
                                   <img src={image} alt={`Pasted ${index}`} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {(message.video_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message__video'>
+                              {message?.video_url?.map((video, index) => (
+                                <div className='chat__detail__content__message__video__item' key={index}>
+                                  <video controls>
+                                    <source src={video} type='video/mp4' />
+                                    Your browser does not support the video tag.
+                                  </video>
                                 </div>
                               ))}
                             </div>
@@ -588,7 +679,9 @@ const Chat = () => {
                       >
                         {getHourAndMinute(message.created_at as Date)}
                       </p>
-                      {(message.content || (message.image_url?.length ?? 0) > 0) && (
+                      {(message.content ||
+                        (message.image_url?.length ?? 0) > 0 ||
+                        (message.video_url?.length ?? 0) > 0) && (
                         <div
                           className={
                             message.sender_id === profile?._id
@@ -607,6 +700,7 @@ const Chat = () => {
                               {message.content}
                             </p>
                           )}
+
                           {(message.image_url?.length ?? 0) > 0 && (
                             <div className='chat__detail__content__message-group__images'>
                               {message?.image_url?.map((image, index) => (
@@ -616,8 +710,22 @@ const Chat = () => {
                               ))}
                             </div>
                           )}
+
+                          {(message.video_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message-group__video'>
+                              {message?.video_url?.map((video, index) => (
+                                <div className='chat__detail__content__message-group__video__item' key={index}>
+                                  <video controls>
+                                    <source src={video} type='video/mp4' />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
+
                       <p
                         className={
                           message.sender_id === profile?._id
@@ -668,7 +776,84 @@ const Chat = () => {
                     >
                       <FaXmark size={15} />
                     </div>
+                    {loading ? (
+                      <Spinner
+                        style={{
+                          position: 'absolute',
+                          left: '35%',
+                          top: '25%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 99
+                        }}
+                        thickness='4px'
+                        speed='0.65s'
+                        emptyColor='gray.200'
+                        color='blue.500'
+                        size='sm'
+                      />
+                    ) : null}
                     <img src={image} alt={`Pasted ${index}`} style={{ maxWidth: '150px', maxHeight: '150px' }} />
+                  </div>
+                ))}
+            </div>
+          )}
+          {videos.length > 0 && (
+            <div className='chat__detail__input__videos'>
+              {videos.length > 0 &&
+                videos.map((video, index) => (
+                  <div
+                    key={index}
+                    className='chat__detail__input__video'
+                    style={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      margin: '10px',
+                      border: '1px solid black',
+                      borderRadius: '15px',
+                      overflow: 'hidden',
+                      maxWidth: '150px',
+                      maxHeight: '200px',
+                      width: 'auto',
+                      height: 'auto'
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '0px',
+                        right: '0px',
+                        cursor: 'pointer',
+                        backgroundColor: '#ddd',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 99
+                      }}
+                      onClick={() => removeVideo(index)}
+                      className='chat__detail__input__image__icon'
+                    >
+                      <FaXmark size={15} />
+                    </div>
+                    {loading ? (
+                      <Spinner
+                        style={{
+                          position: 'absolute',
+                          left: '35%',
+                          top: '25%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 99
+                        }}
+                        thickness='4px'
+                        speed='0.65s'
+                        emptyColor='gray.200'
+                        color='blue.500'
+                        size='xl'
+                      />
+                    ) : null}
+                    <video src={video} style={{ maxWidth: '150px', maxHeight: '150px' }} controls />
                   </div>
                 ))}
             </div>

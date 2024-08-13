@@ -13,7 +13,8 @@ export enum TokenType {
 
 export enum MediaType {
   Image,
-  Video
+  Video,
+  File
 }
 
 export enum PeopleFollow {

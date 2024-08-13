@@ -11,6 +11,7 @@ import { Media } from '~/models/other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import { uploadFileToS3 } from '~/utils/s3'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
+import { getContentTypeByExtension } from '~/utils/other'
 let mime: any
 
 config()
@@ -26,7 +27,7 @@ class MediasService {
         const s3Result = await uploadFileToS3({
           filename: newFullFileName,
           filepath: newPath,
-          contenType: 'image/jpeg'
+          contenType: 'image/jpeg/jfif/jp2/jpx/pjpeg/png/webp'
         })
         fs.unlinkSync(newPath)
         return {
@@ -40,19 +41,27 @@ class MediasService {
 
   async UploadVideo(req: Request) {
     const file = await handleUploadVideo(req)
+
     const results: Media[] = await Promise.all(
       file.map(async (file) => {
+        const ext = path.extname(file.newFilename).toLowerCase()
         const newName = getNameFromFullName(file.newFilename)
-        const newFullFileName = `${newName}.mp4`
+        const newFullFileName = `${newName}${ext}`
         const newPath = path.resolve(UPLOAD_VIDEO_DIR, newFullFileName)
-        const s3Result = await uploadFileToS3({ filename: newFullFileName, filepath: newPath, contenType: 'video/mp4' })
+        const contentType = getContentTypeByExtension(ext)
+        const s3Result = await uploadFileToS3({
+          filename: newFullFileName,
+          filepath: newPath,
+          contenType: contentType
+        })
         fs.unlinkSync(newPath)
         return {
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
-          type: MediaType.Video
+          type: contentType.startsWith('video/') ? MediaType.Video : MediaType.File
         }
       })
     )
+
     return results
   }
 

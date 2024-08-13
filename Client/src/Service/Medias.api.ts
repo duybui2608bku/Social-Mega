@@ -8,3 +8,11 @@ export const uploadImages = (body: FormData) => {
     }
   })
 }
+
+export const uploadVideos = (body: FormData) => {
+  return axiosInstance.post<ImageResponseType>('/upload/video', body, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

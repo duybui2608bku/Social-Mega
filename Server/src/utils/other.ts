@@ -34,3 +34,16 @@ export const verifyAccessToken = async (access_token: string, req?: Request) => 
     })
   }
 }
+
+export function getContentTypeByExtension(ext: string): string {
+  const mimeTypes: { [key: string]: string } = {
+    '.mp4': 'video/mp4',
+    '.mov': 'video/quicktime',
+    '.avi': 'video/x-msvideo',
+    '.mkv': 'video/x-matroska',
+    '.webm': 'video/webm',
+    '.dwg': 'application/acad'
+  }
+
+  return mimeTypes[ext] || 'application/octet-stream'
+}

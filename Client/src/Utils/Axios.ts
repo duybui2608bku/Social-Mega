@@ -16,7 +16,7 @@ let refresh_token = getRefreshTokenFormLS()
 let profileUsuer = getProfileFromLS()
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8081/',
-  timeout: 10000,
+  timeout: 50000,
   headers: {
     'Content-Type': 'application/json'
   }

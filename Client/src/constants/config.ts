@@ -1,5 +1,5 @@
 const config = {
-  maxSizeUploadAvatar: 1048576 * 5 // bytes
+  maxSizeUploadImage: 1048576 * 50 // bytes
 }
 
 export default config
