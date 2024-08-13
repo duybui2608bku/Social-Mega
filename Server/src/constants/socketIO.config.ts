@@ -16,6 +16,8 @@ interface MessagePrivatePayload {
   sender_id: string
   receiver_id: string
   content: string
+  image_url: string[]
+  video_url: string[]
   created_at: string
   updated_at: string
   _id: string
@@ -25,6 +27,8 @@ interface MessageGroupPayload {
   sender_id: string
   group_id: string
   content: string
+  image_url: string[]
+  video_url: string[]
   created_at: string
   updated_at: string
   _id: string

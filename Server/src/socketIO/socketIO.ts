@@ -67,11 +67,13 @@ const setupSocket = (httpServer: any) => {
 
     socket.on(socketIOConversations.PRIVATE_MESSAGE, async (data: MessagePrivatePayloadType) => {
       const { payload } = data
+
       const receiver_socket_id = users[payload.receiver_id]?.socket_id
       const conversation = new Conversation({
         sender_id: new ObjectId(payload.sender_id as string),
         receiver_id: new ObjectId(payload.receiver_id as string),
-        content: payload.content
+        content: payload.content,
+        image_url: payload.image_url
       })
       const result = await databaseService.conversations.insertOne(conversation)
       conversation._id = result.insertedId
@@ -87,7 +89,8 @@ const setupSocket = (httpServer: any) => {
       const conversationsGroupMessage = new ConversationsGroupMessage({
         group_id: new ObjectId(payload.group_id as string),
         sender_id: new ObjectId(payload.sender_id as string),
-        content: payload.content
+        content: payload.content,
+        image_url: payload.image_url
       })
 
       const [groupConversations] = await Promise.all([

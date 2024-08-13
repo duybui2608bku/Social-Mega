@@ -53,6 +53,7 @@
         border-bottom: 2px solid black;
       }
     }
+
     &__detail {
       cursor: pointer;
       display: flex;
@@ -66,7 +67,7 @@
       }
       @include mobile {
         &__name {
-          display: none;
+          display: none !important;
         }
       }
     }
@@ -75,6 +76,11 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
+      @include mobile {
+        &__name {
+          display: none !important;
+        }
+      }
     }
   }
 
@@ -181,6 +187,7 @@
           word-wrap: break-word;
           word-break: break-all;
         }
+
         &__image {
           width: 100%;
           height: 50px;
@@ -191,10 +198,37 @@
             object-fit: cover;
           }
         }
+
         &:hover {
           .chat__detail__content__message__react {
             display: flex;
           }
+        }
+        &__images {
+          gap: 10px;
+          &__item {
+            max-height: 800px;
+            max-width: 400px;
+            height: auto;
+            width: auto;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            img {
+              object-fit: contain;
+            }
+          }
+        }
+        &__sender {
+          display: flex;
+          flex-direction: column;
+          align-items: end;
+        }
+        &__receiver {
+          display: flex;
+          flex-direction: column;
+          width: fit-content;
+          align-items: start;
         }
       }
 
@@ -206,6 +240,9 @@
         justify-content: flex-end;
         .chat__detail__content__message__avatar {
           display: none;
+        }
+        .chat__detail__content__message__text {
+          width: fit-content;
         }
         &__react-sender {
           order: -5;
@@ -286,6 +323,15 @@
           word-wrap: break-word;
           word-break: break-all;
         }
+        .receiver {
+          width: fit-content;
+          justify-content: flex-start;
+        }
+        &__sender {
+          display: flex;
+          flex-direction: column;
+          align-items: end;
+        }
         &__image {
           width: 100%;
           height: 50px;
@@ -299,6 +345,22 @@
         &:hover {
           .chat__detail__content__message-group__react {
             display: flex;
+          }
+        }
+
+        &__images {
+          gap: 10px;
+          &__items {
+            max-height: 800px;
+            max-width: 400px;
+            height: auto;
+            width: auto;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            img {
+              object-fit: contain;
+            }
           }
         }
       }

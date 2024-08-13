@@ -2,7 +2,7 @@ import formidable from 'formidable'
 import fs from 'fs'
 import { Request } from 'express'
 import { File } from 'formidable'
-import { UPLOAD_IMAGE_TERM_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TERM_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_TERM_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 export const handleUploadImage = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_IMAGE_TERM_DIR,

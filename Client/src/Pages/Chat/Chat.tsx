@@ -8,7 +8,7 @@ import { FaRegHeart, FaXmark } from 'react-icons/fa6'
 import { useContext, useEffect, useRef, useState } from 'react'
 import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
-import { getConversation, getConversationGroup } from 'src/Service/Conversations'
+import { getConversation, getConversationGroup } from 'src/Service/Conversations.api'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery } from '@tanstack/react-query'
 import { getHourAndMinute } from 'src/Utils/Other'
@@ -25,6 +25,7 @@ import { UserProfileAggregationsType } from 'src/Types/User.type'
 import { RxPencil2 } from 'react-icons/rx'
 import { Avatar, AvatarGroup } from '@chakra-ui/react'
 import { socketIOConversations } from 'src/constants/socketIO.config'
+import { uploadImages } from 'src/Service/Medias.api'
 
 const Chat = () => {
   const LIMIT = 15
@@ -35,6 +36,8 @@ const Chat = () => {
     sender_id: string | undefined
     receiver_id: string | undefined
     content: string | undefined
+    image_url?: string[]
+    video_url?: string[]
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -44,11 +47,14 @@ const Chat = () => {
     sender_id: string | undefined
     group_id: string | undefined
     content: string | undefined
+    image_url?: string[]
+    video_url?: string[]
     created_at?: Date | string
     updated_at?: Date | string
   }
 
   const { profile } = useContext(AppContext)
+  const [imageFile, setImageFile] = useState<File[]>([])
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
@@ -196,11 +202,21 @@ const Chat = () => {
     conversationsGroup?.data.result.total
   ])
 
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
+    let imageUrls: string[] = []
+    if (imageFile.length > 0) {
+      const formData = new FormData()
+      imageFile.forEach((file) => {
+        formData.append('image', file)
+      })
+      const response = await uploadImages(formData)
+      imageUrls = response.data.result.map((image: any) => image.url)
+    }
     const conversation = {
       sender_id: profile?._id,
       receiver_id: IdUser,
       content: content,
+      image_url: imageUrls,
       created_at: new Date(),
       updated_at: new Date(),
       _id: new Date().getTime().toString()
@@ -209,16 +225,28 @@ const Chat = () => {
       payload: conversation
     })
     setMessage((prevMessage) => [...prevMessage, conversation])
+    setImageFile([])
+    setImages([])
     const indexUser = inforConversations.findIndex((user) => user._id === IdUser)
     const userLastSender = inforConversations.splice(indexUser, 1)
     inforConversations.unshift(userLastSender[0])
   }
 
-  const sendMessageGroup = (content: string) => {
+  const sendMessageGroup = async (content: string) => {
+    let imageUrls: string[] = []
+    if (imageFile.length > 0) {
+      const formData = new FormData()
+      imageFile.forEach((file) => {
+        formData.append('image', file)
+      })
+      const response = await uploadImages(formData)
+      imageUrls = response.data.result.map((image: any) => image.url)
+    }
     const conversationsGroupMessage = {
       sender_id: profile?._id,
       group_id: groupDetail._id,
       content: content,
+      image_url: imageUrls,
       created_at: new Date(),
       updated_at: new Date(),
       _id: new Date().getTime().toString()
@@ -227,6 +255,8 @@ const Chat = () => {
       payload: conversationsGroupMessage
     })
     setConversationGroupMessage((prevMessage) => [...prevMessage, conversationsGroupMessage])
+    setImageFile([])
+    setImages([])
     const indexGroup = inforConversationsGroup.findIndex((group) => group._id === groupDetail._id)
     const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
     inforConversationsGroup.unshift(groupLastSender[0])
@@ -234,7 +264,7 @@ const Chat = () => {
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (messagesSendOne.trim() === '') {
+    if (messagesSendOne.trim() === '' && images.length === 0) {
       return
     }
     isPrivateConversation ? sendMessage(messagesSendOne) : sendMessageGroup(messagesSendOne)
@@ -257,6 +287,7 @@ const Chat = () => {
           reader.onload = (e) => {
             if (e.target?.result) {
               newImages.push(e.target.result as string)
+              setImageFile((prevImages) => [...prevImages, file])
               setImages((prevImages) => [...prevImages, ...newImages])
             }
           }
@@ -274,6 +305,7 @@ const Chat = () => {
     ) {
       toast.error('File không hợp lệ')
     } else {
+      setImageFile((filePrevios) => [...filePrevios, fileFromLocal])
       setImages((prevImages) => [...prevImages, URL.createObjectURL(fileFromLocal)])
     }
   }
@@ -383,7 +415,14 @@ const Chat = () => {
                 <div className='chat__users__detail__avatar'>
                   <img alt={user.avatar} src={user.avatar} />
                 </div>
-                <div className='chat__users__detail__name'>{user.name}</div>
+                <div className='chat__users__detail__name'>
+                  <p>{user.name}</p>
+                  {message[message.length - 1]?._id === profile?._id ? (
+                    <p> Bạn: {message[message.length - 1]?.content}</p>
+                  ) : (
+                    <p>{message[message.length - 1]?.content}</p>
+                  )}
+                </div>
               </div>
             )
           })}
@@ -405,7 +444,7 @@ const Chat = () => {
                     })}
                   </AvatarGroup>
                 </div>
-                <div className='chat_users_group_name'>{group.name}</div>
+                <div className='chat__users__group__name'>{group.name}</div>
               </div>
             )
           })}
@@ -448,38 +487,58 @@ const Chat = () => {
                 scrollThreshold={0.9}
               >
                 {message.map((message, index) => {
+                  const isSender = message.sender_id === profile?._id
+
                   return (
                     <div
-                      className={
-                        message.sender_id === profile?._id
-                          ? 'chat__detail__content__message-sender'
-                          : 'chat__detail__content__message'
-                      }
+                      className={isSender ? 'chat__detail__content__message-sender' : 'chat__detail__content__message'}
                       key={index}
                     >
-                      <div className='chat__detail__content__message__avatar'>
-                        {message.sender_id === profile?._id ? null : (
+                      {!isSender && (
+                        <div className='chat__detail__content__message__avatar'>
                           <img alt={userDetail.name} src={userDetail.avatar} />
-                        )}
-                      </div>
+                        </div>
+                      )}
                       <p
-                        className={message.sender_id === profile?._id ? '' : 'chat__detail__content__message__date'}
+                        className={isSender ? '' : 'chat__detail__content__message__date'}
                         style={{ fontSize: '12px', color: '#000' }}
                       >
                         {getHourAndMinute(message.created_at as Date)}
                       </p>
+
+                      {message.content || (message.image_url?.length ?? 0) > 0 ? (
+                        <div
+                          className={
+                            message.sender_id === profile?._id
+                              ? 'chat__detail__content__message__sender'
+                              : 'chat__detail__content__message__receiver'
+                          }
+                        >
+                          {message.content && (
+                            <p
+                              className={
+                                isSender
+                                  ? 'chat__detail__content__message__text sender'
+                                  : 'chat__detail__content__message__text'
+                              }
+                            >
+                              {message.content}
+                            </p>
+                          )}
+                          {(message.image_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message__images'>
+                              {message?.image_url?.map((image, index) => (
+                                <div className='chat__detail__content__message__images__item' key={index}>
+                                  <img src={image} alt={`Pasted ${index}`} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                       <p
                         className={
-                          message.sender_id === profile?._id
-                            ? 'chat__detail__content__message__text sender'
-                            : 'chat__detail__content__message__text'
-                        }
-                      >
-                        {message.content}
-                      </p>
-                      <p
-                        className={
-                          message.sender_id === profile?._id
+                          isSender
                             ? 'chat__detail__content__message-sender__react-sender'
                             : 'chat__detail__content__message__react'
                         }
@@ -529,15 +588,36 @@ const Chat = () => {
                       >
                         {getHourAndMinute(message.created_at as Date)}
                       </p>
-                      <p
-                        className={
-                          message.sender_id === profile?._id
-                            ? 'chat__detail__content__message-group__text sender'
-                            : 'chat__detail__content__message-group__text'
-                        }
-                      >
-                        {message.content}
-                      </p>
+                      {(message.content || (message.image_url?.length ?? 0) > 0) && (
+                        <div
+                          className={
+                            message.sender_id === profile?._id
+                              ? 'chat__detail__content__message-group__sender'
+                              : 'chat__detail__content__message-group__receiver'
+                          }
+                        >
+                          {message.content && (
+                            <p
+                              className={
+                                message.sender_id === profile?._id
+                                  ? 'chat__detail__content__message-group__text sender'
+                                  : 'chat__detail__content__message-group__text receiver'
+                              }
+                            >
+                              {message.content}
+                            </p>
+                          )}
+                          {(message.image_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message-group__images'>
+                              {message?.image_url?.map((image, index) => (
+                                <div className='chat__detail__content__message-group__images__items' key={index}>
+                                  <img src={image} alt={`Pasted ${index}`} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <p
                         className={
                           message.sender_id === profile?._id
@@ -562,7 +642,12 @@ const Chat = () => {
                   <div
                     key={index}
                     className='chat__detail__input__image'
-                    style={{ position: 'relative', display: 'inline-block', margin: '10px', border: '1px solid black' }}
+                    style={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      margin: '10px',
+                      border: '1px solid black'
+                    }}
                   >
                     <div
                       style={{

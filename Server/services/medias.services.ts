@@ -28,7 +28,7 @@ class MediasService {
           filepath: newPath,
           contenType: 'image/jpeg'
         })
-        await Promise.all([fs.unlinkSync(file.filepath), fs.unlinkSync(newPath)])
+        fs.unlinkSync(newPath)
         return {
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
           type: MediaType.Image
