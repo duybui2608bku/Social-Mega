@@ -16,6 +16,22 @@ export type ConversationsType = SuccessResponse<{
   total: number
 }>
 
+export type GroupConversationsType = SuccessResponse<{
+  conversationGroupMessages: [
+    {
+      _id: string
+      sender_id: string
+      group_id: string
+      content: string
+      created_at: string
+      updated_at: string
+    }
+  ]
+  limit: number
+  page: number
+  total: number
+}>
+
 export interface GroupConversationType {
   _id: string
   name: string

@@ -628,7 +628,7 @@ class UsersService {
         },
         {
           $sort: {
-            'group_conversations.created_at': -1
+            'group_conversations.last_time_message': -1
           }
         },
         {

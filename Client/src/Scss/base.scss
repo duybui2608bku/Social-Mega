@@ -24,7 +24,7 @@ html {
 }
 body {
   max-width: 1800px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', monospace !important;
   font-weight: 400;
   font-size: clamp(18px, 3vw, 24px);
   color: $color-text;

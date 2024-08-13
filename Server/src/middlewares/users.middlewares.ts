@@ -846,6 +846,42 @@ export const getConversationValidator = validate(
                 statusCode: HttpStatusCode.NotFound
               })
             }
+            const user = await databaseService.users.findOne({ _id: new ObjectId(value) })
+            if (user === null) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.USER_NOT_FOUND,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['params']
+  )
+)
+
+export const getConversationGroupValidator = validate(
+  checkSchema(
+    {
+      group_id: {
+        custom: {
+          options: async (value: string) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatusCode({
+                message: userMessages.GROUP_ID_INVALID,
+                statusCode: HttpStatusCode.NotFound
+              })
+            }
+
+            // const group = await databaseService.conversationGroups.findOne({ _id: new ObjectId(value) })
+            // if (group === null) {
+            //   throw new ErrorWithStatusCode({
+            //     message: userMessages.GROUP_NOT_FOUND,
+            //     statusCode: HttpStatusCode.NotFound
+            //   })
+            // }
             return true
           }
         }

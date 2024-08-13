@@ -8,6 +8,7 @@ import {
   CreateGroupConversationRequests,
   DeleteGroupConversationRequests,
   DeleteMembersFromGroupConversationRequests,
+  GetConversationsGroupRequests,
   GetConversationsRequests,
   LeaveGroupConversationRequests
 } from '~/models/requestes/Conversations.requests'
@@ -86,5 +87,25 @@ export const deleteGroupConversationController = async (
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: ConversationMessages.DELETE_GROUP_CONVERSATION_SUCCESS
+  })
+}
+
+export const getConversationGroupMessagesController = async (
+  req: Request<GetConversationsGroupRequests>,
+  res: Response
+) => {
+  const { group_id } = req.params
+  const limit = Number(req.query.limit) || 20
+  const page = Number(req.query.page) || 1
+  const result = await conversationService.getConversationGroupMessages({ group_id, limit, page })
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: ConversationMessages.GET_CONVERSATION_GROUP_MESSAGES_SUCCESS,
+    result: {
+      conversationGroupMessages: result.conversationGroupMessages,
+      limit,
+      page,
+      total: Math.ceil(result.total / limit)
+    }
   })
 }

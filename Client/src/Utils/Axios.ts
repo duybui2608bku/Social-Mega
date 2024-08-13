@@ -1,6 +1,6 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios'
 import { toast } from 'react-toastify'
-import { AuthLoginResponse, AuthResponse } from 'src/Types/Auth.type'
+import { AuthLoginResponse } from 'src/Types/Auth.type'
 import {
   clearLS,
   getAccessTokenFormLS,
@@ -38,15 +38,15 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   function (response) {
     const { url } = response.config
-
-    if (url === 'users/login' || url === 'users/register') {
-      access_token = (response.data as AuthResponse).result.access_token
-      refresh_token = (response.data as AuthResponse).result.refresh_token
+    if (url === '/users/login' || url === '/users/register') {
+      access_token = (response.data as AuthLoginResponse).result.access_token
+      refresh_token = (response.data as AuthLoginResponse).result.refresh_token
       profileUsuer = (response.data as AuthLoginResponse).result.user
+      console.log(response)
       setProfileFromLS(profileUsuer)
       saveAccessTokenToLS(access_token)
       saveRefreshTokenToLS(refresh_token)
-    } else if (url === 'users/logout') {
+    } else if (url === '/users/logout') {
       access_token = ''
       clearLS()
     }
@@ -60,7 +60,7 @@ axiosInstance.interceptors.response.use(
     }
     if (error.response?.status === HttpStatusCode.Unauthorized) {
       console.log(error)
-      // clearLS()
+      clearLS()
       window.location.reload
     }
     return Promise.reject(error)

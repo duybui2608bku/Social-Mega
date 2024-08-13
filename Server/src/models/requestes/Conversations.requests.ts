@@ -22,3 +22,7 @@ export interface LeaveGroupConversationRequests extends ParamsDictionary {
 export interface DeleteGroupConversationRequests extends ParamsDictionary {
   group_id: string
 }
+
+export interface GetConversationsGroupRequests extends ParamsDictionary {
+  group_id: string
+}

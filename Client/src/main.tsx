@@ -9,27 +9,27 @@ import { ChakraProvider } from '@chakra-ui/react'
 export const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <ChakraProvider>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AppProvider>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <ChakraProvider>
           <App />
-        </AppProvider>
-      </QueryClientProvider>
-      <ToastContainer
-        position='top-right'
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='light'
-        transition={Flip}
-        stacked
-      />
-    </BrowserRouter>
-  </ChakraProvider>
+        </ChakraProvider>
+      </AppProvider>
+    </QueryClientProvider>
+    <ToastContainer
+      position='top-right'
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme='light'
+      transition={Flip}
+      stacked
+    />
+  </BrowserRouter>
 )

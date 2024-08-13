@@ -9,5 +9,6 @@ export const pathUser = {
 }
 
 export const pathConversation = {
-  getConversation: '/conversation/receiver'
+  getConversation: '/conversation/receiver',
+  getConversationGroup: '/conversation/group'
 }

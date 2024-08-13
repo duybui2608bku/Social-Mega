@@ -7,13 +7,15 @@ import { TokenPayload } from '~/models/requestes/User.requests'
 import { HttpStatusCode, UserVerifyStatus } from '~/constants/enum'
 import { ErrorWithStatusCode } from '~/models/Errors'
 import { userMessages } from '~/constants/messages'
+import { MessageGroupPayloadType, MessagePrivatePayloadType, socketIOConversations } from '~/constants/socketIO.config'
+import { ConversationsGroupMessage } from '~/models/schemas/ConversationsGroupMessage.chema'
 
 const users: {
   [key: string]: {
     socket_id: string
-    connected_at: Date
   }
 } = {}
+
 const setupSocket = (httpServer: any) => {
   const io = new Server(httpServer, {
     cors: {
@@ -41,14 +43,13 @@ const setupSocket = (httpServer: any) => {
     }
   })
 
-  io.on('connection', (socket) => {
+  io.on(socketIOConversations.CONNECTIONS, (socket) => {
     const { user_id } = socket.handshake.auth.decode_authorization as TokenPayload
     users[user_id] = {
-      socket_id: socket.id,
-      connected_at: new Date()
+      socket_id: socket.id
     }
 
-    socket.use(async (packet, next) => {
+    socket.use(async (packet: any, next: any) => {
       const { access_token } = socket.handshake.auth
       try {
         await verifyAccessToken(access_token)
@@ -58,34 +59,75 @@ const setupSocket = (httpServer: any) => {
       }
     })
 
-    socket.on('error', (error) => {
+    socket.on('error', (error: any) => {
       if (error.message === 'Unauthorized') {
         socket.disconnect()
       }
     })
 
-    socket.on('private message', async (data) => {
+    socket.on(socketIOConversations.PRIVATE_MESSAGE, async (data: MessagePrivatePayloadType) => {
       const { payload } = data
       const receiver_socket_id = users[payload.receiver_id]?.socket_id
       const conversation = new Conversation({
-        sender_id: new ObjectId(payload.sender_id),
-        receiver_id: new ObjectId(payload.receiver_id),
+        sender_id: new ObjectId(payload.sender_id as string),
+        receiver_id: new ObjectId(payload.receiver_id as string),
         content: payload.content
       })
       const result = await databaseService.conversations.insertOne(conversation)
       conversation._id = result.insertedId
       if (receiver_socket_id) {
-        socket.to(receiver_socket_id).emit('receive private message', {
+        socket.to(receiver_socket_id).emit(socketIOConversations.RECEIVE_PRIVATE_MESSAGE, {
           payload: conversation
         })
       }
     })
 
-    socket.on('disconnect', () => {
+    socket.on(socketIOConversations.GROUP_MESSAGE, async (data: MessageGroupPayloadType) => {
+      const { payload } = data
+      const conversationsGroupMessage = new ConversationsGroupMessage({
+        group_id: new ObjectId(payload.group_id as string),
+        sender_id: new ObjectId(payload.sender_id as string),
+        content: payload.content
+      })
+
+      const [groupConversations] = await Promise.all([
+        databaseService.conversationGroups
+          .find({
+            _id: new ObjectId(payload.group_id as string)
+          })
+          .toArray(),
+        databaseService.conversationGroupMessages.insertOne(conversationsGroupMessage),
+        databaseService.conversationGroups.updateOne(
+          {
+            _id: new ObjectId(payload.group_id as string)
+          },
+          {
+            $set: {
+              last_time_message: new Date()
+            }
+          }
+        )
+      ])
+
+      if (groupConversations.length > 0) {
+        groupConversations[0].members.forEach((member_id: ObjectId) => {
+          if (member_id.toString() !== payload.sender_id) {
+            const receiver_socket_id = users[member_id.toString()]?.socket_id
+            if (receiver_socket_id) {
+              socket.to(receiver_socket_id).emit(socketIOConversations.RECEIVE_GROUP_MESSAGE, {
+                payload: conversationsGroupMessage
+              })
+            }
+          }
+        })
+      }
+    })
+
+    socket.on(socketIOConversations.DISCONNECT, () => {
       const disconnect_time = new Date()
       for (const [sender_id, sender] of Object.entries(users)) {
         if (sender_id !== user_id) {
-          socket.to(sender.socket_id).emit('receiver disconnected', {
+          socket.to(sender.socket_id).emit(socketIOConversations.RECEIVER_DISCONNECTED, {
             receiver_id: user_id,
             disconnect_time
           })
@@ -95,14 +137,13 @@ const setupSocket = (httpServer: any) => {
       delete users[user_id]
     })
 
-    socket.on('reconnect', () => {
+    socket.on(socketIOConversations.RECONNECT, () => {
       users[user_id] = {
-        socket_id: socket.id,
-        connected_at: new Date()
+        socket_id: socket.id
       }
       for (const [sender_id, sender] of Object.entries(users)) {
         if (sender_id !== user_id) {
-          socket.to(sender.socket_id).emit('receiver online', {
+          socket.to(sender.socket_id).emit(socketIOConversations.RECEIVER_ONLINE, {
             receiver_id: user_id
           })
         }

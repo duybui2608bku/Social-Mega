@@ -6,6 +6,7 @@ import {
   createGroupConversationController,
   deleteGroupConversationController,
   deleteMembersFromGroupConversationController,
+  getConversationGroupMessagesController,
   leaveGroupConversationController
 } from '~/controllers/conversations.controllers'
 import {
@@ -16,7 +17,12 @@ import {
   leaveGroupConversationValidator
 } from '~/middlewares/conversations.middlewares'
 import { paginatonValidator } from '~/middlewares/instagrams.middlewares'
-import { accessTokenValidator, getConversationValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import {
+  accessTokenValidator,
+  getConversationGroupValidator,
+  getConversationValidator,
+  verifiedUserValidator
+} from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const conversationsRouter = Router()
@@ -36,6 +42,23 @@ conversationsRouter.get(
   paginatonValidator,
   getConversationValidator,
   wrapRequestHandler(conversationController)
+)
+
+/**
+ * Description: Get Conversation Group
+ * Path: '/group/:group_id'
+ * Method: GET
+ * Headers: {Authorization : Bearer <access_token>}
+ * Params:{ group_id: string , limit?: number, page?: number}
+ */
+
+conversationsRouter.get(
+  '/group/:group_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  paginatonValidator,
+  getConversationGroupValidator,
+  wrapRequestHandler(getConversationGroupMessagesController)
 )
 
 /**

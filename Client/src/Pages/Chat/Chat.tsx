@@ -8,7 +8,7 @@ import { FaRegHeart, FaXmark } from 'react-icons/fa6'
 import { useContext, useEffect, useRef, useState } from 'react'
 import socket from 'src/Utils/socketIO'
 import { AppContext } from 'src/Context/App.context'
-import { getConversation } from 'src/Service/Conversations'
+import { getConversation, getConversationGroup } from 'src/Service/Conversations'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery } from '@tanstack/react-query'
 import { getHourAndMinute } from 'src/Utils/Other'
@@ -24,6 +24,8 @@ import { GroupConversationType, PrivateConversation } from 'src/Types/Conversati
 import { UserProfileAggregationsType } from 'src/Types/User.type'
 import { RxPencil2 } from 'react-icons/rx'
 import { Avatar, AvatarGroup } from '@chakra-ui/react'
+import { socketIOConversations } from 'src/constants/socketIO.config'
+
 const Chat = () => {
   const LIMIT = 15
   const LIMIT_FECTH_MORE = 3
@@ -32,6 +34,15 @@ const Chat = () => {
     _id: string
     sender_id: string | undefined
     receiver_id: string | undefined
+    content: string | undefined
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  interface MessageGroup {
+    _id: string
+    sender_id: string | undefined
+    group_id: string | undefined
     content: string | undefined
     created_at?: Date | string
     updated_at?: Date | string
@@ -48,6 +59,7 @@ const Chat = () => {
   const pickerRef = useRef<HTMLDivElement>(null)
   const [inforConversations, setInforConversations] = useState<PrivateConversation>([])
   const [inforConversationsGroup, setInforConversationsGroup] = useState<GroupConversationType[]>([])
+  const [conversationGroupMessage, setConversationGroupMessage] = useState<MessageGroup[]>([])
   const [isPrivateConversation, setIsPrivateConversation] = useState(true)
   const [userDetail, setUserDetail] = useState<UserProfileAggregationsType>({ _id: '', name: '', avatar: '' })
   const [groupDetail, setGroupDetail] = useState<GroupConversationType>({
@@ -73,12 +85,17 @@ const Chat = () => {
       const timer = setTimeout(() => {
         socket.auth = { Authoriration: token }
         socket.connect()
-        socket.on('receive private message', (data) => {
+        socket.on(socketIOConversations.RECEIVE_PRIVATE_MESSAGE, (data) => {
           const { payload } = data
           setMessage((conversation) => [...conversation, payload])
         })
 
-        socket.on('connect_error', (error) => {
+        socket.on(socketIOConversations.RECEIVE_GROUP_MESSAGE, (data) => {
+          const { payload } = data
+          setConversationGroupMessage((conversation) => [...conversation, payload])
+        })
+
+        socket.on(socketIOConversations.CONNECT_ERROR, (error) => {
           console.log('Socket connection error:', error)
         })
       }, 1000)
@@ -89,7 +106,7 @@ const Chat = () => {
     }
   }, [profile?._id])
 
-  const { data: conversations, refetch } = useQuery({
+  const { data: conversations, refetch: refechConversations } = useQuery({
     queryKey: ['conversation'],
     queryFn: () => {
       if (IdUser) {
@@ -98,6 +115,17 @@ const Chat = () => {
       return Promise.resolve(null)
     },
     enabled: !!IdUser
+  })
+
+  const { data: conversationsGroup, refetch: refetchConversationsGroup } = useQuery({
+    queryKey: ['conversation-group'],
+    queryFn: () => {
+      if (groupDetail._id) {
+        return getConversationGroup({ group_id: groupDetail._id, limit: LIMIT, page: PAGE })
+      }
+      return Promise.resolve(null)
+    },
+    enabled: !!groupDetail._id
   })
 
   const { data: InforConversation } = useQuery({
@@ -132,9 +160,13 @@ const Chat = () => {
   useEffect(() => {
     if (IdUser) {
       setMessage([])
-      refetch()
+      refechConversations()
     }
-  }, [IdUser, refetch])
+    if (groupDetail._id) {
+      setConversationGroupMessage([])
+      refetchConversationsGroup()
+    }
+  }, [IdUser, groupDetail, refechConversations, refetchConversationsGroup])
 
   useEffect(() => {
     if (conversations?.data.result.conversation?.length) {
@@ -148,6 +180,22 @@ const Chat = () => {
     }
   }, [conversations?.data.result.conversation, conversations?.data.result.page, conversations?.data.result.total])
 
+  useEffect(() => {
+    if (conversationsGroup?.data.result.conversationGroupMessages?.length) {
+      conversationsGroup?.data.result.conversationGroupMessages.reverse().map((conversation: any) => {
+        setConversationGroupMessage((prev) => [...prev, conversation])
+      })
+      setPagination({
+        page: conversationsGroup?.data.result.page,
+        total_page: conversationsGroup?.data.result.total
+      })
+    }
+  }, [
+    conversationsGroup?.data.result.conversationGroupMessages,
+    conversationsGroup?.data.result.page,
+    conversationsGroup?.data.result.total
+  ])
+
   const sendMessage = (content: string) => {
     const conversation = {
       sender_id: profile?._id,
@@ -157,7 +205,7 @@ const Chat = () => {
       updated_at: new Date(),
       _id: new Date().getTime().toString()
     }
-    socket.emit('private message', {
+    socket.emit(socketIOConversations.PRIVATE_MESSAGE, {
       payload: conversation
     })
     setMessage((prevMessage) => [...prevMessage, conversation])
@@ -166,17 +214,36 @@ const Chat = () => {
     inforConversations.unshift(userLastSender[0])
   }
 
+  const sendMessageGroup = (content: string) => {
+    const conversationsGroupMessage = {
+      sender_id: profile?._id,
+      group_id: groupDetail._id,
+      content: content,
+      created_at: new Date(),
+      updated_at: new Date(),
+      _id: new Date().getTime().toString()
+    }
+    socket.emit(socketIOConversations.GROUP_MESSAGE, {
+      payload: conversationsGroupMessage
+    })
+    setConversationGroupMessage((prevMessage) => [...prevMessage, conversationsGroupMessage])
+    const indexGroup = inforConversationsGroup.findIndex((group) => group._id === groupDetail._id)
+    const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
+    inforConversationsGroup.unshift(groupLastSender[0])
+  }
+
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (messagesSendOne.trim() === '') {
       return
     }
-    sendMessage(messagesSendOne)
+    isPrivateConversation ? sendMessage(messagesSendOne) : sendMessageGroup(messagesSendOne)
     setMessagesSendOne('')
   }
 
   const handleSendHeartIcon = () => {
     sendMessage('❤️')
+    sendMessageGroup('❤️')
   }
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
@@ -234,6 +301,34 @@ const Chat = () => {
           }, 0)
         }
       })
+    }
+  }
+
+  const fetchMoreDataConversationsGroup = () => {
+    if (pagination.page < pagination.total_page) {
+      const scrollableDiv = document.getElementById('scrollableDiv')
+      const currentScrollTop = scrollableDiv?.scrollTop || 0
+      const currentScrollHeight = scrollableDiv?.scrollHeight || 0
+      getConversationGroup({ group_id: groupDetail._id, limit: LIMIT_FECTH_MORE, page: pagination.page + 1 }).then(
+        (res) => {
+          if (res) {
+            const newMessages = res.data.result.conversationGroupMessages.reverse()
+
+            setConversationGroupMessage((prev) => [...newMessages, ...prev])
+            setPagination({
+              page: res.data.result.page,
+              total_page: res.data.result.total
+            })
+
+            setTimeout(() => {
+              const newScrollHeight = scrollableDiv?.scrollHeight || 0
+              const heightDifference = newScrollHeight - currentScrollHeight
+              const scrollOffset = 100
+              scrollableDiv!.scrollTop = currentScrollTop + heightDifference - scrollOffset
+            }, 0)
+          }
+        }
+      )
     }
   }
 
@@ -341,60 +436,123 @@ const Chat = () => {
           </div>
         </div>
         <div id='scrollableDiv' className='chat__detail__content'>
-          <div>
-            <InfiniteScroll
-              dataLength={message.length}
-              next={fetchMoreDataConversations}
-              hasMore={pagination.page < pagination.total_page}
-              scrollableTarget='scrollableDiv'
-              loader={<p></p>}
-              inverse={true}
-              scrollThreshold={0.9}
-            >
-              {message.map((message, index) => {
-                return (
-                  <div
-                    className={
-                      message.sender_id === profile?._id
-                        ? 'chat__detail__content__message-sender'
-                        : 'chat__detail__content__message'
-                    }
-                    key={index}
-                  >
-                    <div className='chat__detail__content__message__avatar'>
-                      {message.sender_id === profile?._id ? null : (
-                        <img alt={userDetail.name} src={userDetail.avatar} />
-                      )}
+          {isPrivateConversation ? (
+            <div>
+              <InfiniteScroll
+                dataLength={message.length}
+                next={fetchMoreDataConversations}
+                hasMore={pagination.page < pagination.total_page}
+                scrollableTarget='scrollableDiv'
+                loader={<p></p>}
+                inverse={true}
+                scrollThreshold={0.9}
+              >
+                {message.map((message, index) => {
+                  return (
+                    <div
+                      className={
+                        message.sender_id === profile?._id
+                          ? 'chat__detail__content__message-sender'
+                          : 'chat__detail__content__message'
+                      }
+                      key={index}
+                    >
+                      <div className='chat__detail__content__message__avatar'>
+                        {message.sender_id === profile?._id ? null : (
+                          <img alt={userDetail.name} src={userDetail.avatar} />
+                        )}
+                      </div>
+                      <p
+                        className={message.sender_id === profile?._id ? '' : 'chat__detail__content__message__date'}
+                        style={{ fontSize: '12px', color: '#000' }}
+                      >
+                        {getHourAndMinute(message.created_at as Date)}
+                      </p>
+                      <p
+                        className={
+                          message.sender_id === profile?._id
+                            ? 'chat__detail__content__message__text sender'
+                            : 'chat__detail__content__message__text'
+                        }
+                      >
+                        {message.content}
+                      </p>
+                      <p
+                        className={
+                          message.sender_id === profile?._id
+                            ? 'chat__detail__content__message-sender__react-sender'
+                            : 'chat__detail__content__message__react'
+                        }
+                      >
+                        <FiSmile /> <PiArrowBendUpLeftLight /> <HiOutlineDotsVertical />
+                      </p>
                     </div>
-                    <p
-                      className={message.sender_id === profile?._id ? '' : 'chat__detail__content__message__date'}
-                      style={{ fontSize: '12px', color: '#000' }}
-                    >
-                      {getHourAndMinute(message.created_at as Date)}
-                    </p>
-                    <p
+                  )
+                })}
+              </InfiniteScroll>
+            </div>
+          ) : (
+            <div>
+              <InfiniteScroll
+                dataLength={conversationGroupMessage.length}
+                next={fetchMoreDataConversationsGroup}
+                hasMore={pagination.page < pagination.total_page}
+                scrollableTarget='scrollableDiv'
+                loader={<p></p>}
+                inverse={true}
+                scrollThreshold={0.9}
+              >
+                {conversationGroupMessage.map((message, index) => {
+                  const sender = groupDetail.members.find((member) => member._id === message.sender_id)
+                  return (
+                    <div
+                      key={index}
                       className={
                         message.sender_id === profile?._id
-                          ? 'chat__detail__content__message__text sender'
-                          : 'chat__detail__content__message__text'
+                          ? 'chat__detail__content__message-group-sender'
+                          : 'chat__detail__content__message-group'
                       }
                     >
-                      {message.content}
-                    </p>
-                    <p
-                      className={
-                        message.sender_id === profile?._id
-                          ? 'chat__detail__content__message-sender__react-sender'
-                          : 'chat__detail__content__message__react'
-                      }
-                    >
-                      <FiSmile /> <PiArrowBendUpLeftLight /> <HiOutlineDotsVertical />
-                    </p>
-                  </div>
-                )
-              })}
-            </InfiniteScroll>
-          </div>
+                      {message.sender_id === profile?._id ? null : (
+                        <p style={{ position: 'absolute', fontSize: '12px', top: '-20px', left: '65px' }}>
+                          {sender?.name}
+                        </p>
+                      )}
+                      <div className='chat__detail__content__message-group__avatar'>
+                        {message.sender_id === profile?._id ? null : <img alt={sender?.name} src={sender?.avatar} />}
+                      </div>
+                      <p
+                        className={
+                          message.sender_id === profile?._id ? '' : 'chat__detail__content__message-group__date'
+                        }
+                        style={{ fontSize: '12px', color: '#000' }}
+                      >
+                        {getHourAndMinute(message.created_at as Date)}
+                      </p>
+                      <p
+                        className={
+                          message.sender_id === profile?._id
+                            ? 'chat__detail__content__message-group__text sender'
+                            : 'chat__detail__content__message-group__text'
+                        }
+                      >
+                        {message.content}
+                      </p>
+                      <p
+                        className={
+                          message.sender_id === profile?._id
+                            ? 'chat__detail__content__message-group-sender__react-sender'
+                            : 'chat__detail__content__message-group__react'
+                        }
+                      >
+                        <FiSmile /> <PiArrowBendUpLeftLight /> <HiOutlineDotsVertical />
+                      </p>
+                    </div>
+                  )
+                })}
+              </InfiniteScroll>
+            </div>
+          )}
         </div>
         <div className='chat__detail__input'>
           {images.length > 0 && (

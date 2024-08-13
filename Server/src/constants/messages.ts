@@ -82,7 +82,9 @@ export const userMessages = {
   DELETE_USER_OUT_OF_INSTAGRAMS_CIRCLE_SUCCESS: 'Delete user out of instagrams circle successfully',
   CANT_DELETE_YOURSELF_OUT_OF_INSTAGRAMS_CIRCLE: 'Cant delete yourself out of instagrams circle',
   USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE: 'Users not exist in instagrams circle',
-  GET_INFOR_CONVERSATION_SUCCESS: 'Get infore conversation success'
+  GET_INFOR_CONVERSATION_SUCCESS: 'Get infore conversation success',
+  GROUP_ID_INVALID: 'Group id invalid',
+  GROUP_NOT_FOUND: 'Group not found'
 } as const
 
 export const InstagramsMessgaes = {
@@ -144,5 +146,6 @@ export const ConversationMessages = {
   MEMBERS_MUST_BE_STRING: 'Members must be a string',
   LEAVE_GROUP_CONVERSATION_SUCCESS: 'Leave group conversation success',
   DELETE_GROUP_CONVERSATION_SUCCESS: 'Delete group conversation success',
-  CANT_DELETE_YOURSELF: 'Cant delete yourself'
+  CANT_DELETE_YOURSELF: 'Cant delete yourself',
+  GET_CONVERSATION_GROUP_MESSAGES_SUCCESS: 'Get conversation group messages success'
 } as const

@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import databaseService from '../services/database.services'
-import { ConversationMessages } from '~/constants/messages'
+
 class ConversationsService {
   async getConversation({
     sender_id,
@@ -25,13 +25,15 @@ class ConversationsService {
         }
       ]
     }
-    const conversation = await databaseService.conversations
-      .find(match)
-      .sort({ created_at: -1 })
-      .skip(limit * (page - 1))
-      .limit(limit)
-      .toArray()
-    const total = await databaseService.conversations.countDocuments(match)
+    const [conversation, total] = await Promise.all([
+      databaseService.conversations
+        .find(match)
+        .sort({ created_at: -1 })
+        .skip(limit * (page - 1))
+        .limit(limit)
+        .toArray(),
+      databaseService.conversations.countDocuments(match)
+    ])
     return {
       conversation,
       total
@@ -44,7 +46,8 @@ class ConversationsService {
       admin: new ObjectId(user_id),
       members: members.map((member) => new ObjectId(member)),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
+      last_time_message: new Date()
     }
     const result = await databaseService.conversationGroups.insertOne(conversation)
     await databaseService.users.updateMany(
@@ -101,6 +104,26 @@ class ConversationsService {
       databaseService.conversationGroups.deleteOne({ _id: new ObjectId(group_id) }),
       databaseService.users.updateMany({}, { $pull: { group_conversations: new ObjectId(group_id) } })
     ])
+  }
+
+  async getConversationGroupMessages({ group_id, limit, page }: { group_id: string; limit: number; page: number }) {
+    const math = {
+      group_id: new ObjectId(group_id)
+    }
+
+    const [conversationGroupMessages, total] = await Promise.all([
+      databaseService.conversationGroupMessages
+        .find(math)
+        .sort({ created_at: -1 })
+        .skip(limit * (page - 1))
+        .limit(limit)
+        .toArray(),
+      databaseService.conversationGroupMessages.countDocuments(math)
+    ])
+    return {
+      conversationGroupMessages,
+      total
+    }
   }
 }
 
