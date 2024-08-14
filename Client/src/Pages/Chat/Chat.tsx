@@ -11,7 +11,7 @@ import { AppContext } from 'src/Context/App.context'
 import { getConversation, getConversationGroup } from 'src/Service/Conversations.api'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery } from '@tanstack/react-query'
-import { getHourAndMinute } from 'src/Utils/Other'
+import { getFileInfoFromUrl, getHourAndMinute, getIconFile, isUrl } from 'src/Utils/Other'
 import { PiArrowBendUpLeftLight } from 'react-icons/pi'
 import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { toast } from 'react-toastify'
@@ -25,7 +25,8 @@ import { UserProfileAggregationsType } from 'src/Types/User.type'
 import { RxPencil2 } from 'react-icons/rx'
 import { Avatar, AvatarGroup, Spinner } from '@chakra-ui/react'
 import { socketIOConversations } from 'src/constants/socketIO.config'
-import { uploadImages, uploadVideos } from 'src/Service/Medias.api'
+import { uploadDocuments, uploadImages, uploadVideos } from 'src/Service/Medias.api'
+import { Media } from 'src/Types/Medias.type'
 
 const Chat = () => {
   const LIMIT = 15
@@ -38,6 +39,7 @@ const Chat = () => {
     content: string | undefined
     image_url?: string[]
     video_url?: string[]
+    document_url?: Media[]
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -49,6 +51,7 @@ const Chat = () => {
     content: string | undefined
     image_url?: string[]
     video_url?: string[]
+    document_url?: Media[]
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -56,10 +59,12 @@ const Chat = () => {
   const { profile } = useContext(AppContext)
   const [imageFile, setImageFile] = useState<File[]>([])
   const [videoFile, setVideoFile] = useState<File[]>([])
+  const [documentFile, setDocumentFile] = useState<File[]>([])
   const [messagesSendOne, setMessagesSendOne] = useState('')
   const [IdUser, setIdUser] = useState<string>('')
   const [images, setImages] = useState<string[]>([])
   const [videos, setVideos] = useState<string[]>([])
+  const [documents, setDocuments] = useState<string[]>([])
   const [message, setMessage] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [pagination, setPagination] = useState({ page: PAGE, total_page: 0 })
@@ -83,7 +88,6 @@ const Chat = () => {
       }
     ]
   })
-  console.log(loading)
 
   const handleUpload = () => {
     fileInputRef.current?.click()
@@ -211,10 +215,9 @@ const Chat = () => {
 
     let imageUrls: string[] = []
     let videoUrls: string[] = []
-
+    let documentUrls: Media[] = []
     try {
       if (imageFile.length > 0 && videoFile.length === 0) {
-        console.log('imageFile', imageFile)
         const formData = new FormData()
         imageFile.forEach((file) => {
           formData.append('image', file)
@@ -232,12 +235,22 @@ const Chat = () => {
         videoUrls = response.data.result.map((video: any) => video.url)
       }
 
+      if (documentFile.length > 0 && imageFile.length === 0 && videoFile.length === 0) {
+        const formData = new FormData()
+        documentFile.forEach((file) => {
+          formData.append('document', file)
+        })
+        const response = await uploadDocuments(formData)
+        documentUrls = response.data.result.map((document: any) => document)
+      }
+
       const conversation = {
         sender_id: profile?._id,
         receiver_id: IdUser,
         content: content,
         image_url: imageUrls,
         video_url: videoUrls,
+        document_url: documentUrls,
         created_at: new Date(),
         updated_at: new Date(),
         _id: new Date().getTime().toString()
@@ -252,7 +265,8 @@ const Chat = () => {
       setVideoFile([])
       setImages([])
       setVideos([])
-
+      setDocumentFile([])
+      setDocuments([])
       const indexUser = inforConversations.findIndex((user) => user._id === IdUser)
       const userLastSender = inforConversations.splice(indexUser, 1)
       setInforConversations([userLastSender[0], ...inforConversations])
@@ -267,7 +281,7 @@ const Chat = () => {
 
     let imageUrls: string[] = []
     let videoUrls: string[] = []
-
+    let documentUrls: Media[] = []
     try {
       if (imageFile.length > 0 && videoFile.length === 0) {
         const formData = new FormData()
@@ -287,12 +301,22 @@ const Chat = () => {
         videoUrls = response.data.result.map((video: any) => video.url)
       }
 
+      if (documentFile.length > 0 && imageFile.length === 0 && videoFile.length === 0) {
+        const formData = new FormData()
+        documentFile.forEach((file) => {
+          formData.append('document', file)
+        })
+        const response = await uploadDocuments(formData)
+        documentUrls = response.data.result.map((document: any) => document)
+      }
+
       const conversationsGroupMessage = {
         sender_id: profile?._id,
         group_id: groupDetail._id,
         content: content,
         image_url: imageUrls,
         video_url: videoUrls,
+        document_url: documentUrls,
         created_at: new Date(),
         updated_at: new Date(),
         _id: new Date().getTime().toString()
@@ -307,6 +331,8 @@ const Chat = () => {
       setVideoFile([])
       setImages([])
       setVideos([])
+      setDocumentFile([])
+      setDocuments([])
       const indexGroup = inforConversationsGroup.findIndex((group) => group._id === groupDetail._id)
       const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
       setInforConversationsGroup([groupLastSender[0], ...inforConversationsGroup])
@@ -319,7 +345,7 @@ const Chat = () => {
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (messagesSendOne.trim() === '' && images.length === 0 && videos.length === 0) {
+    if (messagesSendOne.trim() === '' && images.length === 0 && videos.length === 0 && documentFile.length === 0) {
       return
     }
     isPrivateConversation ? sendMessage(messagesSendOne) : sendMessageGroup(messagesSendOne)
@@ -359,7 +385,22 @@ const Chat = () => {
     }
     const isImage = fileFromLocal.type.startsWith('image/')
     const isVideo = fileFromLocal.type.startsWith('video/')
-    if (fileFromLocal.size >= config.maxSizeUploadImage || (!isImage && !isVideo)) {
+    const isExcel =
+      fileFromLocal.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      fileFromLocal.type === 'application/vnd.ms-excel'
+    const isWord =
+      fileFromLocal.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      fileFromLocal.type === 'application/msword'
+    const isPDF = fileFromLocal.type === 'application/pdf'
+    const isPowerPoint =
+      fileFromLocal.type === 'application/vnd.ms-powerpoint' ||
+      fileFromLocal.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    if (
+      fileFromLocal.size >= config.maxSizeUploadImage ||
+      fileFromLocal.size >= config.maxSizeUploadVideo ||
+      fileFromLocal.size >= config.maxSizeUploadDocument ||
+      (!isImage && !isVideo && !isExcel && !isWord && !isPDF && !isPowerPoint)
+    ) {
       toast.error('File không hợp lệ')
     } else {
       const fileURL = URL.createObjectURL(fileFromLocal)
@@ -369,16 +410,20 @@ const Chat = () => {
       } else if (isVideo) {
         setVideos((prevVideos) => [...prevVideos, fileURL])
         setVideoFile((prevVideos) => [...prevVideos, fileFromLocal])
+      } else if (isExcel || isWord || isPDF || isPowerPoint) {
+        setDocumentFile((prevDocument) => [...prevDocument, fileFromLocal])
+        setDocuments((prevDocument) => [...prevDocument, fileURL])
       }
     }
   }
 
-  if (videos.length >= 3 || images.length >= 10) {
-    toast.error('Số lượng file upload không được vượt quá 10 file ảnh và 5 file video')
+  if (videos.length >= 3 || images.length >= 10 || documents.length >= 5) {
+    toast.error('Số lượng file upload không được vượt quá 10 file ảnh, 5 file video và 5 file tài liệu')
   }
-  if (videos.length > 0 && images.length > 0) {
-    toast.error('Chỉ được upload ảnh hoặc video')
+  if (videos.length > 0 && images.length > 0 && documentFile.length > 0) {
+    toast.error('Chỉ được upload 1 loại file')
   }
+
   const fetchMoreDataConversations = () => {
     if (pagination.page < pagination.total_page) {
       const scrollableDiv = document.getElementById('scrollableDiv')
@@ -443,6 +488,11 @@ const Chat = () => {
     setVideoFile((prevVideos) => prevVideos.filter((_, i) => i !== index))
   }
 
+  const removeDocument = (index: number) => {
+    setDocuments((prevDocument) => prevDocument.filter((_, i) => i !== index))
+    setDocumentFile((prevDocument) => prevDocument.filter((_, i) => i !== index))
+  }
+
   const handleClickOutside = (event: MouseEvent) => {
     if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
       setPickerVisible(false)
@@ -490,14 +540,7 @@ const Chat = () => {
                 <div className='chat__users__detail__avatar'>
                   <img alt={user.avatar} src={user.avatar} />
                 </div>
-                <div className='chat__users__detail__name'>
-                  <p>{user.name}</p>
-                  {message[message.length - 1]?.sender_id === profile?._id ? (
-                    <p style={{ fontSize: '12px' }}> Bạn: {message[message.length - 1]?.content}</p>
-                  ) : (
-                    <p>{message[message.length - 1]?.content}</p>
-                  )}
-                </div>
+                <div className='chat__users__detail__name'>{user.name}</div>
               </div>
             )
           })}
@@ -583,7 +626,8 @@ const Chat = () => {
 
                       {message.content ||
                       (message.image_url?.length ?? 0) > 0 ||
-                      (message.video_url?.length ?? 0) > 0 ? (
+                      (message.video_url?.length ?? 0) > 0 ||
+                      (message.document_url?.length ?? 0) > 0 ? (
                         <div
                           className={
                             message.sender_id === profile?._id
@@ -591,17 +635,31 @@ const Chat = () => {
                               : 'chat__detail__content__message__receiver'
                           }
                         >
-                          {message.content && (
-                            <p
-                              className={
-                                isSender
-                                  ? 'chat__detail__content__message__text sender'
-                                  : 'chat__detail__content__message__text'
-                              }
-                            >
-                              {message.content}
-                            </p>
-                          )}
+                          {message.content &&
+                            (isUrl(message.content) ? (
+                              <a
+                                href={message.content}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className={
+                                  isSender
+                                    ? 'chat__detail__content__message__text sender'
+                                    : 'chat__detail__content__message__text'
+                                }
+                              >
+                                {message.content}
+                              </a>
+                            ) : (
+                              <p
+                                className={
+                                  isSender
+                                    ? 'chat__detail__content__message__text sender'
+                                    : 'chat__detail__content__message__text'
+                                }
+                              >
+                                {message.content}
+                              </p>
+                            ))}
 
                           {(message.image_url?.length ?? 0) > 0 && (
                             <div className='chat__detail__content__message__images'>
@@ -618,6 +676,7 @@ const Chat = () => {
                               {message?.video_url?.map((video, index) => (
                                 <div className='chat__detail__content__message__video__item' key={index}>
                                   <video controls>
+                                    <track src='captions.vtt' kind='captions' label='English' default />
                                     <source src={video} type='video/mp4' />
                                     Your browser does not support the video tag.
                                   </video>
@@ -625,8 +684,39 @@ const Chat = () => {
                               ))}
                             </div>
                           )}
+
+                          {(message.document_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message__documents'>
+                              {message?.document_url?.map((doc, index) => {
+                                const fileExtension = getFileInfoFromUrl(doc.url)
+                                const IconComponent = getIconFile(fileExtension)
+                                return (
+                                  <div
+                                    style={{ width: 'fit-content' }}
+                                    className='chat__detail__content__message__documents__item'
+                                    key={index}
+                                  >
+                                    <a
+                                      className={
+                                        message.sender_id === profile?._id
+                                          ? 'chat__detail__content__message__documents__item__sender'
+                                          : 'chat__detail__content__message__documents__item__receiver'
+                                      }
+                                      href={doc.url}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                    >
+                                      {doc.name}
+                                      <IconComponent style={{ minWidth: '50px ', minHeight: '50px' }} />
+                                    </a>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
                       ) : null}
+
                       <p
                         className={
                           isSender
@@ -681,7 +771,8 @@ const Chat = () => {
                       </p>
                       {(message.content ||
                         (message.image_url?.length ?? 0) > 0 ||
-                        (message.video_url?.length ?? 0) > 0) && (
+                        (message.video_url?.length ?? 0) > 0 ||
+                        (message.document_url?.length ?? 0) > 0) && (
                         <div
                           className={
                             message.sender_id === profile?._id
@@ -700,7 +791,6 @@ const Chat = () => {
                               {message.content}
                             </p>
                           )}
-
                           {(message.image_url?.length ?? 0) > 0 && (
                             <div className='chat__detail__content__message-group__images'>
                               {message?.image_url?.map((image, index) => (
@@ -710,12 +800,12 @@ const Chat = () => {
                               ))}
                             </div>
                           )}
-
                           {(message.video_url?.length ?? 0) > 0 && (
                             <div className='chat__detail__content__message-group__video'>
                               {message?.video_url?.map((video, index) => (
                                 <div className='chat__detail__content__message-group__video__item' key={index}>
                                   <video controls>
+                                    <track src='captions.vtt' kind='captions' label='English' default />
                                     <source src={video} type='video/mp4' />
                                     Your browser does not support the video tag.
                                   </video>
@@ -723,9 +813,33 @@ const Chat = () => {
                               ))}
                             </div>
                           )}
+                          {(message.document_url?.length ?? 0) > 0 && (
+                            <div className='chat__detail__content__message-group__documents'>
+                              {message?.document_url?.map((doc, index) => {
+                                const fileExtension = getFileInfoFromUrl(doc.url)
+                                const IconComponent = getIconFile(fileExtension)
+                                return (
+                                  <div className='chat__detail__content__message-group__documents__item' key={index}>
+                                    <a
+                                      className={
+                                        message.sender_id === profile?._id
+                                          ? 'chat__detail__content__message-group__documents__item__sender'
+                                          : 'chat__detail__content__message-group__documents__item__receiver'
+                                      }
+                                      href={doc.url}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                    >
+                                      {doc.name}
+                                      <IconComponent style={{ minWidth: '50px', minHeight: '50px' }} />
+                                    </a>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
                       )}
-
                       <p
                         className={
                           message.sender_id === profile?._id
@@ -853,7 +967,69 @@ const Chat = () => {
                         size='xl'
                       />
                     ) : null}
-                    <video src={video} style={{ maxWidth: '150px', maxHeight: '150px' }} controls />
+                    <video src={video} style={{ maxWidth: '150px', maxHeight: '150px' }} controls>
+                      Your browser does not support the video tag.
+                      <track src='captions.vtt' kind='captions' label='English' default />
+                    </video>
+                  </div>
+                ))}
+            </div>
+          )}
+          {documents.length > 0 && (
+            <div className='chat__detail__input__documents'>
+              {documents.length > 0 &&
+                documents.map((doc, index) => (
+                  <div
+                    key={index}
+                    className='chat__detail__input__document'
+                    style={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      margin: '10px',
+                      border: '1px solid black',
+                      borderRadius: '15px',
+                      overflow: 'hidden',
+                      width: 'auto',
+                      height: 'auto'
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '0px',
+                        right: '0px',
+                        cursor: 'pointer',
+                        backgroundColor: '#ddd',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 99
+                      }}
+                      onClick={() => removeDocument(index)}
+                      className='chat__detail__input__document__icon'
+                    >
+                      <FaXmark size={15} />
+                    </div>
+                    {loading ? (
+                      <Spinner
+                        style={{
+                          position: 'absolute',
+                          left: '35%',
+                          top: '25%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 99
+                        }}
+                        thickness='4px'
+                        speed='0.65s'
+                        emptyColor='gray.200'
+                        color='blue.500'
+                        size='xl'
+                      />
+                    ) : null}
+                    <iframe title={doc} src={doc}></iframe>
                   </div>
                 ))}
             </div>

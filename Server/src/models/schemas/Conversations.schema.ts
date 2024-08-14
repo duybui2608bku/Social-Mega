@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+import { Media } from '../other'
 
 interface ConversationType {
   _id?: ObjectId
@@ -7,6 +8,7 @@ interface ConversationType {
   content?: string
   image_url?: string[]
   video_url?: string[]
+  document_url?: Media[]
   created_at?: Date
   updated_at?: Date
 }
@@ -18,6 +20,7 @@ export class Conversation {
   content?: string
   image_url?: string[]
   video_url?: string[]
+  document_url?: Media[]
   created_at: Date
   updated_at: Date
   constructor({
@@ -27,6 +30,7 @@ export class Conversation {
     content,
     image_url,
     video_url,
+    document_url,
     created_at,
     updated_at
   }: ConversationType) {
@@ -36,6 +40,7 @@ export class Conversation {
     this.content = content || ''
     this.image_url = image_url || []
     this.video_url = video_url || []
+    this.document_url = document_url || []
     this.created_at = created_at || new Date()
     this.updated_at = updated_at || new Date()
   }

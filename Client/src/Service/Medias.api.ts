@@ -1,4 +1,4 @@
-import { ImageResponseType } from 'src/Types/Medias.type'
+import { DocumentResponseType, ImageResponseType, VideoResponseType } from 'src/Types/Medias.type'
 import axiosInstance from 'src/Utils/Axios'
 
 export const uploadImages = (body: FormData) => {
@@ -10,7 +10,15 @@ export const uploadImages = (body: FormData) => {
 }
 
 export const uploadVideos = (body: FormData) => {
-  return axiosInstance.post<ImageResponseType>('/upload/video', body, {
+  return axiosInstance.post<VideoResponseType>('/upload/video', body, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+export const uploadDocuments = (body: FormData) => {
+  return axiosInstance.post<DocumentResponseType>('/upload/document', body, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }

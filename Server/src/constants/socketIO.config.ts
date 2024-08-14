@@ -1,3 +1,5 @@
+import { Media } from '~/models/other'
+
 export const socketIOConversations = {
   PRIVATE_MESSAGE: 'private message',
   RECEIVE_PRIVATE_MESSAGE: 'receive private message',
@@ -16,8 +18,9 @@ interface MessagePrivatePayload {
   sender_id: string
   receiver_id: string
   content: string
-  image_url: string[]
+  image_url: []
   video_url: string[]
+  document_url: Media[]
   created_at: string
   updated_at: string
   _id: string
@@ -29,6 +32,7 @@ interface MessageGroupPayload {
   content: string
   image_url: string[]
   video_url: string[]
+  document_url: Media[]
   created_at: string
   updated_at: string
   _id: string

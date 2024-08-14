@@ -1,7 +1,13 @@
 import { Request } from 'express'
-import { getNameFromFullName, handleUploadImage, handleUploadVideo, handleUploadVideoHLS } from '../src/utils/file'
+import {
+  getNameFromFullName,
+  handleUploadDocument,
+  handleUploadImage,
+  handleUploadVideo,
+  handleUploadVideoHLS
+} from '../src/utils/file'
 import sharp from 'sharp'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import { UPLOAD_DOCUMENT_DIR, UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import path from 'path'
 import fs from 'fs'
 import { isProduction } from '~/constants/config'
@@ -31,8 +37,34 @@ class MediasService {
         })
         fs.unlinkSync(newPath)
         return {
+          name: file.originalFilename as string,
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
           type: MediaType.Image
+        }
+      })
+    )
+    return results
+  }
+
+  async UploadDocument(req: Request) {
+    const file = await handleUploadDocument(req)
+    const results: Media[] = await Promise.all(
+      file.map(async (file) => {
+        const ext = path.extname(file.newFilename).toLowerCase()
+        const newName = getNameFromFullName(file.newFilename)
+        const newFullFileName = `${newName}${ext}`
+        const newPath = path.resolve(UPLOAD_DOCUMENT_DIR, newFullFileName)
+        const contentType = getContentTypeByExtension(ext)
+        const s3Result = await uploadFileToS3({
+          filename: newFullFileName,
+          filepath: newPath,
+          contenType: contentType
+        })
+        fs.unlinkSync(newPath)
+        return {
+          name: file.originalFilename as string,
+          url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
+          type: MediaType.File
         }
       })
     )
@@ -56,6 +88,7 @@ class MediasService {
         })
         fs.unlinkSync(newPath)
         return {
+          name: file.originalFilename as string,
           url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
           type: contentType.startsWith('video/') ? MediaType.Video : MediaType.File
         }

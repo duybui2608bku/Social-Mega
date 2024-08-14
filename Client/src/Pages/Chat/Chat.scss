@@ -1,4 +1,5 @@
-@use '../../Scss//breakPoint.scss' as *;
+@use '../../Scss/breakPoint.scss' as *;
+@use '../../Scss/variable.scss' as *;
 .chat {
   margin-left: 65px;
   display: flex;
@@ -177,7 +178,7 @@
           overflow: hidden;
         }
         &__text {
-          background-color: #ddd;
+          background-color: $color-message-receiver;
           padding: 5px 20px;
           border-radius: 20px;
           display: flex;
@@ -223,12 +224,46 @@
           display: flex;
           flex-direction: column;
           align-items: end;
+          gap: 10px;
+          .chat__detail__content__message__documents__item {
+            background-color: $color-message-sender;
+            padding: 5px 20px;
+            border-radius: 20px;
+            color: white;
+            max-width: 400px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-all;
+            a {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+          }
         }
         &__receiver {
           display: flex;
           flex-direction: column;
           width: fit-content;
           align-items: start;
+          .chat__detail__content__message__documents__item__receiver {
+            background-color: $color-message-receiver;
+            padding: 5px 20px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 400px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-all;
+          }
+        }
+        &__documents {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          align-items: end;
         }
       }
 
@@ -259,7 +294,7 @@
           overflow: hidden;
         }
         &__text {
-          background-color: #ddd;
+          background-color: $color-message-receiver;
           padding: 5px 20px;
           border-radius: 20px;
           max-width: 400px;
@@ -271,7 +306,7 @@
           @include mobile {
             margin-left: 20px;
           }
-          background-color: royalblue;
+          background-color: $color-message-sender;
           padding: 5px 20px;
           border-radius: 20px;
           color: white;
@@ -325,7 +360,7 @@
           overflow: hidden;
         }
         &__text {
-          background-color: #ddd;
+          background-color: $color-message-receiver;
           padding: 5px 20px;
           border-radius: 20px;
           display: flex;
@@ -389,6 +424,19 @@
         }
       }
 
+      .chat__detail__content__message-group__documents__item__receiver {
+        background-color: $color-message-receiver;
+        padding: 5px 20px;
+        border-radius: 20px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        max-width: 400px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+
       &__message-group-sender {
         display: flex;
         align-items: center;
@@ -397,6 +445,21 @@
         justify-content: flex-end;
         .chat__detail__content__message-group__avatar {
           display: none;
+        }
+        .chat__detail__content__message-group__documents__item {
+          background-color: $color-message-sender;
+          padding: 5px 20px;
+          border-radius: 20px;
+          color: white;
+          max-width: 400px;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          word-break: break-all;
+          a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
         }
         &__react-sender {
           order: -5;
@@ -413,7 +476,7 @@
           overflow: hidden;
         }
         &__text {
-          background-color: #ddd;
+          background-color: $color-message-receiver;
           padding: 5px 20px;
           border-radius: 20px;
           max-width: 400px;
@@ -425,7 +488,7 @@
           @include mobile {
             margin-left: 20px;
           }
-          background-color: royalblue;
+          background-color: $color-message-sender;
           padding: 5px 20px;
           border-radius: 20px;
           color: white;

@@ -460,8 +460,30 @@ class UsersService {
         {
           $lookup: {
             from: 'conversations',
-            localField: '_id',
-            foreignField: 'sender_id',
+            let: { userId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $or: [{ $eq: ['$sender_id', '$$userId'] }, { $eq: ['$receiver_id', '$$userId'] }]
+                  }
+                }
+              },
+              {
+                $sort: { created_at: -1 }
+              },
+              {
+                $addFields: {
+                  pair: {
+                    $cond: [
+                      { $lt: ['$sender_id', '$receiver_id'] },
+                      { $concat: [{ $toString: '$sender_id' }, '_', { $toString: '$receiver_id' }] },
+                      { $concat: [{ $toString: '$receiver_id' }, '_', { $toString: '$sender_id' }] }
+                    ]
+                  }
+                }
+              }
+            ],
             as: 'private_conversations'
           }
         },
@@ -469,63 +491,16 @@ class UsersService {
           $unwind: '$private_conversations'
         },
         {
-          $sort: {
-            'private_conversations.created_at': -1
-          }
-        },
-        {
-          $addFields: {
-            'private_conversations.pair': {
-              $cond: [
-                {
-                  $lt: ['$private_conversations.sender_id', '$private_conversations.receiver_id']
-                },
-                {
-                  $concat: [
-                    {
-                      $toString: '$private_conversations.sender_id'
-                    },
-                    '_',
-                    {
-                      $toString: '$private_conversations.receiver_id'
-                    }
-                  ]
-                },
-                {
-                  $concat: [
-                    {
-                      $toString: '$private_conversations.receiver_id'
-                    },
-                    '_',
-                    {
-                      $toString: '$private_conversations.sender_id'
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        },
-        {
           $group: {
             _id: '$private_conversations.pair',
-            private_conversation: {
-              $first: '$private_conversations'
-            },
-            doc: {
-              $first: '$$ROOT'
-            }
+            private_conversation: { $first: '$private_conversations' },
+            doc: { $first: '$$ROOT' }
           }
         },
         {
           $replaceRoot: {
             newRoot: {
-              $mergeObjects: [
-                '$doc',
-                {
-                  private_conversations: '$private_conversation'
-                }
-              ]
+              $mergeObjects: ['$doc', { private_conversations: '$private_conversation' }]
             }
           }
         },
@@ -534,19 +509,29 @@ class UsersService {
             from: 'users',
             localField: 'private_conversations.receiver_id',
             foreignField: '_id',
-            as: 'private_conversations'
+            as: 'receiver_info'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'private_conversations.sender_id',
+            foreignField: '_id',
+            as: 'sender_info'
           }
         },
         {
           $addFields: {
             private_conversations: {
               $map: {
-                input: '$private_conversations',
-                as: 'private_conversation',
+                input: {
+                  $concatArrays: ['$receiver_info', '$sender_info']
+                },
+                as: 'user',
                 in: {
-                  _id: '$$private_conversation._id',
-                  name: '$$private_conversation.name',
-                  avatar: '$$private_conversation.avatar'
+                  _id: '$$user._id',
+                  name: '$$user.name',
+                  avatar: '$$user.avatar'
                 }
               }
             }
@@ -555,15 +540,9 @@ class UsersService {
         {
           $group: {
             _id: '$_id',
-            name: {
-              $first: '$name'
-            },
-            email: {
-              $first: '$email'
-            },
-            private_conversations: {
-              $push: '$private_conversations'
-            }
+            name: { $first: '$name' },
+            email: { $first: '$email' },
+            private_conversations: { $push: '$private_conversations' }
           }
         },
         {
@@ -577,6 +556,17 @@ class UsersService {
                 }
               }
             }
+          }
+        },
+        {
+          $unwind: '$private_conversations'
+        },
+        {
+          $group: {
+            _id: '$_id',
+            name: { $first: '$name' },
+            email: { $first: '$email' },
+            private_conversations: { $addToSet: '$private_conversations' } // Loại bỏ trùng lặp
           }
         }
       ])

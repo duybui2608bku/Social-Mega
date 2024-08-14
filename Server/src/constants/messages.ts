@@ -84,7 +84,8 @@ export const userMessages = {
   USERS_NOT_EXIST_IN_INSTAGRAMS_CIRCLE: 'Users not exist in instagrams circle',
   GET_INFOR_CONVERSATION_SUCCESS: 'Get infore conversation success',
   GROUP_ID_INVALID: 'Group id invalid',
-  GROUP_NOT_FOUND: 'Group not found'
+  GROUP_NOT_FOUND: 'Group not found',
+  UPLOAD_DOCUMENT_SUCCESS: 'Upload document successfully'
 } as const
 
 export const InstagramsMessgaes = {

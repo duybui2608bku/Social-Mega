@@ -63,6 +63,15 @@ export const uploadleVideoController = async (req: Request, res: Response, next:
   })
 }
 
+export const uploadleDocumentController = async (req: Request, res: Response, next: NextFunction) => {
+  const result = await mediasService.UploadDocument(req)
+  return res.status(HttpStatusCode.Ok).json({
+    success: true,
+    message: userMessages.UPLOAD_DOCUMENT_SUCCESS,
+    result
+  })
+}
+
 export const uploadleVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
   const result = await mediasService.UploadVideoHLS(req)
   return res.status(HttpStatusCode.Ok).json({

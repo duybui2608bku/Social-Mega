@@ -73,7 +73,8 @@ const setupSocket = (httpServer: any) => {
         receiver_id: new ObjectId(payload.receiver_id as string),
         content: payload.content,
         image_url: payload.image_url,
-        video_url: payload.video_url
+        video_url: payload.video_url,
+        document_url: payload.document_url
       })
       const result = await databaseService.conversations.insertOne(conversation)
       conversation._id = result.insertedId
@@ -91,7 +92,8 @@ const setupSocket = (httpServer: any) => {
         sender_id: new ObjectId(payload.sender_id as string),
         content: payload.content,
         image_url: payload.image_url,
-        video_url: payload.video_url
+        video_url: payload.video_url,
+        document_url: payload.document_url
       })
 
       const [groupConversations] = await Promise.all([
