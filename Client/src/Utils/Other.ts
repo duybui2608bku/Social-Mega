@@ -50,3 +50,15 @@ export const getIconFile = (fileExtension: string): IconType => {
       return FaRegFileArchive
   }
 }
+
+export const requestNotificationPermission = () => {
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission()
+  }
+}
+
+export const showNotification = (title: string, options: any) => {
+  if (Notification.permission === 'granted') {
+    new Notification(title, options)
+  }
+}

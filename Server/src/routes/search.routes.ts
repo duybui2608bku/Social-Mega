@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { searchController, searchHashtagsController, searchUsersController } from '~/controllers/search.controllers'
 import { paginatonValidator } from '~/middlewares/instagrams.middlewares'
-import { searchValidator } from '~/middlewares/search.middlewares'
+import { searchUsersValidator, searchValidator } from '~/middlewares/search.middlewares'
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -36,7 +36,6 @@ searchRouters.get(
   '/hashtags',
   accessTokenValidator,
   verifiedUserValidator,
-  searchValidator,
   paginatonValidator,
   wrapRequestHandler(searchHashtagsController)
 )
@@ -48,6 +47,12 @@ searchRouters.get(
  * Query: {user: string}
  */
 
-searchRouters.get('/users', wrapRequestHandler(searchUsersController))
+searchRouters.get(
+  '/users',
+  accessTokenValidator,
+  verifiedUserValidator,
+  searchUsersValidator,
+  wrapRequestHandler(searchUsersController)
+)
 
 export default searchRouters

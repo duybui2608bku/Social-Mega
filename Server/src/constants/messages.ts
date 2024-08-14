@@ -124,7 +124,9 @@ export const BookmarkMessgaes = {
 
 export const SearchMessgaes = {
   CONTENT_MUST_BE_STRING: 'Content must be a string',
-  PEOPLE_FOLLOW_MUST_BE_0_OR_1: 'People follow must be 0 or 1'
+  PEOPLE_FOLLOW_MUST_BE_0_OR_1: 'People follow must be 0 or 1',
+  USER_MUST_BE_STRING: 'User must be a string',
+  USER_MUST_NOT_BE_EMPTY_STRING: 'User must not be empty string'
 } as const
 
 export const ConversationMessages = {

@@ -21,3 +21,26 @@ export const searchValidator = validate(
     ['query']
   )
 )
+
+export const searchUsersValidator = validate(
+  checkSchema(
+    {
+      user: {
+        isString: {
+          errorMessage: SearchMessgaes.USER_MUST_BE_STRING
+        },
+        custom: {
+          options: (value) => {
+            if (value === '') {
+              throw new Error(SearchMessgaes.USER_MUST_NOT_BE_EMPTY_STRING)
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)
+
+export const searchHashtagsValidator = validate()

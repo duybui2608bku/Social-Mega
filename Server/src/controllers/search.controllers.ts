@@ -60,7 +60,6 @@ export const searchUsersController = async (
   res: Response
 ) => {
   const result = await searchServices.searchUsers(req.query.name)
-
   return res.status(HttpStatusCode.Ok).json({
     success: true,
     message: InstagramsMessgaes.SEARCH_SUCCESS,

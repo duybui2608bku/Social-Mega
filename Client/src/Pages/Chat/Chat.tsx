@@ -11,7 +11,14 @@ import { AppContext } from 'src/Context/App.context'
 import { getConversation, getConversationGroup } from 'src/Service/Conversations.api'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useQuery } from '@tanstack/react-query'
-import { getFileInfoFromUrl, getHourAndMinute, getIconFile, isUrl } from 'src/Utils/Other'
+import {
+  getFileInfoFromUrl,
+  getHourAndMinute,
+  getIconFile,
+  isUrl,
+  requestNotificationPermission,
+  showNotification
+} from 'src/Utils/Other'
 import { PiArrowBendUpLeftLight } from 'react-icons/pi'
 import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { toast } from 'react-toastify'
@@ -101,12 +108,29 @@ const Chat = () => {
         socket.connect()
         socket.on(socketIOConversations.RECEIVE_PRIVATE_MESSAGE, (data) => {
           const { payload } = data
-          setMessage((conversation) => [...conversation, payload])
+          const indexUser = inforConversations.findIndex((user) => user._id === payload.sender_id)
+          const userLastSender = inforConversations.splice(indexUser, 1)
+          setInforConversations([userLastSender[0], ...inforConversations])
+          requestNotificationPermission()
+          showNotification('Tin nhắn mới', {
+            body: payload.content,
+            icon: 'https://megakorea.vn/wp-content/uploads/2023/11/cropped-LOGO-MEGA-1.png'
+          })
         })
 
         socket.on(socketIOConversations.RECEIVE_GROUP_MESSAGE, (data) => {
           const { payload } = data
-          setConversationGroupMessage((conversation) => [...conversation, payload])
+          const indexGroup = inforConversationsGroup.findIndex((group) => group._id === payload.group_id)
+          const groupLastSender = inforConversationsGroup.splice(indexGroup, 1)
+          setInforConversationsGroup([groupLastSender[0], ...inforConversationsGroup])
+          requestNotificationPermission()
+          showNotification('Tin nhắn mới', {
+            body: payload.content,
+            icon: 'https://megakorea.vn/wp-content/uploads/2023/11/cropped-LOGO-MEGA-1.png'
+          })
+          if (payload.group_id === groupDetail._id) {
+            setConversationGroupMessage((conversation) => [...conversation, payload])
+          }
         })
 
         socket.on(socketIOConversations.CONNECT_ERROR, (error) => {
@@ -118,7 +142,7 @@ const Chat = () => {
         socket.disconnect()
       }
     }
-  }, [profile?._id])
+  }, [IdUser, groupDetail._id, inforConversations, inforConversationsGroup, profile?._id])
 
   const { data: conversations, refetch: refechConversations } = useQuery({
     queryKey: ['conversation'],
